@@ -1,9 +1,12 @@
 {
-    "name": "laravel/laravel",
+    "name": "magmaticlabs/obsidian",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "WordPress package repository.",
     "keywords": [
-        "framework",
+        "wordpress",
+        "packages",
+        "package-manager",
+        "obsidian",
         "laravel"
     ],
     "license": "MIT",

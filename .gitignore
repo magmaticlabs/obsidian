@@ -1,11 +1,25 @@
+# Ignore hidden files and temporary files
+.*
+*~
+
+# Include Docker
+!.docker/
+
+# Laravel Files
 /node_modules
 /public/hot
 /public/storage
 /storage/*.key
 /vendor
-.env
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
+
+# npm/yarn log files
 npm-debug.log
 yarn-error.log
+
+# Exceptions we want to track
+!.gitattributes
+!.gitignore
+!.env.example
+!.php_cs
+!.gitkeep
+!*/.gitignore
