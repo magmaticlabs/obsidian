@@ -1,0 +1,50 @@
+#!/bin/bash
+
+GID=$(id -g)
+export USER && export UID && export GID
+
+usage() {
+  echo "Usage: $0 {build|shell|root|up|down|logs}"
+}
+
+build() {
+  docker-compose -p obsidian build
+}
+
+shell() {
+  up
+  docker-compose -p obsidian exec -u $USER php bash
+}
+
+root() {
+  up
+  docker-compose -p obsidian exec php bash
+}
+
+up() {
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+  if [ ! -f ${DIR}/nginx/server.crt ]; then
+    echo -n "Generating SSL cert... "
+    ${DIR}/gencrt.sh > /dev/null
+    echo "Done!"
+  fi
+  docker-compose -p obsidian up -d
+}
+
+down() {
+  docker-compose -p obsidian stop
+}
+
+logs() {
+  docker-compose -p obsidian logs -f
+}
+
+case $1 in
+  build) build;;
+  shell) shell;;
+  root) root;;
+  up) up;;
+  down) down;;
+  logs) logs;;
+  *) usage;;
+esac
