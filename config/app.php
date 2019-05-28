@@ -169,11 +169,11 @@ return [
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
+        MagmaticLabs\Obsidian\Providers\AppServiceProvider::class,
+        MagmaticLabs\Obsidian\Providers\AuthServiceProvider::class,
+        // MagmaticLabs\Obsidian\Providers\BroadcastServiceProvider::class,
+        MagmaticLabs\Obsidian\Providers\EventServiceProvider::class,
+        MagmaticLabs\Obsidian\Providers\RouteServiceProvider::class,
 
     ],
 
