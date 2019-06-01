@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,3 +16,9 @@ use Illuminate\Http\Request;
 
 // Top level API routes
 Route::name('root')->get('/', 'RootController@index');
+Route::name('login')->post('/login', 'RootController@login');
+
+// Authenticated API routes
+Route::middleware(['auth:api'])->group(function() {
+    Route::name('session')->get('/session', 'RootController@session');
+});

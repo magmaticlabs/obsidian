@@ -42,7 +42,7 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'users',
             'hash' => false,
         ],
@@ -68,7 +68,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => MagmaticLabs\Obsidian\User::class,
+            'model' => MagmaticLabs\Obsidian\Domain\Eloquent\User::class,
         ],
 
         // 'users' => [

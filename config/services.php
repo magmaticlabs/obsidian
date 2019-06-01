@@ -35,7 +35,7 @@ return [
     ],
 
     'stripe' => [
-        'model' => MagmaticLabs\Obsidian\User::class,
+        'model' => MagmaticLabs\Obsidian\Domain\Eloquent\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
         'webhook' => [
