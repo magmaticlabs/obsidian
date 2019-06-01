@@ -4,7 +4,7 @@ GID=$(id -g)
 export USER && export UID && export GID
 
 usage() {
-  echo "Usage: $0 {build|shell|root|up|down|logs}"
+  echo "Usage: $0 {build|shell|root|up|down|clean|logs}"
 }
 
 build() {
@@ -35,6 +35,11 @@ down() {
   docker-compose -p obsidian stop
 }
 
+clean() {
+  down
+  docker-compose -p obsidian down -v
+}
+
 logs() {
   docker-compose -p obsidian logs -f
 }
@@ -45,6 +50,7 @@ case $1 in
   root) root;;
   up) up;;
   down) down;;
+  clean) clean;;
   logs) logs;;
   *) usage;;
 esac

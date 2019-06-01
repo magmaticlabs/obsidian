@@ -21,6 +21,7 @@ environment, and control the containers.
  - `./obsidian build` - Build the obsidian docker image
  - `./obsidian up`    - Bring all the containers up
  - `./obsidian down`  - Bring all the containers down
+ - `./obsidian clean`  - Bring all the containers down and clean up
  - `./obsidian shell` - Get a shell inside the obsidian container
  - `./obsidian root`  - Get a root shell inside the obsidian container
  - `./obsidian logs`  - View output from the nginx and mariadb containers
@@ -28,8 +29,3 @@ environment, and control the containers.
 The first time you run the `./obsidian up` command, it will generate an SSL 
 cert for the nginx container. You can add the rootCA.pem cert to your 
 browser's trust store to remove the untrusted cert warning.  
-
-When you run the `./obsidian down` command, it will take all the containers 
-offline, including the database storage volume, which will wipe the database. 
-Be sure you don't need any of the data in the database before you bring the 
-containers down. 
