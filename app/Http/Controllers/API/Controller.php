@@ -11,9 +11,9 @@ use Illuminate\Routing\Controller as BaseController;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
-use League\Fractal\Serializer\JsonApiSerializer;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
+use MagmaticLabs\Obsidian\Domain\Support\JsonApiSerializer;
 use MagmaticLabs\Obsidian\Domain\Support\Paginator;
 use MagmaticLabs\Obsidian\Domain\Transformers\Transformer;
 
@@ -34,7 +34,7 @@ abstract class Controller extends BaseController
     public function __construct()
     {
         $this->fractal = new Manager();
-        $this->fractal->setSerializer(new JsonApiSerializer());
+        $this->fractal->setSerializer(new JsonApiSerializer(url()->to('/api/')));
     }
 
     /**
