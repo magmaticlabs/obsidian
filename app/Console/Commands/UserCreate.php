@@ -34,7 +34,7 @@ class UserCreate extends Command
         $email = trim($this->argument('email'));
 
         // Check if the user already exists
-        if (User::getquery()->where('username', $username)->count() > 0) {
+        if (User::query()->where('username', $username)->count() > 0) {
             $this->output->error('The specified user already exists!');
 
             return 1;
@@ -45,7 +45,7 @@ class UserCreate extends Command
             'username'      => $username,
             'email'         => $email,
             'password'      => Hash::make(Str::random(32)), // Random password
-            'administrator' => $this->hasOption('administrator'),
+            'administrator' => !empty($this->option('administrator')),
         ]);
 
         return 0;
