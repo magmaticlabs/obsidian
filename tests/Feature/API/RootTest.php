@@ -27,6 +27,8 @@ class RootTest extends TestCase
                 '_self' => route('api.root'),
             ],
         ]);
+
+        $this->validateJSONAPI($response->getContent());
     }
 
     public function testLoginLink()

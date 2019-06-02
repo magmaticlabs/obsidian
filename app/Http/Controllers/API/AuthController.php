@@ -27,8 +27,8 @@ final class AuthController extends Controller
         $loggedin = auth()->check();
 
         return new Response([
-            'meta'  => new \stdClass(),
-            'data'  => [
+            'data'  => null,
+            'meta'  => [
                 'authenticated' => $loggedin,
                 'username'      => $loggedin ? $this->getUser()->username : null,
             ],
@@ -64,8 +64,11 @@ final class AuthController extends Controller
         }
 
         $response = new Response([
-            'meta'  => new \stdClass(),
-            'data'  => 'ok',
+            'data'  => null,
+            'meta'  => [
+                'authenticated' => true,
+                'username'      => $user->username,
+            ],
             'links' => [
                 'root'  => route('api.root'),
                 '_self' => route('api.login'),
