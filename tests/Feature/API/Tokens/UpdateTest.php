@@ -4,11 +4,25 @@ namespace Tests\Feature\API\Tokens;
 
 use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
+use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
 class UpdateTest extends TestCase
 {
+    /**
+     * @var User
+     */
+    private $user;
+
+    /**
+     * @var \Laravel\Passport\Token
+     */
+    private $token;
+
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -16,15 +30,18 @@ class UpdateTest extends TestCase
         (new ClientRepository())->createPersonalAccessClient(
             null, '__TESTING__', 'http://localhost'
         );
+
+        Passport::actingAs($this->user = factory(User::class)->create());
+
+        $this->token = $this->user->createToken('_test_')->token;
     }
+
+    // --
 
     public function testUpdate()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
+        /** @var PassportToken $token */
+        $token = PassportToken::find($this->token->id);
 
         $response = $this->patch(route('api.tokens.update', $token->id), [
             'data' => [
@@ -39,7 +56,10 @@ class UpdateTest extends TestCase
         $response->assertStatus(200);
         $this->validateJSONAPI($response->getContent());
 
-        $attributes = array_diff($token->getHidden(), $token->toArray());
+        $attributes = $token->toArray();
+        foreach (array_merge($token->getHidden(), ['id']) as $key) {
+            unset($attributes[$key]);
+        }
         $attributes['name'] = '__TEST_UPDATE__';
 
         $response->assertJson([
@@ -53,11 +73,8 @@ class UpdateTest extends TestCase
 
     public function testNoAttributesNoOp()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
+        /** @var PassportToken $token */
+        $token = PassportToken::find($this->token->id);
 
         $response = $this->patch(route('api.tokens.update', $token->id), [
             'data' => [
@@ -69,7 +86,10 @@ class UpdateTest extends TestCase
         $response->assertStatus(200);
         $this->validateJSONAPI($response->getContent());
 
-        $attributes = array_diff($token->getHidden(), $token->toArray());
+        $attributes = $token->toArray();
+        foreach (array_merge($token->getHidden(), ['id']) as $key) {
+            unset($attributes[$key]);
+        }
 
         $response->assertJson([
             'data' => [
@@ -82,15 +102,9 @@ class UpdateTest extends TestCase
 
     public function testMissingTypeFails()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
-
-        $response = $this->patch(route('api.tokens.update', $token->id), [
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
             'data' => [
-                'id' => $token->id,
+                'id' => $this->token->id,
             ],
         ]);
 
@@ -106,16 +120,10 @@ class UpdateTest extends TestCase
 
     public function testWrongTypeFails()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
-
-        $response = $this->patch(route('api.tokens.update', $token->id), [
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
             'data' => [
                 'type' => 'foobar',
-                'id'   => $token->id,
+                'id'   => $this->token->id,
             ],
         ]);
 
@@ -131,13 +139,7 @@ class UpdateTest extends TestCase
 
     public function testMissingIdFails()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
-
-        $response = $this->patch(route('api.tokens.update', $token->id), [
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
             'data' => [
                 'type' => 'tokens',
             ],
@@ -155,13 +157,7 @@ class UpdateTest extends TestCase
 
     public function testWrongIdFails()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
-
-        $response = $this->patch(route('api.tokens.update', $token->id), [
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
             'data' => [
                 'type' => 'tokens',
                 'id'   => 'foobar',
@@ -178,12 +174,74 @@ class UpdateTest extends TestCase
         ]);
     }
 
+    public function testInvalidScopeCausesValidationError()
+    {
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
+            'data' => [
+                'type'       => 'tokens',
+                'id'         => $this->token->id,
+                'attributes' => [
+                    'scopes' => ['__INVALID__'],
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(400);
+        $this->validateJSONAPI($response->getContent());
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/scopes']],
+            ],
+        ]);
+    }
+
+    public function testNonStringNameCausesError()
+    {
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
+            'data' => [
+                'type'       => 'tokens',
+                'id'         => $this->token->id,
+                'attributes' => [
+                    'name'   => [],
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(400);
+        $this->validateJSONAPI($response->getContent());
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/name']],
+            ],
+        ]);
+    }
+
+    public function testNonArrayScopesCausesError()
+    {
+        $response = $this->patch(route('api.tokens.update', $this->token->id), [
+            'data' => [
+                'type'       => 'tokens',
+                'id'         => $this->token->id,
+                'attributes' => [
+                    'scopes' => 'foo',
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(400);
+        $this->validateJSONAPI($response->getContent());
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/scopes']],
+            ],
+        ]);
+    }
+
     public function testNonExist()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->patch(route('api.tokens.update', 'missing'), [
             'data' => [
                 'type' => 'tokens',

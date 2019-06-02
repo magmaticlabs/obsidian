@@ -9,6 +9,19 @@ use Tests\TestCase;
 
 class DeleteTest extends TestCase
 {
+    /**
+     * @var User
+     */
+    private $user;
+
+    /**
+     * @var \Laravel\Passport\Token
+     */
+    private $token;
+
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -16,17 +29,17 @@ class DeleteTest extends TestCase
         (new ClientRepository())->createPersonalAccessClient(
             null, '__TESTING__', 'http://localhost'
         );
+
+        Passport::actingAs($this->user = factory(User::class)->create());
+
+        $this->token = $this->user->createToken('_test_')->token;
     }
+
+    // --
 
     public function testDelete()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
-
-        $response = $this->delete(route('api.tokens.destroy', $token->id));
+        $response = $this->delete(route('api.tokens.destroy', $this->token->id));
 
         $response->assertStatus(204);
         $this->assertEmpty($response->getContent());
@@ -34,25 +47,15 @@ class DeleteTest extends TestCase
 
     public function testDeleteActuallyWorks()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
+        $this->assertEquals(1, $this->user->tokens()->count());
 
-        $token = $user->createToken('_test_')->token;
+        $this->delete(route('api.tokens.destroy', $this->token->id));
 
-        $this->assertEquals(1, $user->tokens()->count());
-
-        $this->delete(route('api.tokens.destroy', $token->id));
-
-        $this->assertEquals(0, $user->tokens()->count());
+        $this->assertEquals(0, $this->user->tokens()->count());
     }
 
     public function testNonExist()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->delete(route('api.tokens.destroy', 'missing'));
 
         $response->assertStatus(404);
@@ -61,10 +64,6 @@ class DeleteTest extends TestCase
 
     public function testOtherOwner404()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         /** @var User $owner */
         $owner = factory(User::class)->create();
         $token = $owner->createToken('_test_')->token;
@@ -73,7 +72,7 @@ class DeleteTest extends TestCase
 
         $response->assertStatus(404);
         $this->validateJSONAPI($response->getContent());
-    }
 
-    // --
+        $this->assertEquals(1, $this->user->tokens()->count());
+    }
 }

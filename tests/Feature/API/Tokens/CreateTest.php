@@ -9,6 +9,9 @@ use Tests\TestCase;
 
 class CreateTest extends TestCase
 {
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -16,14 +19,14 @@ class CreateTest extends TestCase
         (new ClientRepository())->createPersonalAccessClient(
             null, '__TESTING__', 'http://localhost'
         );
+
+        Passport::actingAs(factory(User::class)->create());
     }
+
+    // --
 
     public function testCreate()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'tokens',
@@ -61,10 +64,6 @@ class CreateTest extends TestCase
 
     public function testMissingTypeCausesValidationError()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'attributes' => [
@@ -86,10 +85,6 @@ class CreateTest extends TestCase
 
     public function testWrongTypeCausesValidationError()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'foobar',
@@ -112,10 +107,6 @@ class CreateTest extends TestCase
 
     public function testMissingNameCausesValidationError()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'tokens',
@@ -137,10 +128,6 @@ class CreateTest extends TestCase
 
     public function testMissingScopesDefaultsToEmpty()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'tokens',
@@ -177,10 +164,6 @@ class CreateTest extends TestCase
 
     public function testInvalidScopeCausesValidationError()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'tokens',
@@ -203,10 +186,6 @@ class CreateTest extends TestCase
 
     public function testNonStringNameCausesError()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'tokens',
@@ -229,10 +208,6 @@ class CreateTest extends TestCase
 
     public function testNonArrayScopesCausesError()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
         $response = $this->post(route('api.tokens.create'), [
             'data' => [
                 'type'       => 'tokens',

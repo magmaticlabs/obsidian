@@ -9,6 +9,19 @@ use Tests\TestCase;
 
 class IndexTest extends TestCase
 {
+    /**
+     * @var User
+     */
+    private $user;
+
+    /**
+     * @var \Laravel\Passport\Token
+     */
+    private $token;
+
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -16,15 +29,17 @@ class IndexTest extends TestCase
         (new ClientRepository())->createPersonalAccessClient(
             null, '__TESTING__', 'http://localhost'
         );
+
+        Passport::actingAs($this->user = factory(User::class)->create());
+
+        $this->token = $this->user->createToken('_test_')->token;
     }
 
     // --
 
     public function testDefaultEmpty()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
+        $this->user->tokens()->delete(); // Clean up setup step
 
         $response = $this->get(route('api.tokens.index'));
 
@@ -37,18 +52,12 @@ class IndexTest extends TestCase
 
     public function testDataMatchesShow()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $token = $user->createToken('_test_')->token;
-
         $response = $this->get(route('api.tokens.index'));
 
         $response->assertStatus(200);
         $this->validateJSONAPI($response->getContent());
 
-        $compare = $this->get(route('api.tokens.show', $token->id));
+        $compare = $this->get(route('api.tokens.show', $this->token->id));
         $compare = json_decode($compare->getContent(), true);
 
         $response->assertJson([
@@ -60,12 +69,6 @@ class IndexTest extends TestCase
 
     public function testCountMatches()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
-
-        $user->createToken('_test_')->token;
-
         $response = $this->get(route('api.tokens.index'));
 
         $response->assertStatus(200);
@@ -76,7 +79,7 @@ class IndexTest extends TestCase
 
         // --
 
-        $user->createToken('_test_')->token;
+        $this->user->createToken('_test_')->token;
 
         $response = $this->get(route('api.tokens.index'));
 
@@ -89,9 +92,7 @@ class IndexTest extends TestCase
 
     public function testOnlyShowsMine()
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        Passport::actingAs($user);
+        $this->user->tokens()->delete(); // Clean up setup step
 
         /** @var User $owner */
         $owner = factory(User::class)->create();
