@@ -26,4 +26,21 @@ final class JsonApiSerializer extends BaseSerializer
 
         return $result;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function item($resourceKey, array $data)
+    {
+        if (isset($data['__relationship__'])) {
+            return [
+                'data' => [
+                    'type'       => $resourceKey,
+                    'id'         => $this->getIdFromData($data),
+                ],
+            ];
+        }
+
+        return parent::item($resourceKey, $data);
+    }
 }

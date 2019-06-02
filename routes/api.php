@@ -8,14 +8,26 @@ use Illuminate\Support\Str;
 if (!function_exists('resource_routes')) {
     function resource_routes(array $routes): void
     {
-        foreach ($routes as $name) {
+        foreach ($routes as $name => $relationships) {
+            if (is_numeric($name)) {
+                $name = $relationships;
+                $relationships = [];
+            }
+
             $controller = ucwords(Str::singular($name)) . 'Controller';
-            Route::name("$name.")->prefix("/$name")->group(function() use ($controller) {
-                Route::name('index')->get('/', "$controller@index");
-                Route::name('create')->post('/', "$controller@create");
-                Route::name('show')->get('/{id}', "$controller@show");
-                Route::name('update')->patch('/{id}', "$controller@update");
-                Route::name('destroy')->delete('/{id}', "$controller@destroy");
+            Route::name("${name}.")->prefix("/${name}")->group(function() use ($controller, $relationships) {
+                Route::name('index')->get('/', "${controller}@index");
+                Route::name('create')->post('/', "${controller}@create");
+                Route::name('show')->get('/{id}', "${controller}@show");
+                Route::name('update')->patch('/{id}', "${controller}@update");
+                Route::name('destroy')->delete('/{id}', "${controller}@destroy");
+
+                foreach ($relationships as $relationship) {
+                    Route::name($relationship)->get("/{id}/$relationship", "${controller}@${relationship}");
+                    Route::name("${relationship}.index")->get("/{id}/relationships/$relationship", "${controller}@${relationship}_index");
+                    Route::name("${relationship}.create")->post("/{id}/relationships/$relationship", "${controller}@${relationship}_create");
+                    Route::name("${relationship}.destroy")->delete("/{id}/relationships/$relationship", "${controller}@${relationship}_destroy");
+                }
             });
         }
     };
@@ -41,6 +53,9 @@ Route::name('session')->get('/session', 'AuthController@session');
 Route::middleware(['auth:api'])->group(function() {
     resource_routes([
         'tokens',
-        'organizations',
+        'organizations' => [
+            'members',
+            'owners',
+        ],
     ]);
 });

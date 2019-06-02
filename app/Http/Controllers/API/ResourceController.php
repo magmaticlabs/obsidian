@@ -83,4 +83,17 @@ abstract class ResourceController extends Controller
     {
         return $this->_notimplemented();
     }
+
+    /**
+     * Catch all for missing methods
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return \Illuminate\Http\Response|mixed
+     */
+    public function __call($method, $parameters)
+    {
+        return $this->_notimplemented();
+    }
 }

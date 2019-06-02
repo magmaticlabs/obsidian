@@ -3,6 +3,7 @@
 namespace MagmaticLabs\Obsidian\Http\Controllers\API;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -50,14 +51,22 @@ abstract class Controller extends BaseController
     /**
      * Construct a resource collection
      *
-     * @param Request     $request
-     * @param Builder     $query
-     * @param Transformer $transformer
+     * @param Request          $request
+     * @param Builder|Relation $query
+     * @param Transformer      $transformer
      *
      * @return array
      */
-    protected function collection(Request $request, Builder $query, Transformer $transformer): array
+    protected function collection(Request $request, $query, Transformer $transformer): array
     {
+        if (!($query instanceof Builder || $query instanceof Relation)) {
+            throw new \InvalidArgumentException();
+        }
+
+        if (empty($this->fractal->getRequestedIncludes())) {
+            $transformer->setDefaultIncludes($transformer->getAvailableIncludes());
+        }
+
         $paginator = new Paginator($request, $query);
 
         $model = $query->getModel();

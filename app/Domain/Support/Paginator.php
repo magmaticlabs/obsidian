@@ -3,6 +3,7 @@
 namespace MagmaticLabs\Obsidian\Domain\Support;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use League\Fractal\Pagination\PaginatorInterface;
 
@@ -23,7 +24,7 @@ final class Paginator implements PaginatorInterface
     /**
      * Final data
      *
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var Builder|Relation;
      */
     private $data;
 
@@ -48,8 +49,20 @@ final class Paginator implements PaginatorInterface
      */
     private $currentPage;
 
-    public function __construct(Request $request, Builder $query)
+    /**
+     * Class constructor
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param Builder|Relation         $query
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function __construct(Request $request, $query)
     {
+        if (!($query instanceof Builder || $query instanceof Relation)) {
+            throw new \InvalidArgumentException();
+        }
+
         $this->request = $request;
 
         $this->total = $query->count();

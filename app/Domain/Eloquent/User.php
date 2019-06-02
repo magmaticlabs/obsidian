@@ -14,8 +14,16 @@ final class User extends Model implements AuthenticatableContract, AuthorizableC
     use Authorizable;
     use HasApiTokens;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected $hidden = ['password'];
+    protected $casts = [
+        'administrator' => 'bool',
+    ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->hidden = array_merge($this->getHidden(), [
+            'password',
+        ]);
+    }
 }

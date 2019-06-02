@@ -2,6 +2,87 @@
 
 namespace MagmaticLabs\Obsidian\Domain\Eloquent;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 final class Organization extends Model
 {
+    /**
+     * Members relationship
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'organization_memberships', 'organization_id', 'user_id');
+    }
+
+    /**
+     * Owners relationship
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function owners(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'organization_memberships', 'organization_id', 'user_id')->wherePivot('owner', '=', true);
+    }
+
+    /**
+     * Add a member to the organization
+     *
+     * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
+     */
+    public function addMember(User $user): void
+    {
+        $this->members()->syncWithoutDetaching([
+            $user->getKey() => ['owner' => false], ]
+        );
+    }
+
+    /**
+     * Remove a member from the organization
+     *
+     * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
+     */
+    public function removeMember(User $user): void
+    {
+        $this->members()->detach([$user->getKey()]);
+    }
+
+    /**
+     * Promote a member of the organization to owner
+     *
+     * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function promoteMember(User $user): void
+    {
+        $userid = $user->getKey();
+        if (0 == $this->members()->where('id', $userid)->count()) {
+            throw new \InvalidArgumentException('User is not a member of the organization');
+        }
+
+        $this->members()->syncWithoutDetaching([
+            $userid => ['owner' => true], ]
+        );
+    }
+
+    /**
+     * Demote an owner of the organization to member
+     *
+     * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function demoteMember(User $user): void
+    {
+        $userid = $user->getKey();
+        if (0 == $this->members()->where('id', $userid)->count()) {
+            throw new \InvalidArgumentException('User is not a member of the organization');
+        }
+
+        $this->members()->syncWithoutDetaching([
+                $userid => ['owner' => false], ]
+        );
+    }
 }
