@@ -29,4 +29,13 @@ Route::middleware(['auth:api'])->group(function() {
         Route::name('update')->patch('/{id}', 'TokenController@update');
         Route::name('destroy')->delete('/{id}', 'TokenController@destroy');
     });
+
+    // Organization routes
+    Route::name('organizations.')->prefix('/organizations')->group(function() {
+        Route::name('index')->get('/', 'OrganizationController@index');
+        Route::name('create')->post('/', 'OrganizationController@create');
+        Route::name('show')->get('/{id}', 'OrganizationController@show');
+        Route::name('update')->patch('/{id}', 'OrganizationController@update');
+        Route::name('destroy')->delete('/{id}', 'OrganizationController@destroy');
+    });
 });
