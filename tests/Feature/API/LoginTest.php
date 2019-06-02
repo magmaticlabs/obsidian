@@ -27,6 +27,7 @@ class LoginTest extends TestCase
             'meta' => [
                 'authenticated' => false,
                 'username'      => null,
+                'authtype'      => null,
             ],
         ]);
     }
@@ -64,6 +65,7 @@ class LoginTest extends TestCase
             'meta' => [
                 'authenticated' => true,
                 'username'      => $user->username,
+                'authtype'      => 'cookie',
             ],
         ]);
     }
@@ -87,6 +89,7 @@ class LoginTest extends TestCase
             'meta' => [
                 'authenticated' => true,
                 'username'      => $user->username,
+                'authtype'      => 'token',
             ],
         ]);
     }

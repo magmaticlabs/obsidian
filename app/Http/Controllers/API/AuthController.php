@@ -26,12 +26,23 @@ final class AuthController extends Controller
     {
         auth()->shouldUse('api');
         $loggedin = auth()->check();
+        $authtype = null;
+
+        if ($loggedin) {
+            /*
+             * The token is always checked first. If the token is invalid, the
+             * authorization fails even if you have a valid cookie. If there is
+             * no token set and we have a login, then it's via cookie.
+             */
+            $authtype = !empty($request->bearerToken()) ? 'token' : 'cookie';
+        }
 
         return new Response([
             'data'  => null,
             'meta'  => [
                 'authenticated' => $loggedin,
                 'username'      => $loggedin ? $this->getUser()->username : null,
+                'authtype'      => $authtype,
             ],
             'links' => [
                 '_self' => route('api.session'),
