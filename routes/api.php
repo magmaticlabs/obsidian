@@ -2,6 +2,24 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+
+// Conditional wrapper allows PHPUnit to execute
+if (!function_exists('resource_routes')) {
+    function resource_routes(array $routes): void
+    {
+        foreach ($routes as $name) {
+            $controller = ucwords(Str::singular($name)) . 'Controller';
+            Route::name("$name.")->prefix("/$name")->group(function() use ($controller) {
+                Route::name('index')->get('/', "$controller@index");
+                Route::name('create')->post('/', "$controller@create");
+                Route::name('show')->get('/{id}', "$controller@show");
+                Route::name('update')->patch('/{id}', "$controller@update");
+                Route::name('destroy')->delete('/{id}', "$controller@destroy");
+            });
+        }
+    };
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -21,21 +39,8 @@ Route::name('session')->get('/session', 'AuthController@session');
 
 // Authenticated API routes
 Route::middleware(['auth:api'])->group(function() {
-    // Token routes
-    Route::name('tokens.')->prefix('/tokens')->group(function() {
-        Route::name('index')->get('/', 'TokenController@index');
-        Route::name('create')->post('/', 'TokenController@create');
-        Route::name('show')->get('/{id}', 'TokenController@show');
-        Route::name('update')->patch('/{id}', 'TokenController@update');
-        Route::name('destroy')->delete('/{id}', 'TokenController@destroy');
-    });
-
-    // Organization routes
-    Route::name('organizations.')->prefix('/organizations')->group(function() {
-        Route::name('index')->get('/', 'OrganizationController@index');
-        Route::name('create')->post('/', 'OrganizationController@create');
-        Route::name('show')->get('/{id}', 'OrganizationController@show');
-        Route::name('update')->patch('/{id}', 'OrganizationController@update');
-        Route::name('destroy')->delete('/{id}', 'OrganizationController@destroy');
-    });
+    resource_routes([
+        'tokens',
+        'organizations',
+    ]);
 });
