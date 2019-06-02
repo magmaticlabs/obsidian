@@ -60,7 +60,10 @@ final class TokenController extends ResourceController
      */
     public function show(string $id): Response
     {
-        if (empty($token = PassportToken::find($id))) {
+        $userid = $this->getUser()->getKey();
+        /** @var PassportToken $token */
+        $token = PassportToken::query()->where('user_id', $userid)->find($id);
+        if (empty($token)) {
             abort(404);
         }
 
