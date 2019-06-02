@@ -61,5 +61,11 @@ class LoginTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'authenticated' => true,
+                'username'      => $user->username,
+            ],
+        ]);
     }
 }

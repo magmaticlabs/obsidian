@@ -24,9 +24,14 @@ final class AuthController extends Controller
      */
     public function session(Request $request): Response
     {
+        $loggedin = auth()->check();
+
         return new Response([
             'meta'  => new \stdClass(),
-            'data'  => 'ok',
+            'data'  => [
+                'authenticated' => $loggedin,
+                'username'      => $loggedin ? $this->getUser()->username : null,
+            ],
             'links' => [
                 '_self' => route('api.session'),
             ],
