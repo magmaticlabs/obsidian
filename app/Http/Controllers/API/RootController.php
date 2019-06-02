@@ -5,20 +5,22 @@ namespace MagmaticLabs\Obsidian\Http\Controllers\API;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-final class RootController extends Controller
+final class RootController extends ResourceController
 {
+    /**
+     * {@inheritdoc}
+     */
     public function index(Request $request): Response
     {
-
         $routes = [
             'session' => route('api.session'),
-            '_self' => route('api.root'),
+            '_self'   => route('api.root'),
         ];
 
         auth()->shouldUse('api');
         if (auth()->check()) {
             $routes = array_merge([
-                'session' => route('api.session'),
+                'tokens' => route('api.tokens.index'),
             ], $routes);
         } else {
             $routes = array_merge([

@@ -21,4 +21,13 @@ Route::name('login')->post('/login', 'AuthController@login');
 // Authenticated API routes
 Route::middleware(['auth:api'])->group(function() {
     Route::name('session')->get('/session', 'AuthController@session');
+
+    // Token routes
+    Route::name('tokens.')->prefix('/tokens')->group(function() {
+        Route::name('index')->get('/', 'TokenController@index');
+        Route::name('create')->post('/', 'TokenController@create');
+        Route::name('show')->get('/{id}', 'TokenController@show');
+        Route::name('update')->patch('/{id}', 'TokenController@update');
+        Route::name('destroy')->delete('/{id}', 'TokenController@destroy');
+    });
 });

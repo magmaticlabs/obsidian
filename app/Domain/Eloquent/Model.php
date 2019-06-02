@@ -103,6 +103,13 @@ abstract class Model extends BaseModel
     protected $generateKey = true;
 
     /**
+     * API resource key
+     *
+     * @var string
+     */
+    protected $resource_key = '';
+
+    /**
      * {@inheritdoc}
      */
     protected static function boot()
@@ -114,5 +121,19 @@ abstract class Model extends BaseModel
                 $model->{$model->getKeyName()} = UUID::generate()->toString();
             }
         });
+    }
+
+    /**
+     * Resource key accessor
+     *
+     * @return string
+     */
+    public function getResourceKey()
+    {
+        if (empty($this->resource_key)) {
+            return $this->getTable();
+        }
+
+        return $this->resource_key;
     }
 }
