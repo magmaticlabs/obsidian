@@ -24,6 +24,7 @@ final class AuthController extends Controller
      */
     public function session(Request $request): Response
     {
+        auth()->shouldUse('api');
         $loggedin = auth()->check();
 
         return new Response([

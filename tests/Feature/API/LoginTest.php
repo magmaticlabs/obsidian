@@ -18,6 +18,19 @@ class LoginTest extends TestCase
 
     // --
 
+    public function testNoAuthReportsCorrectly()
+    {
+        $response = $this->get(route('api.session'));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'meta' => [
+                'authenticated' => false,
+                'username'      => null,
+            ],
+        ]);
+    }
+
     public function testValidLogin()
     {
         $user = factory(User::class)->create();

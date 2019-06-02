@@ -17,11 +17,10 @@ use Illuminate\Support\Facades\Route;
 // Top level API routes
 Route::name('root')->get('/', 'RootController@index');
 Route::name('login')->post('/login', 'AuthController@login');
+Route::name('session')->get('/session', 'AuthController@session');
 
 // Authenticated API routes
 Route::middleware(['auth:api'])->group(function() {
-    Route::name('session')->get('/session', 'AuthController@session');
-
     // Token routes
     Route::name('tokens.')->prefix('/tokens')->group(function() {
         Route::name('index')->get('/', 'TokenController@index');
