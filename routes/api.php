@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 // Top level API routes
 Route::name('root')->get('/', 'RootController@index');
-Route::name('login')->post('/login', 'RootController@login');
+Route::name('login')->post('/login', 'AuthController@login');
 
 // Authenticated API routes
 Route::middleware(['auth:api'])->group(function() {
-    Route::name('session')->get('/session', 'RootController@session');
+    Route::name('session')->get('/session', 'AuthController@session');
 });
