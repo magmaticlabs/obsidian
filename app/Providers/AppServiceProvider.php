@@ -39,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
             return $value == $parameters[0];
         });
 
+        // Add a validator for ensuring an attribute is not an  exact match for a value
+        $validator->extend('not_match', function ($attribute, $value, $parameters) {
+            return $value != $parameters[0];
+        });
+
         // Add a validator for ensuring an attribute is a numeric array
         $validator->extend('numeric_array', function ($attribute, $value, $parameters) {
             if (!is_array($value)) {

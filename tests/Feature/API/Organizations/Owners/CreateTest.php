@@ -10,6 +10,13 @@ use Tests\TestCase;
 class CreateTest extends TestCase
 {
     /**
+     * Authenticated User
+     *
+     * @var User
+     */
+    private $user;
+
+    /**
      * Organization
      *
      * @var Organization
@@ -23,15 +30,26 @@ class CreateTest extends TestCase
     {
         parent::setUp();
 
-        Passport::actingAs(factory(User::class)->create());
+        $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+    }
+
+    /**
+     * Set the authenticated user as the owner of the organization
+     */
+    public function setOwner()
+    {
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
     }
 
     // --
 
     public function testCreate()
     {
+        $this->setOwner();
+
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
 
@@ -53,12 +71,18 @@ class CreateTest extends TestCase
                     'type'       => 'users',
                     'id'         => $user->id,
                 ],
+                [
+                    'type' => 'users',
+                    'id'   => $this->user->id,
+                ],
             ],
         ]);
     }
 
     public function testCreateNonMember()
     {
+        $this->setOwner();
+
         $user = factory(User::class)->create();
 
         $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
@@ -82,6 +106,8 @@ class CreateTest extends TestCase
 
     public function testCreateDuplicate()
     {
+        $this->setOwner();
+
         $user = factory(User::class)->create();
 
         $this->organization->addMember($user);
@@ -105,12 +131,18 @@ class CreateTest extends TestCase
                     'type'       => 'users',
                     'id'         => $user->id,
                 ],
+                [
+                    'type' => 'users',
+                    'id'   => $this->user->id,
+                ],
             ],
         ]);
     }
 
     public function testCreateMissing()
     {
+        $this->setOwner();
+
         $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
             'data' => [
                 [
@@ -126,6 +158,51 @@ class CreateTest extends TestCase
         $response->assertJson([
             'errors' => [
                 ['source' => ['pointer' => '/data/0/id']],
+            ],
+        ]);
+    }
+
+    public function testCreatePermissions()
+    {
+        $user = factory(User::class)->create();
+        $this->organization->addMember($user);
+
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
+            'data' => [
+                [
+                    'type' => 'users',
+                    'id'   => $user->id,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(403);
+        $this->validateJSONAPI($response->getContent());
+
+        $this->setOwner();
+
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
+            'data' => [
+                [
+                    'type' => 'users',
+                    'id'   => $user->id,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(200);
+        $this->validateJSONAPI($response->getContent());
+
+        $response->assertJsonFragment([
+            'data' => [
+                [
+                    'type'       => 'users',
+                    'id'         => $user->id,
+                ],
+                [
+                    'type' => 'users',
+                    'id'   => $this->user->id,
+                ],
             ],
         ]);
     }

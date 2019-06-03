@@ -15,9 +15,13 @@ final class OrganizationController extends ResourceController
 {
     /**
      * {@inheritdoc}
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index(Request $request): Response
     {
+        $this->authorize('index', Organization::class);
+
         return new Response($this->collection(
             $request,
             Organization::query(),
@@ -28,10 +32,13 @@ final class OrganizationController extends ResourceController
     /**
      * {@inheritdoc}
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
     public function create(Request $request): Response
     {
+        $this->authorize('create', Organization::class);
+
         $data = $this->validate($request, [
             'data.id'                      => 'not_present',
             'data.type'                    => 'required|match:organizations',
@@ -63,12 +70,12 @@ final class OrganizationController extends ResourceController
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('show', $organization = Organization::findOrFail($id));
 
         return new Response($this->item(
             $organization,
@@ -79,13 +86,12 @@ final class OrganizationController extends ResourceController
     /**
      * {@inheritdoc}
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('update', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
             'data.id'                      => "required|match:$id",
@@ -121,12 +127,12 @@ final class OrganizationController extends ResourceController
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('destroy', $organization = Organization::findOrFail($id));
 
         try {
             $organization->delete();
@@ -145,13 +151,13 @@ final class OrganizationController extends ResourceController
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function members(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('members_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
             $request,
@@ -166,13 +172,13 @@ final class OrganizationController extends ResourceController
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function members_index(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('members_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
             $request,
@@ -187,15 +193,14 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      *
      * @return Response
      */
     public function members_create(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('members_create', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
             'data'        => 'required|numeric_array',
@@ -220,20 +225,19 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      *
      * @return Response
      */
     public function members_destroy(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('members_destroy', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
             'data'        => 'required|numeric_array',
             'data.*.type' => 'required|match:users',
-            'data.*.id'   => 'required|exists:users,id',
+            'data.*.id'   => 'required|exists:users,id|not_match:' . $this->getUser()->getKey(),
         ])['data'];
 
         foreach ($data as $row) {
@@ -255,13 +259,13 @@ final class OrganizationController extends ResourceController
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function owners(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('owners_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
             $request,
@@ -276,13 +280,13 @@ final class OrganizationController extends ResourceController
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function owners_index(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('owners_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
             $request,
@@ -297,15 +301,14 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      *
      * @return Response
      */
     public function owners_create(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('owners_create', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
             'data'        => 'required|numeric_array',
@@ -334,15 +337,14 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      *
      * @return Response
      */
     public function owners_destroy(Request $request, string $id): Response
     {
-        if (empty($organization = Organization::find($id))) {
-            abort(404);
-        }
+        $this->authorize('owners_destroy', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
             'data'        => 'required|numeric_array',
@@ -350,6 +352,7 @@ final class OrganizationController extends ResourceController
             'data.*.id'   => [
                 'required',
                 'exists:users,id',
+                'not_match:' . $this->getUser()->getKey(),
                 Rule::exists('organization_memberships', 'user_id')->where('organization_id', $id),
             ],
         ])['data'];

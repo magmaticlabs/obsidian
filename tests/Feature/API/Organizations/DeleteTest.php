@@ -10,6 +10,13 @@ use Tests\TestCase;
 class DeleteTest extends TestCase
 {
     /**
+     * Authenticated User
+     *
+     * @var User
+     */
+    private $user;
+
+    /**
      * Organization
      *
      * @var Organization
@@ -23,15 +30,26 @@ class DeleteTest extends TestCase
     {
         parent::setUp();
 
-        Passport::actingAs(factory(User::class)->create());
+        $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+    }
+
+    /**
+     * Set the authenticated user as the owner of the organization
+     */
+    public function setOwner()
+    {
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
     }
 
     // --
 
     public function testDelete()
     {
+        $this->setOwner();
+
         $response = $this->delete(route('api.organizations.destroy', $this->organization->id));
 
         $response->assertStatus(204);
@@ -40,11 +58,28 @@ class DeleteTest extends TestCase
 
     public function testDeleteActuallyWorks()
     {
+        $this->setOwner();
+
         $this->assertEquals(1, Organization::query()->count());
 
         $this->delete(route('api.organizations.destroy', $this->organization->id));
 
         $this->assertEquals(0, Organization::query()->count());
+    }
+
+    public function testDeletePermissions()
+    {
+        $response = $this->delete(route('api.organizations.destroy', $this->organization->id));
+
+        $response->assertStatus(403);
+        $this->validateJSONAPI($response->getContent());
+
+        $this->setOwner();
+
+        $response = $this->delete(route('api.organizations.destroy', $this->organization->id));
+
+        $response->assertStatus(204);
+        $this->assertEmpty($response->getContent());
     }
 
     public function testNonExist()

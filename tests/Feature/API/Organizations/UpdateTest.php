@@ -10,6 +10,13 @@ use Tests\TestCase;
 class UpdateTest extends TestCase
 {
     /**
+     * Authenticated User
+     *
+     * @var User
+     */
+    private $user;
+
+    /**
      * Organization
      *
      * @var Organization
@@ -23,15 +30,26 @@ class UpdateTest extends TestCase
     {
         parent::setUp();
 
-        Passport::actingAs(factory(User::class)->create());
+        $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+    }
+
+    /**
+     * Set the authenticated user as the owner of the organization
+     */
+    public function setOwner()
+    {
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
     }
 
     // --
 
     public function testUpdate()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -66,6 +84,8 @@ class UpdateTest extends TestCase
 
     public function testNoAttributesNoOp()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -92,6 +112,8 @@ class UpdateTest extends TestCase
 
     public function testMissingTypeFails()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'id' => $this->organization->id,
@@ -110,6 +132,8 @@ class UpdateTest extends TestCase
 
     public function testWrongTypeFails()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type' => 'foobar',
@@ -129,6 +153,8 @@ class UpdateTest extends TestCase
 
     public function testMissingIdFails()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type' => 'organizations',
@@ -147,6 +173,8 @@ class UpdateTest extends TestCase
 
     public function testWrongIdFails()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type' => 'organizations',
@@ -166,6 +194,8 @@ class UpdateTest extends TestCase
 
     public function testNonStringNameCausesError()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -188,6 +218,8 @@ class UpdateTest extends TestCase
 
     public function testNameInvalidCharsCausesError()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -210,6 +242,8 @@ class UpdateTest extends TestCase
 
     public function testNameTooShortCausesError()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -232,6 +266,8 @@ class UpdateTest extends TestCase
 
     public function testNameDuplicateCausesError()
     {
+        $this->setOwner();
+
         factory(Organization::class)->create(['name' => 'duplicate']);
 
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
@@ -256,6 +292,8 @@ class UpdateTest extends TestCase
 
     public function testNonStringDisplayNameCausesError()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -278,6 +316,8 @@ class UpdateTest extends TestCase
 
     public function testDisplayNameTooShortCausesError()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -300,6 +340,8 @@ class UpdateTest extends TestCase
 
     public function testNonStringDescriptionCausesError()
     {
+        $this->setOwner();
+
         $response = $this->patch(route('api.organizations.update', $this->organization->id), [
             'data' => [
                 'type'       => 'organizations',
@@ -318,6 +360,41 @@ class UpdateTest extends TestCase
                 ['source' => ['pointer' => '/data/attributes/description']],
             ],
         ]);
+    }
+
+    public function testUpdatePermissions()
+    {
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
+            'data' => [
+                'type'       => 'organizations',
+                'id'         => $this->organization->id,
+                'attributes' => [
+                    'name'         => 'updated',
+                    'display_name' => '__UPDATED__',
+                    'description'  => 'It has been updated',
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(403);
+        $this->validateJSONAPI($response->getContent());
+
+        $this->setOwner();
+
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
+            'data' => [
+                'type'       => 'organizations',
+                'id'         => $this->organization->id,
+                'attributes' => [
+                    'name'         => 'updated',
+                    'display_name' => '__UPDATED__',
+                    'description'  => 'It has been updated',
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(200);
+        $this->validateJSONAPI($response->getContent());
     }
 
     public function testNonExist()

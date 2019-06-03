@@ -3,6 +3,8 @@
 namespace MagmaticLabs\Obsidian\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use MagmaticLabs\Obsidian\Policies\API\OrganizationPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -12,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // 'MagmaticLabs\Obsidian\Model' => 'MagmaticLabs\Obsidian\Policies\ModelPolicy',
+        Organization::class => OrganizationPolicy::class,
     ];
 
     /**

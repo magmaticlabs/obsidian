@@ -27,6 +27,30 @@ final class Organization extends Model
     }
 
     /**
+     * Determines if the given user is a member of the organization
+     *
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function hasMember(User $user)
+    {
+        return null != $this->members()->find($user->id);
+    }
+
+    /**
+     * Determines if the given user is an owner of the organization
+     *
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function hasOwner(User $user)
+    {
+        return null != $this->owners()->find($user->id);
+    }
+
+    /**
      * Add a member to the organization
      *
      * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
