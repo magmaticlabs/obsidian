@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\API\organizations;
+namespace Tests\Feature\API\Organizations;
 
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
