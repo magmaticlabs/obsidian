@@ -57,5 +57,6 @@ Route::middleware(['auth:api'])->group(function() {
             'members',
             'owners',
         ],
+        'repositories',
     ]);
 });

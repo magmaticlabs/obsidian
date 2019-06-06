@@ -3,9 +3,20 @@
 namespace MagmaticLabs\Obsidian\Domain\Eloquent;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Organization extends Model
 {
+    /**
+     * Repositories relationship
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function repositories(): HasMany
+    {
+        return $this->hasMany(Repository::class, 'organization_id');
+    }
+
     /**
      * Members relationship
      *
