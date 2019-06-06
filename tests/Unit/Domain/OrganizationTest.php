@@ -96,7 +96,7 @@ class OrganizationTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->organization->promoteMember($user);
     }
-    
+
     public function testInvalidDemote()
     {
         $user = factory(User::class)->create();
