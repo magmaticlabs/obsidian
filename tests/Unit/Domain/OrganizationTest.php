@@ -89,23 +89,19 @@ class OrganizationTest extends TestCase
         $this->assertEquals(0, $this->organization->owners()->count());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testInvalidPromote()
     {
         $user = factory(User::class)->create();
 
+        $this->expectException(\InvalidArgumentException::class);
         $this->organization->promoteMember($user);
     }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
+    
     public function testInvalidDemote()
     {
         $user = factory(User::class)->create();
 
+        $this->expectException(\InvalidArgumentException::class);
         $this->organization->demoteMember($user);
     }
 }
