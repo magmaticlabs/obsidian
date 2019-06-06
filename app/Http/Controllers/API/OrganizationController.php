@@ -9,6 +9,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use MagmaticLabs\Obsidian\Domain\Transformers\OrganizationTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
+use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\Transformer;
 
 final class OrganizationController extends ResourceController
@@ -366,5 +367,81 @@ final class OrganizationController extends ResourceController
             $organization->owners(),
             new RelationshipTransformer()
         ), 200);
+    }
+
+    // --
+
+    /**
+     * Repositories relationship
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function repositories(Request $request, string $id): Response
+    {
+        $this->authorize('repositories_index', $organization = Organization::findOrFail($id));
+
+        return new Response($this->collection(
+            $request,
+            $organization->repositories(),
+            new RepositoryTransformer()
+        ), 200);
+    }
+
+    /**
+     * Repositories relationship index
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function repositories_index(Request $request, string $id): Response
+    {
+        $this->authorize('repositories_index', $organization = Organization::findOrFail($id));
+
+        return new Response($this->collection(
+            $request,
+            $organization->repositories(),
+            new RelationshipTransformer()
+        ), 200);
+    }
+
+    /**
+     * Repositories relationship creation
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function repositories_create(Request $request, string $id): Response
+    {
+        return abort(405, 'Not Allowed');
+    }
+
+    /**
+     * Repositories relationship destruction
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function repositories_destroy(Request $request, string $id): Response
+    {
+        return abort(405, 'Not Allowed');
     }
 }

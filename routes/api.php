@@ -56,7 +56,10 @@ Route::middleware(['auth:api'])->group(function() {
         'organizations' => [
             'members',
             'owners',
+            'repositories',
         ],
-        'repositories',
+        'repositories' => [
+            'organization',
+        ],
     ]);
 });

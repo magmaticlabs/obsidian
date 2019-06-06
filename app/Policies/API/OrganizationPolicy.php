@@ -151,4 +151,19 @@ final class OrganizationPolicy
     {
         return $model->hasOwner($user);
     }
+
+    // --
+
+    /**
+     * Determine whether the user can view the repositories relationship collection.
+     *
+     * @param User  $user
+     * @param Model $model
+     *
+     * @return bool
+     */
+    public function repositories_index(User $user, Model $model): bool
+    {
+        return true; // All users can view the collection
+    }
 }

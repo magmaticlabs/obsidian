@@ -7,6 +7,8 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use MagmaticLabs\Obsidian\Domain\Transformers\OrganizationTransformer;
+use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
 
 final class RepositoryController extends ResourceController
@@ -158,5 +160,81 @@ final class RepositoryController extends ResourceController
         }
 
         return new Response(null, 204);
+    }
+
+    // --
+
+    /**
+     * Organization relationship
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function organization(Request $request, string $id): Response
+    {
+        /* @var Repository $repository */
+        $this->authorize('organization_index', $repository = Repository::findOrFail($id));
+
+        return new Response($this->item(
+            $repository->organization,
+            new OrganizationTransformer()
+        ), 200);
+    }
+
+    /**
+     * Organization relationship index
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function organization_index(Request $request, string $id): Response
+    {
+        /* @var Repository $repository */
+        $this->authorize('organization_index', $repository = Repository::findOrFail($id));
+
+        return new Response($this->item(
+            $repository->organization,
+            new RelationshipTransformer()
+        ), 200);
+    }
+
+    /**
+     * Organization relationship creation
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function organization_create(Request $request, string $id): Response
+    {
+        return abort(405, 'Not Allowed');
+    }
+
+    /**
+     * Organization relationship destruction
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function organization_destroy(Request $request, string $id): Response
+    {
+        return abort(405, 'Not Allowed');
     }
 }

@@ -10,6 +10,7 @@ final class OrganizationTransformer extends Transformer
     protected $availableIncludes = [
         'members',
         'owners',
+        'repositories',
     ];
 
     public function includeMembers(Organization $organization)
@@ -20,5 +21,10 @@ final class OrganizationTransformer extends Transformer
     public function includeOwners(Organization $organization)
     {
         return new Collection($organization->owners, new Transformer(), 'users');
+    }
+
+    public function includeRepositories(Organization $organization)
+    {
+        return new Collection($organization->repositories, new RepositoryTransformer(), 'repositories');
     }
 }
