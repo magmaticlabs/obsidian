@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class DeleteTest extends TestCase
+final class DeleteTest extends TestCase
 {
     /**
      * Authenticated User
@@ -24,6 +24,20 @@ class DeleteTest extends TestCase
     private $organization;
 
     /**
+     * Data to send to API
+     *
+     * @var array
+     */
+    private $data;
+
+    /**
+     * Fragment for the authenticated user
+     *
+     * @var array
+     */
+    private $self;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
@@ -33,91 +47,67 @@ class DeleteTest extends TestCase
         $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
+
+        $this->data = [
+            'data' => [
+                [
+                    'type' => 'users',
+                    'id'   => null,
+                ],
+            ],
+        ];
+
+        $this->self = [
+            'type' => 'users',
+            'id'   => $this->user->id,
+        ];
     }
 
     /**
-     * Set the authenticated user as the owner of the organization
+     * Demote the authenticated user
      */
-    public function setOwner()
+    private function demote()
     {
-        $this->organization->addMember($this->user);
-        $this->organization->promoteMember($this->user);
+        $this->organization->demoteMember($this->user);
     }
 
     // --
 
     public function testDestroy()
     {
-        $this->setOwner();
-
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
-            'data' => [
-                [
-                    'type'       => 'users',
-                    'id'         => $this->user->id,
-                ],
-            ],
+            'data' => [$this->self],
         ]);
     }
 
     public function testDestroyNonMember()
     {
-        $this->setOwner();
-
         $user = factory(User::class)->create();
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
-            'data' => [
-                [
-                    'type'       => 'users',
-                    'id'         => $this->user->id,
-                ],
-            ],
+            'data' => [$this->self],
         ]);
     }
 
     public function testDestroyMissing()
     {
-        $this->setOwner();
+        $this->data['data'][0]['id'] = 'foobar';
 
-        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => 'foobar',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -130,58 +120,27 @@ class DeleteTest extends TestCase
     {
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(403);
-        $this->validateJSONAPI($response->getContent());
-
-        $this->setOwner();
-
-        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
-            'data' => [
-                [
-                    'type'       => 'users',
-                    'id'         => $this->user->id,
-                ],
-            ],
+            'data' => [$this->self],
         ]);
+
+        $this->demote();
+
+        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), $this->data);
+        $this->validateResponse($response, 403);
     }
 
     public function testCantDestroySelf()
     {
-        $this->setOwner();
+        $this->data['data'][0]['id'] = $this->user->id;
 
-        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $this->user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->delete(route('api.organizations.members.destroy', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -192,9 +151,7 @@ class DeleteTest extends TestCase
 
     public function testNonExist()
     {
-        $response = $this->delete(route('api.organizations.members.destroy', 'missing', []));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->delete(route('api.organizations.members.destroy', 'missing', $this->data));
+        $this->validateResponse($response, 404);
     }
 }

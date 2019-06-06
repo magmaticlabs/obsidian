@@ -7,7 +7,7 @@ use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class IndexTest extends TestCase
+final class IndexTest extends TestCase
 {
     /**
      * @var User
@@ -42,9 +42,7 @@ class IndexTest extends TestCase
         $this->user->tokens()->delete(); // Clean up setup step
 
         $response = $this->get(route('api.tokens.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEmpty($data['data']);
@@ -53,9 +51,7 @@ class IndexTest extends TestCase
     public function testDataMatchesShow()
     {
         $response = $this->get(route('api.tokens.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $compare = $this->get(route('api.tokens.show', $this->token->id));
         $compare = json_decode($compare->getContent(), true);
@@ -70,24 +66,24 @@ class IndexTest extends TestCase
     public function testCountMatches()
     {
         $response = $this->get(route('api.tokens.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(1, count($data['data']));
 
         // --
 
-        $this->user->createToken('_test_')->token;
+        $count = 5;
+
+        for ($i = 0; $i < $count; ++$i) {
+            $this->user->createToken('_test_');
+        }
 
         $response = $this->get(route('api.tokens.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(2, count($data['data']));
+        $this->assertEquals($count + 1, count($data['data']));
     }
 
     public function testOnlyShowsMine()
@@ -99,9 +95,7 @@ class IndexTest extends TestCase
         $owner->createToken('_test_')->token;
 
         $response = $this->get(route('api.tokens.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEmpty($data['data']);

@@ -8,7 +8,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class UpdateTest extends TestCase
+final class UpdateTest extends TestCase
 {
     /**
      * @var User
@@ -16,9 +16,23 @@ class UpdateTest extends TestCase
     private $user;
 
     /**
-     * @var \Laravel\Passport\Token
+     * @var PassportToken
      */
     private $token;
+
+    /**
+     * Data to send to API
+     *
+     * @var array
+     */
+    private $data;
+
+    /**
+     * Attributes to send to API
+     *
+     * @var array
+     */
+    private $attributes;
 
     /**
      * {@inheritdoc}
@@ -33,68 +47,50 @@ class UpdateTest extends TestCase
 
         Passport::actingAs($this->user = factory(User::class)->create());
 
-        $this->token = $this->user->createToken('_test_')->token;
+        $realtoken = $this->user->createToken('_test_')->token;
+        $this->token = PassportToken::find($realtoken->id);
+
+        $this->attributes = [
+            'name'   => '__TEST_UPDATE__',
+        ];
+
+        $this->data = [
+            'data' => [
+                'type'       => 'tokens',
+                'id'         => $this->token->id,
+                'attributes' => $this->attributes,
+            ],
+        ];
     }
 
     // --
 
     public function testUpdate()
     {
-        /** @var PassportToken $token */
-        $token = PassportToken::find($this->token->id);
-
-        $response = $this->patch(route('api.tokens.update', $token->id), [
-            'data' => [
-                'type'       => 'tokens',
-                'id'         => $token->id,
-                'attributes' => [
-                    'name'   => '__TEST_UPDATE__',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
-
-        $attributes = $token->toArray();
-        foreach (array_merge($token->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
-        $attributes['name'] = '__TEST_UPDATE__';
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJson([
             'data' => [
                 'type'       => 'tokens',
-                'id'         => $token->id,
-                'attributes' => $attributes,
+                'id'         => $this->token->id,
+                'attributes' => $this->attributes,
             ],
         ]);
     }
 
     public function testNoAttributesNoOp()
     {
-        /** @var PassportToken $token */
-        $token = PassportToken::find($this->token->id);
+        unset($this->data['data']['attributes']);
 
-        $response = $this->patch(route('api.tokens.update', $token->id), [
-            'data' => [
-                'type'       => 'tokens',
-                'id'         => $token->id,
-            ],
-        ]);
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 200);
 
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
-
-        $attributes = $token->toArray();
-        foreach (array_merge($token->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
+        $attributes = $this->token->toArray();
+        unset($attributes['id']);
 
         $response->assertJson([
             'data' => [
-                'type'       => 'tokens',
-                'id'         => $token->id,
                 'attributes' => $attributes,
             ],
         ]);
@@ -102,14 +98,10 @@ class UpdateTest extends TestCase
 
     public function testMissingTypeFails()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'id' => $this->token->id,
-            ],
-        ]);
+        unset($this->data['data']['type']);
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -120,15 +112,10 @@ class UpdateTest extends TestCase
 
     public function testWrongTypeFails()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'type' => 'foobar',
-                'id'   => $this->token->id,
-            ],
-        ]);
+        $this->data['data']['type'] = 'foobar';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -139,14 +126,10 @@ class UpdateTest extends TestCase
 
     public function testMissingIdFails()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'type' => 'tokens',
-            ],
-        ]);
+        unset($this->data['data']['id']);
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -157,15 +140,10 @@ class UpdateTest extends TestCase
 
     public function testWrongIdFails()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'type' => 'tokens',
-                'id'   => 'foobar',
-            ],
-        ]);
+        $this->data['data']['id'] = 'foobar';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -176,18 +154,10 @@ class UpdateTest extends TestCase
 
     public function testInvalidScopeCausesValidationError()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'type'       => 'tokens',
-                'id'         => $this->token->id,
-                'attributes' => [
-                    'scopes' => ['__INVALID__'],
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['scopes'] = ['__INVALID__'];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -198,18 +168,10 @@ class UpdateTest extends TestCase
 
     public function testNonStringNameCausesError()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'type'       => 'tokens',
-                'id'         => $this->token->id,
-                'attributes' => [
-                    'name'   => [],
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['name'] = [];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -220,18 +182,10 @@ class UpdateTest extends TestCase
 
     public function testNonArrayScopesCausesError()
     {
-        $response = $this->patch(route('api.tokens.update', $this->token->id), [
-            'data' => [
-                'type'       => 'tokens',
-                'id'         => $this->token->id,
-                'attributes' => [
-                    'scopes' => 'foo',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['scopes'] = 'foobar';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.tokens.update', $this->token->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -248,8 +202,6 @@ class UpdateTest extends TestCase
                 'id'   => 'foobar',
             ],
         ]);
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 }

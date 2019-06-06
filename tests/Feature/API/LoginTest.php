@@ -21,8 +21,8 @@ class LoginTest extends TestCase
     public function testNoAuthReportsCorrectly()
     {
         $response = $this->get(route('api.session'));
+        $this->validateResponse($response, 200);
 
-        $response->assertStatus(200);
         $response->assertJson([
             'meta' => [
                 'authenticated' => false,
@@ -37,17 +37,16 @@ class LoginTest extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->attemptLogin($user->username, 'secret');
+        $this->validateResponse($response, 200);
 
-        $response->assertStatus(200);
         $response->assertJson([
             'meta' => [
                 'authenticated' => true,
                 'username'      => $user->username,
             ],
         ]);
-        $response->assertCookie(Passport::cookie());
 
-        $this->validateJSONAPI($response->getContent());
+        $response->assertCookie(Passport::cookie());
     }
 
     public function testAuthCookieWorks()
@@ -55,12 +54,12 @@ class LoginTest extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->attemptLogin($user->username, 'secret');
+        $this->validateResponse($response, 200);
 
         $response = $this->call('GET', route('api.session'), [], [
             Passport::cookie() => $response->headers->getCookies()[0]->getValue(),
         ]);
 
-        $response->assertStatus(200);
         $response->assertJson([
             'meta' => [
                 'authenticated' => true,
@@ -84,7 +83,8 @@ class LoginTest extends TestCase
             'Authorization' => sprintf('Bearer %s', $token),
         ]);
 
-        $response->assertStatus(200);
+        $this->validateResponse($response, 200);
+
         $response->assertJson([
             'meta' => [
                 'authenticated' => true,
@@ -97,19 +97,13 @@ class LoginTest extends TestCase
     public function testMissingUsername()
     {
         $response = $this->post(route('api.login'));
-
-        $response->assertStatus(401);
-
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 401);
     }
 
     public function testInvalidUsername()
     {
         $response = $this->attemptLogin('user', 'passwd');
-
-        $response->assertStatus(403);
-
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 403);
     }
 
     public function testInvalidPassword()
@@ -117,9 +111,6 @@ class LoginTest extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->attemptLogin($user->username, 'passwd');
-
-        $response->assertStatus(403);
-
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 403);
     }
 }

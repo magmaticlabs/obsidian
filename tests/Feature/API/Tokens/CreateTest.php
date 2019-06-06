@@ -7,8 +7,22 @@ use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class CreateTest extends TestCase
+final class CreateTest extends TestCase
 {
+    /**
+     * Data to send to API
+     *
+     * @var array
+     */
+    private $data;
+
+    /**
+     * Attributes to send to API
+     *
+     * @var array
+     */
+    private $attributes;
+
     /**
      * {@inheritdoc}
      */
@@ -21,39 +35,36 @@ class CreateTest extends TestCase
         );
 
         Passport::actingAs(factory(User::class)->create());
+
+        $this->attributes = [
+            'name'   => '__TESTING__',
+            'scopes' => [],
+        ];
+
+        $this->data = [
+            'data' => [
+                'type'       => 'tokens',
+                'attributes' => $this->attributes,
+            ],
+        ];
     }
 
     // --
 
     public function testCreate()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'tokens',
-                'attributes' => [
-                    'name'   => '__TESTING__',
-                    'scopes' => [],
-                ],
-            ],
-        ]);
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 201);
 
-        $response->assertStatus(201);
-        $this->validateJSONAPI($response->getContent());
         $response->assertHeader('Location');
 
         $tokenid = basename($response->headers->get('Location'));
-
-        $attributes = [
-            'name'    => '__TESTING__',
-            'scopes'  => [],
-            'revoked' => false,
-        ];
 
         $response->assertJson([
             'data' => [
                 'type'       => 'tokens',
                 'id'         => $tokenid,
-                'attributes' => $attributes,
+                'attributes' => $this->attributes,
             ],
         ]);
 
@@ -64,17 +75,10 @@ class CreateTest extends TestCase
 
     public function testMissingTypeCausesValidationError()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'attributes' => [
-                    'name'   => '__TESTING__',
-                    'scopes' => [],
-                ],
-            ],
-        ]);
+        unset($this->data['data']['type']);
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -85,18 +89,10 @@ class CreateTest extends TestCase
 
     public function testWrongTypeCausesValidationError()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'foobar',
-                'attributes' => [
-                    'name'   => '__TESTING__',
-                    'scopes' => [],
-                ],
-            ],
-        ]);
+        $this->data['data']['type'] = 'foobar';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -107,17 +103,10 @@ class CreateTest extends TestCase
 
     public function testMissingNameCausesValidationError()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'tokens',
-                'attributes' => [
-                    'scopes' => [],
-                ],
-            ],
-        ]);
+        unset($this->data['data']['attributes']['name']);
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -128,32 +117,14 @@ class CreateTest extends TestCase
 
     public function testMissingScopesDefaultsToEmpty()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'tokens',
-                'attributes' => [
-                    'name' => '__TESTING__',
-                ],
-            ],
-        ]);
+        unset($this->data['data']['attributes']['scopes']);
 
-        $response->assertStatus(201);
-        $this->validateJSONAPI($response->getContent());
-        $response->assertHeader('Location');
-
-        $tokenid = basename($response->headers->get('Location'));
-
-        $attributes = [
-            'name'    => '__TESTING__',
-            'scopes'  => [],
-            'revoked' => false,
-        ];
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 201);
 
         $response->assertJson([
             'data' => [
-                'type'       => 'tokens',
-                'id'         => $tokenid,
-                'attributes' => $attributes,
+                'attributes' => $this->attributes,
             ],
         ]);
 
@@ -164,18 +135,10 @@ class CreateTest extends TestCase
 
     public function testInvalidScopeCausesValidationError()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'tokens',
-                'attributes' => [
-                    'name'   => '__TESTING__',
-                    'scopes' => ['__INVALID__'],
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['scopes'] = ['__INVALID__'];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -186,18 +149,10 @@ class CreateTest extends TestCase
 
     public function testNonStringNameCausesError()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'tokens',
-                'attributes' => [
-                    'name'   => [],
-                    'scopes' => [],
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['name'] = [];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -208,18 +163,10 @@ class CreateTest extends TestCase
 
     public function testNonArrayScopesCausesError()
     {
-        $response = $this->post(route('api.tokens.create'), [
-            'data' => [
-                'type'       => 'tokens',
-                'attributes' => [
-                    'name'   => '__TESTING__',
-                    'scopes' => 'foo',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['scopes'] = 'foo';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.tokens.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [

@@ -7,8 +7,22 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class CreateTest extends TestCase
+final class CreateTest extends TestCase
 {
+    /**
+     * Data to send to API
+     *
+     * @var array
+     */
+    private $data;
+
+    /**
+     * Attributes to send to API
+     *
+     * @var array
+     */
+    private $attributes;
+
     /**
      * {@inheritdoc}
      */
@@ -17,58 +31,47 @@ class CreateTest extends TestCase
         parent::setUp();
 
         Passport::actingAs(factory(User::class)->create());
+
+        $this->attributes = [
+            'name'         => 'testing',
+            'display_name' => '__TESTING__',
+            'description'  => 'This is a test org',
+        ];
+
+        $this->data = [
+            'data' => [
+                'type'       => 'organizations',
+                'attributes' => $this->attributes,
+            ],
+        ];
     }
 
     // --
 
     public function testCreate()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 201);
 
-        $response->assertStatus(201);
-        $this->validateJSONAPI($response->getContent());
         $response->assertHeader('Location');
 
         $id = basename($response->headers->get('Location'));
-
-        $attributes = [
-            'name'         => 'testing',
-            'display_name' => '__TESTING__',
-            'description'  => 'This is a test org',
-        ];
 
         $response->assertJson([
             'data' => [
                 'type'       => 'organizations',
                 'id'         => $id,
-                'attributes' => $attributes,
+                'attributes' => $this->attributes,
             ],
         ]);
     }
 
     public function testMissingTypeCausesValidationError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        unset($this->data['data']['type']);
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -79,19 +82,10 @@ class CreateTest extends TestCase
 
     public function testWrongTypeCausesValidationError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'foobar',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $this->data['data']['type'] = 'foobar';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -102,18 +96,10 @@ class CreateTest extends TestCase
 
     public function testMissingNameCausesValidationError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        unset($this->data['data']['attributes']['name']);
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -124,85 +110,42 @@ class CreateTest extends TestCase
 
     public function testMissingDisplayNameDefaultsToName()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        unset($this->data['data']['attributes']['display_name']);
 
-        $response->assertStatus(201);
-        $this->validateJSONAPI($response->getContent());
-        $response->assertHeader('Location');
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 201);
 
-        $id = basename($response->headers->get('Location'));
-
-        $attributes = [
-            'name'         => 'testing',
-            'display_name' => 'testing',
-            'description'  => 'This is a test org',
-        ];
+        $this->attributes['display_name'] = $this->attributes['name'];
 
         $response->assertJson([
             'data' => [
-                'type'       => 'organizations',
-                'id'         => $id,
-                'attributes' => $attributes,
+                'attributes' => $this->attributes,
             ],
         ]);
     }
 
     public function testMissingDescriptionDefaultsToEmpty()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => '__TESTING__',
-                ],
-            ],
-        ]);
+        unset($this->data['data']['attributes']['description']);
 
-        $response->assertStatus(201);
-        $this->validateJSONAPI($response->getContent());
-        $response->assertHeader('Location');
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 201);
 
-        $id = basename($response->headers->get('Location'));
-
-        $attributes = [
-            'name'         => 'testing',
-            'display_name' => '__TESTING__',
-            'description'  => '',
-        ];
+        $this->attributes['description'] = '';
 
         $response->assertJson([
             'data' => [
-                'type'       => 'organizations',
-                'id'         => $id,
-                'attributes' => $attributes,
+                'attributes' => $this->attributes,
             ],
         ]);
     }
 
     public function testNonStringNameCausesError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => [],
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['name'] = [];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -213,19 +156,10 @@ class CreateTest extends TestCase
 
     public function testNameInvalidCharsCausesError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'This is illegal!',
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['name'] = 'This is illegal!';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -236,19 +170,10 @@ class CreateTest extends TestCase
 
     public function testNameTooShortCausesError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'no',
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['name'] = 'no';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -260,20 +185,10 @@ class CreateTest extends TestCase
     public function testNameDuplicateCausesError()
     {
         factory(Organization::class)->create(['name' => 'duplicate']);
+        $this->data['data']['attributes']['name'] = 'duplicate';
 
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'duplicate',
-                    'display_name' => '__TESTING__',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -284,19 +199,10 @@ class CreateTest extends TestCase
 
     public function testNonStringDisplayNameCausesError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => [],
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['display_name'] = [];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -307,19 +213,10 @@ class CreateTest extends TestCase
 
     public function testDisplayNameTooShortCausesError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => 'no',
-                    'description'  => 'This is a test org',
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['display_name'] = 'no';
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -330,19 +227,10 @@ class CreateTest extends TestCase
 
     public function testNonStringDescriptionCausesError()
     {
-        $response = $this->post(route('api.organizations.create'), [
-            'data' => [
-                'type'       => 'organizations',
-                'attributes' => [
-                    'name'         => 'testing',
-                    'display_name' => '__TESTING__',
-                    'description'  => [],
-                ],
-            ],
-        ]);
+        $this->data['data']['attributes']['description'] = [];
 
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.create'), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [

@@ -32,39 +32,23 @@ abstract class TestCase extends BaseTestCase
         $this->faker->seed(env('TEST_SEED', null));
     }
 
-    final protected function validateResponse(TestResponse $response, int $status)
+    /**
+     * Validate that a response has the specified status code, and conforms to schema
+     *
+     * @param TestResponse $response
+     * @param int          $status
+     */
+    final protected function validateResponse(TestResponse $response, int $status): void
     {
         $response->assertStatus($status);
 
         $content = $response->getContent();
-        if (!empty($content)) {
+
+        if (204 === $status) {
+            $this->assertEmpty($content);
+        } elseif (!empty($content)) {
             $this->assertJSONSchema($content, 'jsonapi');
         }
-    }
-
-    /**
-     * Validate that a given string is validate JSON-API
-     *
-     * @param string $data
-     */
-    final protected function validateJSONAPI(string $data): void
-    {
-        if (empty($data)) {
-            return;
-        }
-
-        static $schema;
-
-        if (null === $schema) {
-            $schema = JSONSchema::fromJsonString(file_get_contents(base_path('tests/jsonapi_schema.json')));
-        }
-
-        $validator = new Validator();
-
-        /** @var \Opis\JsonSchema\ValidationResult $result */
-        $result = $validator->schemaValidation(json_decode($data), $schema);
-
-        $this->assertTrue($result->isValid());
     }
 
     /**

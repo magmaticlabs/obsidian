@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class IndexTest extends TestCase
+final class IndexTest extends TestCase
 {
     /**
      * Organization
@@ -33,9 +33,7 @@ class IndexTest extends TestCase
     public function testDefaultEmpty()
     {
         $response = $this->get(route('api.organizations.owners.index', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEmpty($data['data']);
@@ -53,9 +51,7 @@ class IndexTest extends TestCase
         }
 
         $response = $this->get(route('api.organizations.owners.index', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($owners, count($data['data']));
@@ -68,15 +64,13 @@ class IndexTest extends TestCase
         $this->organization->promoteMember($user);
 
         $response = $this->get(route('api.organizations.owners.index', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
             'data' => [
                 [
-                    'type'       => 'users',
-                    'id'         => $user->id,
+                    'type' => 'users',
+                    'id'   => $user->id,
                 ],
             ],
         ]);
@@ -85,8 +79,6 @@ class IndexTest extends TestCase
     public function testNonExist()
     {
         $response = $this->get(route('api.organizations.owners.index', 'missing'));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 }

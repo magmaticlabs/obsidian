@@ -8,7 +8,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class ShowTest extends TestCase
+final class ShowTest extends TestCase
 {
     /**
      * @var User
@@ -44,14 +44,10 @@ class ShowTest extends TestCase
         $token = PassportToken::find($this->token->id);
 
         $response = $this->get(route('api.tokens.show', $token->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $attributes = $token->toArray();
-        foreach (array_merge($token->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
+        unset($attributes['id']);
 
         $response->assertJson([
             'data' => [
@@ -65,9 +61,7 @@ class ShowTest extends TestCase
     public function testNonExist()
     {
         $response = $this->get(route('api.tokens.show', 'missing'));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 
     public function testOtherOwner404()
@@ -77,8 +71,6 @@ class ShowTest extends TestCase
         $token = $owner->createToken('_test_')->token;
 
         $response = $this->get(route('api.tokens.show', $token->id));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 }

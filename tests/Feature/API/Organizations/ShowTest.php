@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class ShowTest extends TestCase
+final class ShowTest extends TestCase
 {
     /**
      * Organization
@@ -33,14 +33,10 @@ class ShowTest extends TestCase
     public function testShow()
     {
         $response = $this->get(route('api.organizations.show', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $attributes = $this->organization->toArray();
-        foreach (array_merge($this->organization->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
+        unset($attributes['id']);
 
         $response->assertJson([
             'data' => [
@@ -54,8 +50,6 @@ class ShowTest extends TestCase
     public function testNonExist()
     {
         $response = $this->get(route('api.organizations.show', 'missing'));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 }

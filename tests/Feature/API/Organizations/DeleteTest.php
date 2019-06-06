@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\API\Organizations;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class DeleteTest extends TestCase
+final class DeleteTest extends TestCase
 {
     /**
      * Authenticated User
@@ -33,60 +34,44 @@ class DeleteTest extends TestCase
         $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
     }
 
     /**
-     * Set the authenticated user as the owner of the organization
+     * Demote the authenticated user
      */
-    public function setOwner()
+    private function demote()
     {
-        $this->organization->addMember($this->user);
-        $this->organization->promoteMember($this->user);
+        $this->organization->demoteMember($this->user);
     }
 
     // --
 
     public function testDelete()
     {
-        $this->setOwner();
-
         $response = $this->delete(route('api.organizations.destroy', $this->organization->id));
-
-        $response->assertStatus(204);
-        $this->assertEmpty($response->getContent());
+        $this->validateResponse($response, 204);
     }
 
     public function testDeleteActuallyWorks()
     {
-        $this->setOwner();
-
-        $this->assertEquals(1, Organization::query()->count());
-
         $this->delete(route('api.organizations.destroy', $this->organization->id));
-
-        $this->assertEquals(0, Organization::query()->count());
+        $this->expectException(ModelNotFoundException::class);
+        $this->organization->refresh();
     }
 
     public function testDeletePermissions()
     {
-        $response = $this->delete(route('api.organizations.destroy', $this->organization->id));
-
-        $response->assertStatus(403);
-        $this->validateJSONAPI($response->getContent());
-
-        $this->setOwner();
+        $this->demote();
 
         $response = $this->delete(route('api.organizations.destroy', $this->organization->id));
-
-        $response->assertStatus(204);
-        $this->assertEmpty($response->getContent());
+        $this->validateResponse($response, 403);
     }
 
     public function testNonExist()
     {
         $response = $this->delete(route('api.organizations.destroy', 'missing'));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 }

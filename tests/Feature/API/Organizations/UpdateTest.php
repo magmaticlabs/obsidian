@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class UpdateTest extends TestCase
+final class UpdateTest extends TestCase
 {
     /**
      * Authenticated User
@@ -24,6 +24,20 @@ class UpdateTest extends TestCase
     private $organization;
 
     /**
+     * Data to send to API
+     *
+     * @var array
+     */
+    private $data;
+
+    /**
+     * Attributes to send to API
+     *
+     * @var array
+     */
+    private $attributes;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
@@ -33,73 +47,59 @@ class UpdateTest extends TestCase
         $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
+
+        $this->attributes = [
+            'name'         => 'updated',
+            'display_name' => '__UPDATED__',
+            'description'  => 'It has been updated',
+        ];
+
+        $this->data = [
+            'data' => [
+                'type'       => 'organizations',
+                'id'         => $this->organization->id,
+                'attributes' => $this->attributes,
+            ],
+        ];
     }
 
     /**
-     * Set the authenticated user as the owner of the organization
+     * Demote the authenticated user
      */
-    public function setOwner()
+    private function demote()
     {
-        $this->organization->addMember($this->user);
-        $this->organization->promoteMember($this->user);
+        $this->organization->demoteMember($this->user);
     }
 
     // --
 
     public function testUpdate()
     {
-        $this->setOwner();
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name'         => 'updated',
-                    'display_name' => '__UPDATED__',
-                    'description'  => 'It has been updated',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
-
-        $attributes = $this->organization->toArray();
-        foreach (array_merge($this->organization->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
-        $attributes['name'] = 'updated';
-        $attributes['display_name'] = '__UPDATED__';
-        $attributes['description'] = 'It has been updated';
+        unset($this->attributes['id']);
 
         $response->assertJson([
             'data' => [
                 'type'       => 'organizations',
                 'id'         => $this->organization->id,
-                'attributes' => $attributes,
+                'attributes' => $this->attributes,
             ],
         ]);
     }
 
     public function testNoAttributesNoOp()
     {
-        $this->setOwner();
+        unset($this->data['data']['attributes']);
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $attributes = $this->organization->toArray();
-        foreach (array_merge($this->organization->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
+        unset($attributes['id']);
 
         $response->assertJson([
             'data' => [
@@ -112,16 +112,10 @@ class UpdateTest extends TestCase
 
     public function testMissingTypeFails()
     {
-        $this->setOwner();
+        unset($this->data['data']['type']);
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'id' => $this->organization->id,
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -132,17 +126,10 @@ class UpdateTest extends TestCase
 
     public function testWrongTypeFails()
     {
-        $this->setOwner();
+        $this->data['data']['type'] = 'foobar';
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type' => 'foobar',
-                'id'   => $this->organization->id,
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -153,16 +140,10 @@ class UpdateTest extends TestCase
 
     public function testMissingIdFails()
     {
-        $this->setOwner();
+        unset($this->data['data']['id']);
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type' => 'organizations',
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -173,17 +154,10 @@ class UpdateTest extends TestCase
 
     public function testWrongIdFails()
     {
-        $this->setOwner();
+        $this->data['data']['id'] = 'foobar';
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type' => 'organizations',
-                'id'   => 'foobar',
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -194,20 +168,10 @@ class UpdateTest extends TestCase
 
     public function testNonStringNameCausesError()
     {
-        $this->setOwner();
+        $this->data['data']['attributes']['name'] = [];
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name' => [],
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -218,20 +182,10 @@ class UpdateTest extends TestCase
 
     public function testNameInvalidCharsCausesError()
     {
-        $this->setOwner();
+        $this->data['data']['attributes']['name'] = 'This is illegal!';
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name' => 'This is illegal!',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -242,20 +196,10 @@ class UpdateTest extends TestCase
 
     public function testNameTooShortCausesError()
     {
-        $this->setOwner();
+        $this->data['data']['attributes']['name'] = 'no';
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name' => 'no',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -266,22 +210,11 @@ class UpdateTest extends TestCase
 
     public function testNameDuplicateCausesError()
     {
-        $this->setOwner();
-
         factory(Organization::class)->create(['name' => 'duplicate']);
+        $this->data['data']['attributes']['name'] = 'duplicate';
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name' => 'duplicate',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -292,20 +225,10 @@ class UpdateTest extends TestCase
 
     public function testNonStringDisplayNameCausesError()
     {
-        $this->setOwner();
+        $this->data['data']['attributes']['display_name'] = [];
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'display_name' => [],
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -316,20 +239,10 @@ class UpdateTest extends TestCase
 
     public function testDisplayNameTooShortCausesError()
     {
-        $this->setOwner();
+        $this->data['data']['attributes']['display_name'] = 'no';
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'display_name' => 'no',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -340,20 +253,10 @@ class UpdateTest extends TestCase
 
     public function testNonStringDescriptionCausesError()
     {
-        $this->setOwner();
+        $this->data['data']['attributes']['description'] = [];
 
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'description' => [],
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -364,49 +267,15 @@ class UpdateTest extends TestCase
 
     public function testUpdatePermissions()
     {
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name'         => 'updated',
-                    'display_name' => '__UPDATED__',
-                    'description'  => 'It has been updated',
-                ],
-            ],
-        ]);
+        $this->demote();
 
-        $response->assertStatus(403);
-        $this->validateJSONAPI($response->getContent());
-
-        $this->setOwner();
-
-        $response = $this->patch(route('api.organizations.update', $this->organization->id), [
-            'data' => [
-                'type'       => 'organizations',
-                'id'         => $this->organization->id,
-                'attributes' => [
-                    'name'         => 'updated',
-                    'display_name' => '__UPDATED__',
-                    'description'  => 'It has been updated',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', $this->organization->id), $this->data);
+        $this->validateResponse($response, 403);
     }
 
     public function testNonExist()
     {
-        $response = $this->patch(route('api.organizations.update', 'missing'), [
-            'data' => [
-                'type' => 'organizations',
-                'id'   => 'foobar',
-            ],
-        ]);
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->patch(route('api.organizations.update', 'missing'), $this->data);
+        $this->validateResponse($response, 404);
     }
 }

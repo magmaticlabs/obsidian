@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class CreateTest extends TestCase
+final class CreateTest extends TestCase
 {
     /**
      * Authenticated User
@@ -24,6 +24,20 @@ class CreateTest extends TestCase
     private $organization;
 
     /**
+     * Data to send to API
+     *
+     * @var array
+     */
+    private $data;
+
+    /**
+     * Fragment for the authenticated user
+     *
+     * @var array
+     */
+    private $self;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
@@ -33,69 +47,58 @@ class CreateTest extends TestCase
         $this->user = Passport::actingAs(factory(User::class)->create());
 
         $this->organization = factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+        $this->organization->promoteMember($this->user);
+
+        $this->data = [
+            'data' => [
+                [
+                    'type' => 'users',
+                    'id'   => null,
+                ],
+            ],
+        ];
+
+        $this->self = [
+            'type' => 'users',
+            'id'   => $this->user->id,
+        ];
     }
 
     /**
-     * Set the authenticated user as the owner of the organization
+     * Demote the authenticated user
      */
-    public function setOwner()
+    private function demote()
     {
-        $this->organization->addMember($this->user);
-        $this->organization->promoteMember($this->user);
+        $this->organization->demoteMember($this->user);
     }
 
     // --
 
     public function testCreate()
     {
-        $this->setOwner();
-
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
             'data' => [
-                [
-                    'type'       => 'users',
-                    'id'         => $user->id,
-                ],
-                [
-                    'type' => 'users',
-                    'id'   => $this->user->id,
-                ],
+                $this->data['data'][0],
+                $this->self,
             ],
         ]);
     }
 
     public function testCreateNonMember()
     {
-        $this->setOwner();
-
         $user = factory(User::class)->create();
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -106,54 +109,28 @@ class CreateTest extends TestCase
 
     public function testCreateDuplicate()
     {
-        $this->setOwner();
-
         $user = factory(User::class)->create();
-
         $this->organization->addMember($user);
         $this->organization->promoteMember($user);
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
             'data' => [
-                [
-                    'type'       => 'users',
-                    'id'         => $user->id,
-                ],
-                [
-                    'type' => 'users',
-                    'id'   => $this->user->id,
-                ],
+                $this->data['data'][0],
+                $this->self,
             ],
         ]);
     }
 
     public function testCreateMissing()
     {
-        $this->setOwner();
+        $this->data['data'][0]['id'] = 'foobar';
 
-        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => 'foobar',
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(400);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), $this->data);
+        $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
@@ -166,52 +143,27 @@ class CreateTest extends TestCase
     {
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
+        $this->data['data'][0]['id'] = $user->id;
 
-        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(403);
-        $this->validateJSONAPI($response->getContent());
-
-        $this->setOwner();
-
-        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), [
-            'data' => [
-                [
-                    'type' => 'users',
-                    'id'   => $user->id,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), $this->data);
+        $this->validateResponse($response, 200);
 
         $response->assertJsonFragment([
             'data' => [
-                [
-                    'type'       => 'users',
-                    'id'         => $user->id,
-                ],
-                [
-                    'type' => 'users',
-                    'id'   => $this->user->id,
-                ],
+                $this->data['data'][0],
+                $this->self,
             ],
         ]);
+
+        $this->demote();
+
+        $response = $this->post(route('api.organizations.owners.create', $this->organization->id), $this->data);
+        $this->validateResponse($response, 403);
     }
 
     public function testNonExist()
     {
-        $response = $this->post(route('api.organizations.owners.create', 'missing', []));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $response = $this->post(route('api.organizations.owners.create', 'missing', $this->data));
+        $this->validateResponse($response, 404);
     }
 }

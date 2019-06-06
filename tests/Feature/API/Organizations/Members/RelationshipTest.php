@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class RelationshipTest extends TestCase
+final class RelationshipTest extends TestCase
 {
     /**
      * Organization
@@ -33,9 +33,7 @@ class RelationshipTest extends TestCase
     public function testDefaultEmpty()
     {
         $response = $this->get(route('api.organizations.members', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEmpty($data['data']);
@@ -49,9 +47,7 @@ class RelationshipTest extends TestCase
         }
 
         $response = $this->get(route('api.organizations.members', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($members, count($data['data']));
@@ -63,14 +59,10 @@ class RelationshipTest extends TestCase
         $this->organization->addMember($user);
 
         $response = $this->get(route('api.organizations.members', $this->organization->id));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $attributes = $user->toArray();
-        foreach (array_merge($user->getHidden(), ['id']) as $key) {
-            unset($attributes[$key]);
-        }
+        unset($attributes['id']);
 
         $response->assertJson([
             'data' => [
@@ -86,8 +78,6 @@ class RelationshipTest extends TestCase
     public function testNonExist()
     {
         $response = $this->get(route('api.organizations.members', 'missing'));
-
-        $response->assertStatus(404);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 404);
     }
 }

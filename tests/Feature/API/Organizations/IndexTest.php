@@ -7,7 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class IndexTest extends TestCase
+final class IndexTest extends TestCase
 {
     /**
      * Organization
@@ -35,9 +35,7 @@ class IndexTest extends TestCase
         Organization::query()->delete(); // Undo setup creation
 
         $response = $this->get(route('api.organizations.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEmpty($data['data']);
@@ -46,9 +44,7 @@ class IndexTest extends TestCase
     public function testDataMatchesShow()
     {
         $response = $this->get(route('api.organizations.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $compare = $this->get(route('api.organizations.show', $this->organization->id));
         $compare = json_decode($compare->getContent(), true);
@@ -63,23 +59,20 @@ class IndexTest extends TestCase
     public function testCountMatches()
     {
         $response = $this->get(route('api.organizations.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(1, count($data['data']));
 
         // --
 
-        factory(Organization::class)->create();
+        $count = 5;
+        factory(Organization::class)->times($count)->create();
 
         $response = $this->get(route('api.organizations.index'));
-
-        $response->assertStatus(200);
-        $this->validateJSONAPI($response->getContent());
+        $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(2, count($data['data']));
+        $this->assertEquals($count + 1, count($data['data']));
     }
 }

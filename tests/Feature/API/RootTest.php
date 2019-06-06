@@ -11,15 +11,13 @@ class RootTest extends TestCase
     public function testAvailable()
     {
         $response = $this->get(route('api.root'));
-
-        $response->assertStatus(200);
+        $this->validateResponse($response, 200);
     }
 
     public function testFormat()
     {
         $response = $this->get(route('api.root'));
 
-        $response->assertStatus(200);
         $response->assertJson([
             'meta'  => [],
             'data'  => null,
@@ -27,15 +25,12 @@ class RootTest extends TestCase
                 '_self' => route('api.root'),
             ],
         ]);
-
-        $this->validateJSONAPI($response->getContent());
     }
 
     public function testLoginLink()
     {
         $response = $this->get(route('api.root'));
 
-        $response->assertStatus(200);
         $response->assertJson([
             'links' => [
                 'login' => route('api.login'),
@@ -49,8 +44,7 @@ class RootTest extends TestCase
         Passport::actingAs($user);
 
         $response = $this->get(route('api.root'));
-
-        $response->assertStatus(200);
+        $this->validateResponse($response, 200);
 
         $body = json_decode($response->getContent(), true);
         $this->assertArrayNotHasKey('login', $body['links']);
@@ -62,8 +56,7 @@ class RootTest extends TestCase
         Passport::actingAs($user);
 
         $response = $this->get(route('api.root'));
-
-        $response->assertStatus(200);
+        $this->validateResponse($response, 200);
 
         $response->assertJson([
             'links' => [
