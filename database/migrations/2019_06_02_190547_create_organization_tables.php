@@ -24,8 +24,8 @@ class CreateOrganizationTables extends Migration
         });
 
         Schema::create('organization_memberships', function (Blueprint $table) {
-            $table->string('organization_id')->index();
-            $table->string('user_id')->index();
+            $table->uuid('organization_id')->index();
+            $table->uuid('user_id')->index();
             $table->boolean('owner')->default(false);
 
             $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');
