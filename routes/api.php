@@ -60,6 +60,10 @@ Route::middleware(['auth:api'])->group(function() {
         ],
         'repositories' => [
             'organization',
+            'packages',
+        ],
+        'packages' => [
+            'repository',
         ],
     ]);
 });

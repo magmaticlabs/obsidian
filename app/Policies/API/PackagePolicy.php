@@ -2,10 +2,10 @@
 
 namespace MagmaticLabs\Obsidian\Policies\API;
 
-use MagmaticLabs\Obsidian\Domain\Eloquent\Repository as Model;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Package as Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 
-final class RepositoryPolicy
+final class PackagePolicy
 {
     /**
      * Determine whether the user can view the collection.
@@ -29,7 +29,7 @@ final class RepositoryPolicy
      */
     public function show(User $user, Model $model): bool
     {
-        return true; // All users can view any individual repository
+        return true; // All users can view any individual package
     }
 
     /**
@@ -41,7 +41,7 @@ final class RepositoryPolicy
      */
     public function create(User $user): bool
     {
-        return true; // Allow all users to create repositories
+        return true; // Allow all users to create packages
     }
 
     /**
@@ -54,7 +54,7 @@ final class RepositoryPolicy
      */
     public function update(User $user, Model $model): bool
     {
-        return $model->organization->hasMember($user);
+        return $model->repository->organization->hasMember($user);
     }
 
     /**
@@ -67,35 +67,20 @@ final class RepositoryPolicy
      */
     public function destroy(User $user, Model $model): bool
     {
-        return $model->organization->hasMember($user);
+        return $model->repository->organization->hasMember($user);
     }
 
     // --
 
     /**
-     * Determine whether the user can view the organization relationship collection.
+     * Determine whether the user can view the repository relationship collection.
      *
      * @param User  $user
      * @param Model $model
      *
      * @return bool
      */
-    public function organization_index(User $user, Model $model): bool
-    {
-        return true; // All users can view the collection
-    }
-
-    // --
-
-    /**
-     * Determine whether the user can view the packages relationship collection.
-     *
-     * @param User  $user
-     * @param Model $model
-     *
-     * @return bool
-     */
-    public function packages_index(User $user, Model $model): bool
+    public function repository_index(User $user, Model $model): bool
     {
         return true; // All users can view the collection
     }
