@@ -2,52 +2,28 @@
 
 namespace Tests\Feature\API\Organizations\Repositories;
 
-use Laravel\Passport\Passport;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
+use Tests\Feature\API\Organizations\OrganizationTest;
 
-final class IndexTest extends TestCase
+final class IndexTest extends OrganizationTest
 {
-    /**
-     * Organization
-     *
-     * @var Organization
-     */
-    private $organization;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
+    public function testCorrectCounts()
     {
-        parent::setUp();
-
-        Passport::actingAs(factory(User::class)->create());
-
-        $this->organization = factory(Organization::class)->create();
-    }
-
-    // --
-
-    public function testDefaultEmpty()
-    {
-        $response = $this->get(route('api.organizations.repositories.index', $this->organization->id));
+        $response = $this->get($this->getRoute('repositories.index', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data['data']);
-    }
+        $this->assertEquals(0, count($data['data']));
 
-    public function testCorrectCount()
-    {
+        // --
+
         $count = 5;
+
         factory(Repository::class)->times($count)->create([
-            'organization_id' => $this->organization->id,
+            'organization_id' => $this->model->id,
         ]);
 
-        $response = $this->get(route('api.organizations.repositories.index', $this->organization->id));
+        $response = $this->get($this->getRoute('repositories.index', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
@@ -57,17 +33,17 @@ final class IndexTest extends TestCase
     public function testCorrectData()
     {
         $repository = factory(Repository::class)->create([
-            'organization_id' => $this->organization->id,
+            'organization_id' => $this->model->id,
         ]);
 
-        $response = $this->get(route('api.organizations.repositories.index', $this->organization->id));
+        $response = $this->get($this->getRoute('repositories.index', $this->model->id));
         $this->validateResponse($response, 200);
 
-        $response->assertJsonFragment([
+        $response->assertJson([
             'data' => [
                 [
-                    'type' => 'repositories',
-                    'id'   => $repository->id,
+                    'type'       => 'repositories',
+                    'id'         => $repository->id,
                 ],
             ],
         ]);
@@ -75,7 +51,7 @@ final class IndexTest extends TestCase
 
     public function testNonExist()
     {
-        $response = $this->get(route('api.organizations.repositories.index', 'missing'));
+        $response = $this->get($this->getRoute('repositories.index', '__INVAILD__'));
         $this->validateResponse($response, 404);
     }
 }

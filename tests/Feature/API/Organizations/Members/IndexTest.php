@@ -2,70 +2,54 @@
 
 namespace Tests\Feature\API\Organizations\Members;
 
-use Laravel\Passport\Passport;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
+use Tests\Feature\API\Organizations\OrganizationTest;
 
-final class IndexTest extends TestCase
+final class IndexTest extends OrganizationTest
 {
-    /**
-     * Organization
-     *
-     * @var Organization
-     */
-    private $organization;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
+    public function testCorrectCounts()
     {
-        parent::setUp();
-
-        Passport::actingAs(factory(User::class)->create());
-
-        $this->organization = factory(Organization::class)->create();
-    }
-
-    // --
-
-    public function testDefaultEmpty()
-    {
-        $response = $this->get(route('api.organizations.members.index', $this->organization->id));
+        $response = $this->get($this->getRoute('members.index', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data['data']);
-    }
+        $this->assertEquals(1, count($data['data']));
 
-    public function testCorrectCount()
-    {
-        $members = 5;
-        foreach (factory(User::class)->times($members)->create() as $user) {
-            $this->organization->addMember($user);
+        // --
+
+        $count = 5;
+
+        foreach (factory(User::class)->times($count)->create() as $user) {
+            $this->model->addMember($user);
         }
 
-        $response = $this->get(route('api.organizations.members.index', $this->organization->id));
+        $response = $this->get($this->getRoute('members.index', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($members, count($data['data']));
+        $this->assertEquals($count + 1, count($data['data']));
     }
 
     public function testCorrectData()
     {
         $user = factory(User::class)->create();
-        $this->organization->addMember($user);
+        $this->model->addMember($user);
 
-        $response = $this->get(route('api.organizations.members.index', $this->organization->id));
+        $response = $this->get($this->getRoute('members.index', $this->model->id));
         $this->validateResponse($response, 200);
 
-        $response->assertJsonFragment([
+        $attributes = $user->toArray();
+        unset($attributes['id']);
+
+        $response->assertJson([
             'data' => [
                 [
-                    'type' => 'users',
-                    'id'   => $user->id,
+                    'type'       => 'users',
+                    'id'         => $this->user->id,
+                ],
+                [
+                    'type'       => 'users',
+                    'id'         => $user->id,
                 ],
             ],
         ]);
@@ -73,7 +57,7 @@ final class IndexTest extends TestCase
 
     public function testNonExist()
     {
-        $response = $this->get(route('api.organizations.members.index', 'missing'));
+        $response = $this->get($this->getRoute('members.index', '__INVAILD__'));
         $this->validateResponse($response, 404);
     }
 }

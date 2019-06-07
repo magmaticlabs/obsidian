@@ -2,68 +2,42 @@
 
 namespace Tests\Feature\API\Organizations\Owners;
 
-use Laravel\Passport\Passport;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
+use Tests\Feature\API\Organizations\OrganizationTest;
 
-final class RelationshipTest extends TestCase
+final class RelationshipTest extends OrganizationTest
 {
-    /**
-     * Organization
-     *
-     * @var Organization
-     */
-    private $organization;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
+    public function testCorrectCounts()
     {
-        parent::setUp();
-
-        Passport::actingAs(factory(User::class)->create());
-
-        $this->organization = factory(Organization::class)->create();
-    }
-
-    // --
-
-    public function testDefaultEmpty()
-    {
-        $response = $this->get(route('api.organizations.owners', $this->organization->id));
+        $response = $this->get($this->getRoute('owners', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data['data']);
-    }
+        $this->assertEquals(1, count($data['data']));
 
-    public function testCorrectCount()
-    {
-        $members = 5;
-        $owners = 2;
-        foreach (factory(User::class)->times($members)->create() as $user) {
-            $this->organization->addMember($user);
-            if ($this->organization->owners()->count() < $owners) {
-                $this->organization->promoteMember($user);
-            }
+        // --
+
+        $count = 5;
+
+        foreach (factory(User::class)->times($count)->create() as $user) {
+            $this->model->addMember($user);
+            $this->model->promoteMember($user);
         }
 
-        $response = $this->get(route('api.organizations.owners', $this->organization->id));
+        $response = $this->get($this->getRoute('owners', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($owners, count($data['data']));
+        $this->assertEquals($count + 1, count($data['data']));
     }
 
     public function testCorrectData()
     {
         $user = factory(User::class)->create();
-        $this->organization->addMember($user);
-        $this->organization->promoteMember($user);
+        $this->model->addMember($user);
+        $this->model->promoteMember($user);
 
-        $response = $this->get(route('api.organizations.owners', $this->organization->id));
+        $response = $this->get($this->getRoute('owners', $this->model->id));
         $this->validateResponse($response, 200);
 
         $attributes = $user->toArray();
@@ -71,6 +45,10 @@ final class RelationshipTest extends TestCase
 
         $response->assertJson([
             'data' => [
+                [
+                    'type'       => 'users',
+                    'id'         => $this->user->id,
+                ],
                 [
                     'type'       => 'users',
                     'id'         => $user->id,
@@ -82,7 +60,7 @@ final class RelationshipTest extends TestCase
 
     public function testNonExist()
     {
-        $response = $this->get(route('api.organizations.owners', 'missing'));
+        $response = $this->get($this->getRoute('owners', '__INVAILD__'));
         $this->validateResponse($response, 404);
     }
 }
