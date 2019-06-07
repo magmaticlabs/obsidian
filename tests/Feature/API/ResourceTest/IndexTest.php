@@ -1,10 +1,16 @@
 <?php
 
-namespace Tests\Feature\API\Tokens;
+namespace Tests\Feature\API\ResourceTest;
 
-use MagmaticLabs\Obsidian\Domain\Eloquent\User;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 
-final class IndexTest extends TokenTest
+/**
+ * @property Model  $model
+ * @property string $type
+ *
+ * @mixin \Tests\Feature\API\ResourceTest\ResourceTest
+ */
+trait IndexTest
 {
     public function testDataMatchesShow()
     {
@@ -37,30 +43,12 @@ final class IndexTest extends TokenTest
 
         $count = 5;
 
-        for ($i = 0; $i < $count; ++$i) {
-            $this->user->createToken('__TESTING__');
-        }
+        factory(get_class($this->model))->times($count)->create();
 
         $response = $this->get($this->getRoute('index'));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($count, count($data['data']));
-    }
-
-    public function testOnlyShowsMine()
-    {
-        $class = get_class($this->model);
-        $class::query()->delete();
-
-        /** @var User $owner */
-        $owner = factory(User::class)->create();
-        $owner->createToken('_test_')->token;
-
-        $response = $this->get($this->getRoute('index'));
-        $this->validateResponse($response, 200);
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data['data']);
     }
 }
