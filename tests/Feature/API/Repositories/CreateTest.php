@@ -2,141 +2,78 @@
 
 namespace Tests\Feature\API\Repositories;
 
-use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
 
-final class CreateTest extends TestCase
+final class CreateTest extends RepositoryTest
 {
-    /**
-     * Authenticated user
-     *
-     * @var User
-     */
-    private $user;
+    use \Tests\Feature\API\ResourceTest\CreateTest;
 
-    /**
-     * Organization to create the repository in
-     *
-     * @var Organization
-     */
-    private $organization;
+    protected $required = [
+        'name',
+    ];
 
-    /**
-     * Data to send to API
-     *
-     * @var array
-     */
-    private $data;
-
-    /**
-     * Attributes to send to API
-     *
-     * @var array
-     */
-    private $attributes;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->user = Passport::actingAs(factory(User::class)->create());
-        $this->organization = factory(Organization::class)->create();
-        $this->organization->addMember($this->user);
-
-        $this->attributes = [
-            'name'         => 'testing',
-            'display_name' => '__TESTING__',
-            'description'  => 'This is a test repository',
-        ];
-
-        $this->data = [
-            'data' => [
-                'type'       => 'repositories',
-                'attributes' => $this->attributes,
-            ],
-            'relationships' => [
-                'organization' => [
-                    'data' => [
-                        'type' => 'organizations',
-                        'id'   => $this->organization->id,
-                    ],
-                ],
-            ],
-        ];
-    }
+    protected $optional = [
+        'description' => '',
+    ];
 
     // --
 
-    public function testCreate()
+    public function testPermissions()
     {
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 201);
+        $this->removeUser();
 
-        $response->assertHeader('Location');
-
-        $id = basename($response->headers->get('Location'));
-
-        $response->assertJson([
-            'data' => [
-                'type'       => 'repositories',
-                'id'         => $id,
-                'attributes' => $this->attributes,
-            ],
-        ]);
-    }
-
-    public function testCreatePermissions()
-    {
-        $this->organization->removeMember($this->user);
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 403);
     }
 
-    public function testMissingTypeCausesValidationError()
+    /**
+     * @dataProvider invalidDataName
+     */
+    public function testValidateName($value)
     {
-        unset($this->data['data']['type']);
+        $this->data['data']['attributes']['name'] = $value;
 
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/type']],
-            ],
-        ]);
-    }
-
-    public function testWrongTypeCausesValidationError()
-    {
-        $this->data['data']['type'] = 'foobar';
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/type']],
-            ],
-        ]);
-    }
-
-    public function testMissingNameCausesValidationError()
-    {
-        unset($this->data['data']['attributes']['name']);
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
                 ['source' => ['pointer' => '/data/attributes/name']],
+            ],
+        ]);
+    }
+
+    /**
+     * @dataProvider invalidDataDisplayName
+     */
+    public function testValidateDisplayName($value)
+    {
+        $this->data['data']['attributes']['display_name'] = $value;
+
+        $response = $this->post($this->getRoute('create'), $this->data);
+        $this->validateResponse($response, 400);
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/display_name']],
+            ],
+        ]);
+    }
+
+    /**
+     * @dataProvider invalidDataDescription
+     */
+    public function testValidateDescription($value)
+    {
+        $this->data['data']['attributes']['description'] = $value;
+
+        $response = $this->post($this->getRoute('create'), $this->data);
+        $this->validateResponse($response, 400);
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/description']],
             ],
         ]);
     }
@@ -145,71 +82,14 @@ final class CreateTest extends TestCase
     {
         unset($this->data['data']['attributes']['display_name']);
 
-        $response = $this->post(route('api.repositories.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 201);
 
-        $this->attributes['display_name'] = $this->attributes['name'];
+        $this->data['data']['attributes']['display_name'] = $this->data['data']['attributes']['name'];
 
         $response->assertJson([
             'data' => [
-                'attributes' => $this->attributes,
-            ],
-        ]);
-    }
-
-    public function testMissingDescriptionDefaultsToEmpty()
-    {
-        unset($this->data['data']['attributes']['description']);
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-
-        $this->attributes['description'] = '';
-
-        $response->assertJson([
-            'data' => [
-                'attributes' => $this->attributes,
-            ],
-        ]);
-    }
-
-    public function testNonStringNameCausesError()
-    {
-        $this->data['data']['attributes']['name'] = [];
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    public function testNameInvalidCharsCausesError()
-    {
-        $this->data['data']['attributes']['name'] = 'This is illegal!';
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    public function testNameTooShortCausesError()
-    {
-        $this->data['data']['attributes']['name'] = 'no';
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
+                'attributes' => $this->data['data']['attributes'],
             ],
         ]);
     }
@@ -220,10 +100,9 @@ final class CreateTest extends TestCase
             'name'            => 'duplicate',
             'organization_id' => $this->organization->id,
         ]);
-
         $this->data['data']['attributes']['name'] = 'duplicate';
 
-        $response = $this->post(route('api.repositories.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -242,61 +121,7 @@ final class CreateTest extends TestCase
 
         $this->data['data']['attributes']['name'] = 'duplicate';
 
-        $response = $this->post(route('api.repositories.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 201);
-
-        $response->assertHeader('Location');
-
-        $id = basename($response->headers->get('Location'));
-
-        $response->assertJson([
-            'data' => [
-                'type'       => 'repositories',
-                'id'         => $id,
-                'attributes' => $this->data['data']['attributes'],
-            ],
-        ]);
-    }
-
-    public function testNonStringDisplayNameCausesError()
-    {
-        $this->data['data']['attributes']['display_name'] = [];
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/display_name']],
-            ],
-        ]);
-    }
-
-    public function testDisplayNameTooShortCausesError()
-    {
-        $this->data['data']['attributes']['display_name'] = 'no';
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/display_name']],
-            ],
-        ]);
-    }
-
-    public function testNonStringDescriptionCausesError()
-    {
-        $this->data['data']['attributes']['description'] = [];
-
-        $response = $this->post(route('api.repositories.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/description']],
-            ],
-        ]);
     }
 }

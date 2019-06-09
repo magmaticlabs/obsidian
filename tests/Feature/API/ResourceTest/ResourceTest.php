@@ -3,6 +3,7 @@
 namespace Tests\Feature\API\ResourceTest;
 
 use Laravel\Passport\Passport;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
@@ -71,5 +72,15 @@ abstract class ResourceTest extends TestCase
     protected function getRoute(string $method, $arg = null): string
     {
         return route(sprintf('api.%s.%s', $this->type, $method), $arg);
+    }
+
+    /**
+     * Arguments to the factory to create the model
+     *
+     * @return array
+     */
+    protected function factoryArgs(): array
+    {
+        return [];
     }
 }

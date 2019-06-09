@@ -2,63 +2,28 @@
 
 namespace Tests\Feature\API\Repositories\Packages;
 
-use Laravel\Passport\Passport;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
+use Tests\Feature\API\Repositories\RepositoryTest;
 
-final class IndexTest extends TestCase
+final class IndexTest extends RepositoryTest
 {
-    /**
-     * Organization
-     *
-     * @var Organization
-     */
-    private $organization;
-
-    /**
-     * Repository
-     *
-     * @var Repository
-     */
-    private $repository;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
+    public function testCorrectCounts()
     {
-        parent::setUp();
-
-        Passport::actingAs(factory(User::class)->create());
-
-        $this->organization = factory(Organization::class)->create();
-        $this->repository = factory(Repository::class)->create([
-            'organization_id' => $this->organization->id,
-        ]);
-    }
-
-    // --
-
-    public function testDefaultEmpty()
-    {
-        $response = $this->get(route('api.repositories.packages.index', $this->repository->id));
+        $response = $this->get($this->getRoute('packages.index', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data['data']);
-    }
+        $this->assertEquals(0, count($data['data']));
 
-    public function testCorrectCount()
-    {
+        // --
+
         $count = 5;
+
         factory(Package::class)->times($count)->create([
-            'repository_id' => $this->repository->id,
+            'repository_id' => $this->model->id,
         ]);
 
-        $response = $this->get(route('api.repositories.packages.index', $this->repository->id));
+        $response = $this->get($this->getRoute('packages.index', $this->model->id));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
@@ -68,17 +33,20 @@ final class IndexTest extends TestCase
     public function testCorrectData()
     {
         $package = factory(Package::class)->create([
-            'repository_id' => $this->repository->id,
+            'repository_id' => $this->model->id,
         ]);
 
-        $response = $this->get(route('api.repositories.packages.index', $this->repository->id));
+        $response = $this->get($this->getRoute('packages.index', $this->model->id));
         $this->validateResponse($response, 200);
 
-        $response->assertJsonFragment([
+        $attributes = $package->toArray();
+        unset($attributes['id']);
+
+        $response->assertJson([
             'data' => [
                 [
-                    'type' => 'packages',
-                    'id'   => $package->id,
+                    'type'       => 'packages',
+                    'id'         => $package->id,
                 ],
             ],
         ]);
@@ -86,7 +54,7 @@ final class IndexTest extends TestCase
 
     public function testNonExist()
     {
-        $response = $this->get(route('api.repositories.packages.index', 'missing'));
+        $response = $this->get($this->getRoute('packages.index', '__INVAILD__'));
         $this->validateResponse($response, 404);
     }
 }

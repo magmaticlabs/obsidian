@@ -43,7 +43,7 @@ trait IndexTest
 
         $count = 5;
 
-        factory(get_class($this->model))->times($count)->create();
+        factory(get_class($this->model))->times($count)->create($this->factoryArgs());
 
         $response = $this->get($this->getRoute('index'));
         $this->validateResponse($response, 200);
