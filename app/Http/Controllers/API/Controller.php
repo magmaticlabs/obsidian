@@ -80,6 +80,7 @@ abstract class Controller extends BaseController
             $transformer->setDefaultIncludes($transformer->getAvailableIncludes());
         }
 
+        $this->applyFilter($request, $query);
         $this->applysort($request, $query);
 
         $paginator = new Paginator($request, $query);
@@ -160,5 +161,74 @@ abstract class Controller extends BaseController
 
         // Always sort by the primary key last
         $query->orderBy($model->getQualifiedKeyName(), 'asc');
+    }
+
+    /**
+     * Apply filtering to the query
+     *
+     * @param Request          $request
+     * @param Builder|Relation $query
+     */
+    private function applyFilter(Request $request, $query)
+    {
+        $filters = $request->input('filter', []);
+
+        if (!is_array($filters)) {
+            abort(400, 'Filter parameter must be in the form of an array');
+        }
+
+        if (empty($filters)) {
+            return;
+        }
+
+        foreach ($filters as $filter => $criteria) {
+            if (preg_match('/\./', $filter)) {
+                abort(400, 'Filtering is currently only supported on top level resources');
+            }
+
+            $operations = [
+                '!=',
+                '>=',
+                '<=',
+                '>',
+                '<',
+                '=',
+            ];
+
+            $operation = '='; // default operation
+
+            foreach ($operations as $op) {
+                $qop = preg_quote($op, '/');
+                if (!preg_match("/^$qop/", $criteria)) {
+                    continue;
+                }
+
+                $criteria = substr($criteria, strlen($op));
+                $operation = $op;
+            }
+
+            // Use LIKE/NOT LIKE when a wildcard character is in use
+            if (('=' === $operation || '!=' === $operation) && false !== strpos($criteria, '*')) {
+                $criteria = strtr($criteria, ['*' => '%', '%' => '\%']);
+                $operation = ('=' === $operation) ? 'LIKE' : 'NOT LIKE';
+            }
+
+            // Use boolean literals instead of strings
+            switch ($criteria) {
+                case 'true':
+                    $criteria = true;
+                    break;
+                case 'false':
+                    $criteria = false;
+                    break;
+            }
+
+            $table = $query->getModel()->getTable();
+            if (!Schema::hasColumn($table, $filter)) {
+                abort(400, sprintf('Tried to filter %s on unknown attribute: %s', $table, $filter));
+            }
+
+            $query->where($filter, $operation, $criteria);
+        }
     }
 }
