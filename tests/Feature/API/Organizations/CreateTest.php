@@ -87,7 +87,7 @@ final class CreateTest extends OrganizationTest
 
     public function testNameDuplicateCausesError()
     {
-        factory(Organization::class)->create(['name' => 'duplicate']);
+        $this->factory(Organization::class)->create(['name' => 'duplicate']);
         $this->data['data']['attributes']['name'] = 'duplicate';
 
         $response = $this->post($this->getRoute('create'), $this->data);

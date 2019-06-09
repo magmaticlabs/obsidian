@@ -32,7 +32,7 @@ final class RelationshipTest extends OrganizationTest
 
     public function testCorrectData()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->model->addMember($user);
 
         $response = $this->get($this->getRoute('members', $this->model->id));
@@ -42,7 +42,7 @@ final class RelationshipTest extends OrganizationTest
         unset($attributes['id']);
 
         $response->assertJson([
-            'data' => [
+            'data' => $this->sortData([
                 [
                     'type'       => 'users',
                     'id'         => $this->user->id,
@@ -52,13 +52,13 @@ final class RelationshipTest extends OrganizationTest
                     'id'         => $user->id,
                     'attributes' => $attributes,
                 ],
-            ],
+            ], 'id'),
         ]);
     }
 
     public function testNonExist()
     {
-        $response = $this->get($this->getRoute('members', '__INVAILD__'));
+        $response = $this->get($this->getRoute('members', '__INVALID__'));
         $this->validateResponse($response, 404);
     }
 }

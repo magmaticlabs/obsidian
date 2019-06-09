@@ -39,7 +39,7 @@ final class UpdateTest extends OrganizationTest
 
     public function testNameDuplicateCausesError()
     {
-        factory(Organization::class)->create(['name' => 'duplicate']);
+        $this->factory(Organization::class)->create(['name' => 'duplicate']);
         $this->data['data']['attributes']['name'] = 'duplicate';
 
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);

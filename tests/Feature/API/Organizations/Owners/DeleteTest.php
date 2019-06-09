@@ -40,7 +40,7 @@ final class DeleteTest extends OrganizationTest
 
     public function testDestroy()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->model->addMember($user);
         $this->model->promoteMember($user);
         $this->data['data'][0]['id'] = $user->id;
@@ -58,7 +58,7 @@ final class DeleteTest extends OrganizationTest
 
     public function testDestroyNonOwner()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->model->addMember($user);
         $this->data['data'][0]['id'] = $user->id;
 
@@ -75,7 +75,7 @@ final class DeleteTest extends OrganizationTest
 
     public function testDestroyNonMember()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->data['data'][0]['id'] = $user->id;
 
         $response = $this->delete($this->getRoute('owners.destroy', $this->model->id), $this->data);

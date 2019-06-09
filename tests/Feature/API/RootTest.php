@@ -40,7 +40,7 @@ class RootTest extends TestCase
 
     public function testNoLoginLinkWhenLoggedIn()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         Passport::actingAs($user);
 
         $response = $this->get(route('api.root'));
@@ -52,7 +52,7 @@ class RootTest extends TestCase
 
     public function testSessionLinkWhenLoggedIn()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         Passport::actingAs($user);
 
         $response = $this->get(route('api.root'));

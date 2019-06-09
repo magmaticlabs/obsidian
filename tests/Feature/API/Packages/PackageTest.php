@@ -44,14 +44,14 @@ abstract class PackageTest extends ResourceTest
     {
         parent::setUp();
 
-        $this->organization = factory(Organization::class)->create();
+        $this->organization = $this->factory(Organization::class)->create();
         $this->organization->addMember($this->user);
 
-        $this->repository = factory(Repository::class)->create([
+        $this->repository = $this->factory(Repository::class)->create([
             'organization_id' => $this->organization->id,
         ]);
 
-        $this->model = factory(Package::class)->create([
+        $this->model = $this->factory(Package::class)->create([
             'repository_id' => $this->repository->id,
         ]);
 

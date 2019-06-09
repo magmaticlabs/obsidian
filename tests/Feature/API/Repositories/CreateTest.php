@@ -96,7 +96,7 @@ final class CreateTest extends RepositoryTest
 
     public function testNameDuplicateCausesError()
     {
-        factory(Repository::class)->create([
+        $this->factory(Repository::class)->create([
             'name'            => 'duplicate',
             'organization_id' => $this->organization->id,
         ]);
@@ -114,9 +114,9 @@ final class CreateTest extends RepositoryTest
 
     public function testNameDuplicateAnotherOrgSuccess()
     {
-        factory(Repository::class)->create([
+        $this->factory(Repository::class)->create([
             'name'            => 'duplicate',
-            'organization_id' => factory(Organization::class)->create()->id,
+            'organization_id' => $this->factory(Organization::class)->create()->id,
         ]);
 
         $this->data['data']['attributes']['name'] = 'duplicate';

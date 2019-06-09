@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Faker\Factory as Faker;
+use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\TestResponse;
@@ -17,7 +18,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Faker utility
      *
-     * @var \Faker\Factory
+     * @var \Faker\Generator
      */
     protected $faker;
 
@@ -30,6 +31,18 @@ abstract class TestCase extends BaseTestCase
 
         $this->faker = Faker::create();
         $this->faker->seed(env('TEST_SEED', null));
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return \Illuminate\Database\Eloquent\FactoryBuilder
+     */
+    final protected function factory(string $class, string $name = 'default')
+    {
+        $factory = EloquentFactory::construct($this->faker);
+
+        return $factory->of($class, $name);
     }
 
     /**
@@ -77,5 +90,25 @@ abstract class TestCase extends BaseTestCase
         $result = $validator->schemaValidation(json_decode($data), $schemas[$schema]);
 
         $this->assertTrue($result->isValid(), 'Schema validation failed');
+    }
+
+    final protected function sortData(array $array, $key)
+    {
+        usort($array, function ($a, $b) use ($key) {
+            $keys = explode('.', $key);
+            foreach ($keys as $key) {
+                $key = trim($key);
+                if (empty($key)) {
+                    continue;
+                }
+
+                $a = $a[$key];
+                $b = $b[$key];
+            }
+
+            return strcmp((string) $a, (string) $b);
+        });
+
+        return $array;
     }
 }

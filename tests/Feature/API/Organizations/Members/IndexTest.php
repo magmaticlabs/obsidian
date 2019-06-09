@@ -32,7 +32,7 @@ final class IndexTest extends OrganizationTest
 
     public function testCorrectData()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->model->addMember($user);
 
         $response = $this->get($this->getRoute('members.index', $this->model->id));
@@ -42,16 +42,16 @@ final class IndexTest extends OrganizationTest
         unset($attributes['id']);
 
         $response->assertJson([
-            'data' => [
+            'data' => $this->sortData([
                 [
-                    'type'       => 'users',
-                    'id'         => $this->user->id,
+                    'type' => 'users',
+                    'id'   => $this->user->id,
                 ],
                 [
-                    'type'       => 'users',
-                    'id'         => $user->id,
+                    'type' => 'users',
+                    'id'   => $user->id,
                 ],
-            ],
+            ], 'id'),
         ]);
     }
 

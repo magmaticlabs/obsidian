@@ -36,10 +36,10 @@ abstract class RepositoryTest extends ResourceTest
     {
         parent::setUp();
 
-        $this->organization = factory(Organization::class)->create();
+        $this->organization = $this->factory(Organization::class)->create();
         $this->organization->addMember($this->user);
 
-        $this->model = factory(Repository::class)->create([
+        $this->model = $this->factory(Repository::class)->create([
             'organization_id' => $this->organization->id,
         ]);
 

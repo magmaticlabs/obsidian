@@ -7,6 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 
 $factory->define(Repository::class, function (Faker $faker) {
     return [
+        'id'           => $faker->uuid,
         'name'         => $faker->slug,
         'display_name' => $faker->company,
         'description'  => $faker->text(50),

@@ -34,7 +34,7 @@ class LoginTest extends TestCase
 
     public function testValidLogin()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
 
         $response = $this->attemptLogin($user->username, 'secret');
         $this->validateResponse($response, 200);
@@ -51,7 +51,7 @@ class LoginTest extends TestCase
 
     public function testAuthCookieWorks()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
 
         $response = $this->attemptLogin($user->username, 'secret');
         $this->validateResponse($response, 200);
@@ -75,7 +75,7 @@ class LoginTest extends TestCase
             null, '__TESTING__', 'http://localhost'
         );
 
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
 
         $token = (string) $user->createToken('_test_')->accessToken;
 
@@ -108,7 +108,7 @@ class LoginTest extends TestCase
 
     public function testInvalidPassword()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
 
         $response = $this->attemptLogin($user->username, 'passwd');
         $this->validateResponse($response, 403);

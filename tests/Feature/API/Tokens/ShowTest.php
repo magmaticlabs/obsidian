@@ -11,7 +11,7 @@ final class ShowTest extends TokenTest
     public function testOtherOwner404()
     {
         /** @var User $owner */
-        $owner = factory(User::class)->create();
+        $owner = $this->factory(User::class)->create();
         $token = $owner->createToken('_test_')->token;
 
         $response = $this->get($this->getRoute('show', $token->id));

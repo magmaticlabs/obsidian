@@ -28,7 +28,7 @@ abstract class OrganizationTest extends ResourceTest
     {
         parent::setUp();
 
-        $this->model = factory(Organization::class)->create();
+        $this->model = $this->factory(Organization::class)->create();
         $this->model->addMember($this->user);
         $this->model->promoteMember($this->user);
 

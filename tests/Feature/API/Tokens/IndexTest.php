@@ -54,7 +54,7 @@ final class IndexTest extends TokenTest
         $class::query()->delete();
 
         /** @var User $owner */
-        $owner = factory(User::class)->create();
+        $owner = $this->factory(User::class)->create();
         $owner->createToken('_test_')->token;
 
         $response = $this->get($this->getRoute('index'));

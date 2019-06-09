@@ -19,7 +19,7 @@ final class RelationshipTest extends OrganizationTest
 
         $count = 5;
 
-        factory(Repository::class)->times($count)->create([
+        $this->factory(Repository::class)->times($count)->create([
             'organization_id' => $this->model->id,
         ]);
 
@@ -32,7 +32,7 @@ final class RelationshipTest extends OrganizationTest
 
     public function testCorrectData()
     {
-        $repository = factory(Repository::class)->create([
+        $repository = $this->factory(Repository::class)->create([
             'organization_id' => $this->model->id,
         ]);
 

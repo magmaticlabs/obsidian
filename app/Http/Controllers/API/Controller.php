@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Schema;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
@@ -79,6 +80,8 @@ abstract class Controller extends BaseController
             $transformer->setDefaultIncludes($transformer->getAvailableIncludes());
         }
 
+        $this->applysort($request, $query);
+
         $paginator = new Paginator($request, $query);
 
         $model = $query->getModel();
@@ -107,5 +110,55 @@ abstract class Controller extends BaseController
         $resource = new Item($model, $transformer, $model->getResourceKey());
 
         return $this->fractal->createData($resource)->toArray();
+    }
+
+    /**
+     * Apply sorting to the query
+     *
+     * @param Request          $request
+     * @param Builder|Relation $query
+     */
+    private function applysort(Request $request, $query)
+    {
+        $model = $query->getModel();
+        $table = $model->getTable();
+
+        $sorting = $request->input('sort', null);
+
+        // Apply requested sorting
+        if (!empty($sorting)) {
+            if (!is_string($sorting)) {
+                abort(400, 'Invalid sort format, requires: sort=attr,-attr');
+            }
+
+            if (preg_match('/\./', $sorting)) {
+                abort(400, 'Sorting is currently only supported on top level resources');
+            }
+
+            $columns = explode(',', $sorting);
+            foreach ($columns as $column) {
+                $column = trim($column);
+
+                if (empty($column)) {
+                    continue;
+                }
+
+                if (preg_match('/^\-/', $column)) {
+                    $direction = 'DESC';
+                    $column = substr($column, 1);
+                } else {
+                    $direction = 'ASC';
+                }
+
+                if (!Schema::hasColumn($table, $column)) {
+                    abort(400, sprintf('Tried to sort %s on unknown attribute: %s', $table, $column));
+                }
+
+                $query->orderBy($model->qualifyColumn($column), $direction);
+            }
+        }
+
+        // Always sort by the primary key last
+        $query->orderBy($model->getQualifiedKeyName(), 'asc');
     }
 }

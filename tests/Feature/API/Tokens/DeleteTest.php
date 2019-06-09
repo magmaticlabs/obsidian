@@ -11,7 +11,7 @@ final class DeleteTest extends TokenTest
     public function testDeleteOtherOwner404()
     {
         /** @var User $owner */
-        $owner = factory(User::class)->create();
+        $owner = $this->factory(User::class)->create();
         $token = $owner->createToken('_test_')->token;
 
         $response = $this->delete($this->getRoute('destroy', $token->id));

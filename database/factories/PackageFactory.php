@@ -7,6 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 
 $factory->define(Package::class, function (Faker $faker) {
     return [
+        'id'       => $faker->uuid,
         'name'     => $faker->slug,
         'source'   => sprintf('git@github.com:%s/%s.git', $faker->slug, $faker->slug),
         'ref'      => $faker->randomElement(['master', 'development', '@tag']),

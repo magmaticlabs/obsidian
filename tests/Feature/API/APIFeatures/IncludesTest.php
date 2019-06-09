@@ -12,13 +12,13 @@ class IncludesTest extends ResourceTest
     public function testDefaultReturnAll()
     {
         /* @var Organization $organization */
-        $organization = factory(Organization::class)->create();
+        $organization = $this->factory(Organization::class)->create();
 
-        $repository = factory(Repository::class)->create([
+        $repository = $this->factory(Repository::class)->create([
             'organization_id' => $organization->id,
         ]);
 
-        $package = factory(Package::class)->create([
+        $package = $this->factory(Package::class)->create([
             'repository_id' => $repository->id,
         ]);
 
@@ -43,13 +43,13 @@ class IncludesTest extends ResourceTest
     public function testRequestNone()
     {
         /* @var Organization $organization */
-        $organization = factory(Organization::class)->create();
+        $organization = $this->factory(Organization::class)->create();
 
-        $repository = factory(Repository::class)->create([
+        $repository = $this->factory(Repository::class)->create([
             'organization_id' => $organization->id,
         ]);
 
-        $package = factory(Package::class)->create([
+        $package = $this->factory(Package::class)->create([
             'repository_id' => $repository->id,
         ]);
 
@@ -74,13 +74,13 @@ class IncludesTest extends ResourceTest
     public function testRequestPackageOnly()
     {
         /* @var Organization $organization */
-        $organization = factory(Organization::class)->create();
+        $organization = $this->factory(Organization::class)->create();
 
-        $repository = factory(Repository::class)->create([
+        $repository = $this->factory(Repository::class)->create([
             'organization_id' => $organization->id,
         ]);
 
-        $package = factory(Package::class)->create([
+        $package = $this->factory(Package::class)->create([
             'repository_id' => $repository->id,
         ]);
 

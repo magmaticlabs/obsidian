@@ -56,7 +56,7 @@ class PaginationTest extends ResourceTest
      */
     public function testNumPages($total)
     {
-        factory(Organization::class)->times($total)->create();
+        $this->factory(Organization::class)->times($total)->create();
 
         $response = $this->get(route('api.organizations.index'));
 
@@ -74,7 +74,7 @@ class PaginationTest extends ResourceTest
      */
     public function testCounts($total)
     {
-        factory(Organization::class)->times($total)->create();
+        $this->factory(Organization::class)->times($total)->create();
 
         $response = $this->get(route('api.organizations.index'));
 
@@ -98,7 +98,7 @@ class PaginationTest extends ResourceTest
      */
     public function testWithLimit($total, $limit)
     {
-        factory(Organization::class)->times($total)->create();
+        $this->factory(Organization::class)->times($total)->create();
 
         $response = $this->get(route('api.organizations.index', "page[limit]=$limit"));
 
@@ -122,7 +122,7 @@ class PaginationTest extends ResourceTest
 
     public function testLinksFirstPage()
     {
-        factory(Organization::class)->times(5)->create();
+        $this->factory(Organization::class)->times(5)->create();
 
         $response = $this->get(route('api.organizations.index', 'page[limit]=1'));
 
@@ -137,7 +137,7 @@ class PaginationTest extends ResourceTest
 
     public function testLinksSecondPage()
     {
-        factory(Organization::class)->times(5)->create();
+        $this->factory(Organization::class)->times(5)->create();
 
         $response = $this->get(route('api.organizations.index', 'page[limit]=1&page[number]=2'));
 
@@ -153,7 +153,7 @@ class PaginationTest extends ResourceTest
 
     public function testDataIsDifferent()
     {
-        factory(Organization::class)->times(5)->create();
+        $this->factory(Organization::class)->times(5)->create();
 
         $response = $this->get(route('api.organizations.index', 'page[limit]=1&page[number]=2'));
         $A = json_decode($response->getContent(), true);

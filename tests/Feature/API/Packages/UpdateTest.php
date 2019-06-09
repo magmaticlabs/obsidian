@@ -111,7 +111,7 @@ final class UpdateTest extends PackageTest
 
     public function testNameDuplicateCausesError()
     {
-        factory(Package::class)->create([
+        $this->factory(Package::class)->create([
             'name'          => 'duplicate',
             'repository_id' => $this->repository->id,
         ]);
@@ -130,11 +130,11 @@ final class UpdateTest extends PackageTest
 
     public function testNameDuplicateAnotherRepoSuccess()
     {
-        $repository = factory(Repository::class)->create([
+        $repository = $this->factory(Repository::class)->create([
             'organization_id' => $this->organization->id,
         ]);
 
-        factory(Package::class)->create([
+        $this->factory(Package::class)->create([
             'name'            => 'duplicate',
             'repository_id'   => $repository->id,
         ]);

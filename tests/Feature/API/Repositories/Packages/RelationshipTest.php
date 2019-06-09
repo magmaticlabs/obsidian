@@ -19,7 +19,7 @@ final class RelationshipTest extends RepositoryTest
 
         $count = 5;
 
-        factory(Package::class)->times($count)->create([
+        $this->factory(Package::class)->times($count)->create([
             'repository_id' => $this->model->id,
         ]);
 
@@ -32,7 +32,7 @@ final class RelationshipTest extends RepositoryTest
 
     public function testCorrectData()
     {
-        $package = factory(Package::class)->create([
+        $package = $this->factory(Package::class)->create([
             'repository_id' => $this->model->id,
         ]);
 

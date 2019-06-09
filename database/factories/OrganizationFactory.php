@@ -7,6 +7,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 
 $factory->define(Organization::class, function (Faker $faker) {
     return [
+        'id'           => $faker->uuid,
         'name'         => $faker->slug,
         'display_name' => $faker->company,
         'description'  => $faker->text(50),

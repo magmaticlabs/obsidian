@@ -10,7 +10,7 @@ class SparseFieldsTest extends ResourceTest
     public function testDefaultReturnAll()
     {
         /* @var Organization $organization */
-        $organization = factory(Organization::class)->create();
+        $organization = $this->factory(Organization::class)->create();
         $attributes = $organization->toArray();
         unset($attributes['id']);
 
@@ -34,7 +34,7 @@ class SparseFieldsTest extends ResourceTest
         sort($fields);
 
         /* @var Organization $organization */
-        $organization = factory(Organization::class)->create();
+        $organization = $this->factory(Organization::class)->create();
 
         $attributes = [];
         foreach ($fields as $field) {
@@ -56,7 +56,7 @@ class SparseFieldsTest extends ResourceTest
     public function testMismatchTypeReturnAll()
     {
         /* @var Organization $organization */
-        $organization = factory(Organization::class)->create();
+        $organization = $this->factory(Organization::class)->create();
         $attributes = $organization->toArray();
         unset($attributes['id']);
 
@@ -81,7 +81,7 @@ class SparseFieldsTest extends ResourceTest
 
         sort($fields);
 
-        factory(Organization::class)->create();
+        $this->factory(Organization::class)->create();
 
         $response = $this->get(route('api.organizations.index', [
             'fields[organizations]' => implode(',', $fields),

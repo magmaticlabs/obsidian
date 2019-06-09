@@ -40,7 +40,7 @@ final class CreateTest extends OrganizationTest
 
     public function testCreate()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->data['data'][0]['id'] = $user->id;
 
         $response = $this->post($this->getRoute('members.create', $this->model->id), $this->data);
@@ -59,7 +59,7 @@ final class CreateTest extends OrganizationTest
 
     public function testCreateDuplicate()
     {
-        $user = factory(User::class)->create();
+        $user = $this->factory(User::class)->create();
         $this->model->addMember($user);
         $this->data['data'][0]['id'] = $user->id;
 
