@@ -10,9 +10,14 @@ use League\Fractal\Pagination\PaginatorInterface;
 final class Paginator implements PaginatorInterface
 {
     /**
-     * The default page limit
+     * The default per page limit
      */
     const DEFAULT_LIMIT = 10;
+
+    /**
+     * The maximum per page limit
+     */
+    const MAX_LIMIT = 100;
 
     /**
      * The request object
@@ -68,11 +73,11 @@ final class Paginator implements PaginatorInterface
         $this->total = $query->count();
 
         $paging = $request->input('page', null);
-        $this->currentPage = max(empty($paging['number']) ? 1 : intval($paging['number']), 1);
-        $this->limit = max(min((empty($paging['limit']) ? self::DEFAULT_LIMIT : intval($paging['limit'])), 100), 1);
+        $this->currentPage = max(1, empty($paging['number']) ? 1 : intval($paging['number']));
+        $this->limit = max(1, min(self::MAX_LIMIT, (!isset($paging['limit']) ? self::DEFAULT_LIMIT : intval($paging['limit']))));
         $skip = (($this->currentPage - 1) * $this->limit);
 
-        $this->data = $query->skip($skip)->take($this->limit);
+        $this->data = $query->skip($skip)->take($this->limit)->get();
     }
 
     /**
@@ -82,7 +87,7 @@ final class Paginator implements PaginatorInterface
      */
     public function getData()
     {
-        return $this->data->get();
+        return $this->data;
     }
 
     /**
@@ -122,7 +127,7 @@ final class Paginator implements PaginatorInterface
      */
     public function getCount()
     {
-        return $this->data->count();
+        return count($this->data);
     }
 
     /**
