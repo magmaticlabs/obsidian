@@ -32,10 +32,18 @@ abstract class Controller extends BaseController
     /**
      * Class constructor
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->fractal = new Manager();
         $this->fractal->setSerializer(new JsonApiSerializer(url()->to('/api/')));
+
+        if ($fields = $request->query('fields')) {
+            if (!is_array($fields)) {
+                abort(400, 'Invalid sparse fields format, requires: fields[type]=attr,attr');
+            }
+
+            $this->fractal->parseFieldsets($fields);
+        }
     }
 
     /**
