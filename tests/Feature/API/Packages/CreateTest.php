@@ -2,149 +2,41 @@
 
 namespace Tests\Feature\API\Packages;
 
-use Laravel\Passport\Passport;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
 
-final class CreateTest extends TestCase
+final class CreateTest extends PackageTest
 {
-    /**
-     * Authenticated user
-     *
-     * @var User
-     */
-    private $user;
+    use \Tests\Feature\API\ResourceTest\CreateTest;
 
-    /**
-     * Organization to create the repository in
-     *
-     * @var Organization
-     */
-    private $organization;
+    protected $required = [
+        'name',
+        'source',
+    ];
 
-    /**
-     * Repository to create the package in
-     *
-     * @var Repository
-     */
-    private $repository;
-
-    /**
-     * Data to send to API
-     *
-     * @var array
-     */
-    private $data;
-
-    /**
-     * Attributes to send to API
-     *
-     * @var array
-     */
-    private $attributes;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->user = Passport::actingAs(factory(User::class)->create());
-        $this->organization = factory(Organization::class)->create();
-        $this->organization->addMember($this->user);
-
-        $this->repository = factory(Repository::class)->create([
-            'organization_id' => $this->organization->id,
-        ]);
-
-        $this->attributes = [
-            'name'     => 'testing',
-            'source'   => 'git@github.com:testing/test.git',
-            'ref'      => 'testing',
-            'schedule' => 'hook',
-        ];
-
-        $this->data = [
-            'data' => [
-                'type'       => 'packages',
-                'attributes' => $this->attributes,
-            ],
-            'relationships' => [
-                'repository' => [
-                    'data' => [
-                        'type' => 'repositories',
-                        'id'   => $this->repository->id,
-                    ],
-                ],
-            ],
-        ];
-    }
+    protected $optional = [
+        'ref'      => 'master',
+        'schedule' => 'hook',
+    ];
 
     // --
 
-    public function testCreate()
-    {
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 201);
-
-        $response->assertHeader('Location');
-
-        $id = basename($response->headers->get('Location'));
-
-        $response->assertJson([
-            'data' => [
-                'type'       => 'packages',
-                'id'         => $id,
-                'attributes' => $this->attributes,
-            ],
-        ]);
-    }
-
     public function testCreatePermissions()
     {
-        $this->organization->removeMember($this->user);
+        $this->removeUser();
 
         $response = $this->post(route('api.packages.create'), $this->data);
         $this->validateResponse($response, 403);
     }
 
-    public function testMissingTypeCausesValidationError()
+    /**
+     * @dataProvider invalidDataName
+     */
+    public function testValidateName($value)
     {
-        unset($this->data['data']['type']);
+        $this->data['data']['attributes']['name'] = $value;
 
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/type']],
-            ],
-        ]);
-    }
-
-    public function testWrongTypeCausesValidationError()
-    {
-        $this->data['data']['type'] = 'foobar';
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/type']],
-            ],
-        ]);
-    }
-
-    public function testMissingNameCausesValidationError()
-    {
-        unset($this->data['data']['attributes']['name']);
-
-        $response = $this->post(route('api.packages.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -154,11 +46,14 @@ final class CreateTest extends TestCase
         ]);
     }
 
-    public function testMissingSourceCausesValidationError()
+    /**
+     * @dataProvider invalidDataSource
+     */
+    public function testValidateSource($value)
     {
-        unset($this->data['data']['attributes']['source']);
+        $this->data['data']['attributes']['source'] = $value;
 
-        $response = $this->post(route('api.packages.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -168,76 +63,49 @@ final class CreateTest extends TestCase
         ]);
     }
 
-    public function testMissingRefDefaultsToMaster()
+    /**
+     * @dataProvider invalidDataRef
+     */
+    public function testValidateRef($value)
     {
-        unset($this->data['data']['attributes']['ref']);
+        $this->data['data']['attributes']['ref'] = $value;
 
-        $response = $this->post(route('api.packages.create'), $this->data);
-
-        $this->attributes['ref'] = 'master';
-
-        $response->assertJson([
-            'data' => [
-                'attributes' => $this->attributes,
-            ],
-        ]);
-    }
-
-    public function testMissingScheduleDefaultsToHook()
-    {
-        unset($this->data['data']['attributes']['schedule']);
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-
-        $this->attributes['schedule'] = 'hook';
-
-        $response->assertJson([
-            'data' => [
-                'attributes' => $this->attributes,
-            ],
-        ]);
-    }
-
-    public function testNonStringNameCausesError()
-    {
-        $this->data['data']['attributes']['name'] = [];
-
-        $response = $this->post(route('api.packages.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
+                ['source' => ['pointer' => '/data/attributes/ref']],
             ],
         ]);
     }
 
-    public function testNameInvalidCharsCausesError()
+    /**
+     * @dataProvider invalidDataSchedule
+     */
+    public function testValidateSchedule($value)
     {
-        $this->data['data']['attributes']['name'] = 'This is illegal!';
+        $this->data['data']['attributes']['schedule'] = $value;
 
-        $response = $this->post(route('api.packages.create'), $this->data);
+        $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
+                ['source' => ['pointer' => '/data/attributes/schedule']],
             ],
         ]);
     }
 
-    public function testNameTooShortCausesError()
+    /**
+     * @dataProvider validDataSchedule
+     */
+    public function testValidateGoodScheduleName($value)
     {
-        $this->data['data']['attributes']['name'] = 'no';
+        $this->data['data']['attributes']['schedule'] = $value;
 
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
+        $response = $this->post($this->getRoute('create'), $this->data);
+        $this->validateResponse($response, 201);
     }
 
     public function testNameDuplicateCausesError()
@@ -261,95 +129,18 @@ final class CreateTest extends TestCase
 
     public function testNameDuplicateAnotherRepoSuccess()
     {
+        $repository = factory(Repository::class)->create([
+            'organization_id' => $this->organization->id,
+        ]);
+
         factory(Package::class)->create([
             'name'            => 'duplicate',
-            'repository_id'   => factory(Repository::class)->create([
-                'organization_id' => $this->organization->id,
-            ])->id,
+            'repository_id'   => $repository->id,
         ]);
 
         $this->data['data']['attributes']['name'] = 'duplicate';
 
         $response = $this->post(route('api.packages.create'), $this->data);
         $this->validateResponse($response, 201);
-
-        $response->assertHeader('Location');
-
-        $id = basename($response->headers->get('Location'));
-
-        $response->assertJson([
-            'data' => [
-                'type'       => 'packages',
-                'id'         => $id,
-                'attributes' => $this->data['data']['attributes'],
-            ],
-        ]);
-    }
-
-    public function testNonStringSourceCausesError()
-    {
-        $this->data['data']['attributes']['source'] = [];
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/source']],
-            ],
-        ]);
-    }
-
-    public function testSourceInvalidCausesError()
-    {
-        $this->data['data']['attributes']['source'] = 'https://github.com:invalid/wrong.git';
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/source']],
-            ],
-        ]);
-    }
-
-    public function testNonStringRefCausesError()
-    {
-        $this->data['data']['attributes']['ref'] = [];
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/ref']],
-            ],
-        ]);
-    }
-
-    public function testInvalidScheduleCausesError()
-    {
-        $this->data['data']['attributes']['schedule'] = [];
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/schedule']],
-            ],
-        ]);
-
-        $this->data['data']['attributes']['schedule'] = '__INVALID__';
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/schedule']],
-            ],
-        ]);
     }
 }
