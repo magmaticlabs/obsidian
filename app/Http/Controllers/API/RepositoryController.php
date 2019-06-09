@@ -14,7 +14,6 @@ use MagmaticLabs\Obsidian\Domain\Transformers\OrganizationTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\PackageTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
-use Throwable;
 
 final class RepositoryController extends ResourceController
 {
@@ -74,10 +73,6 @@ final class RepositoryController extends ResourceController
             abort(500, 'Unable to generate UUID');
             $id = null;
         }
-
-        $this->commandbus->register('repository.create', function (Command $command) {
-            Repository::create($command->getData());
-        });
 
         $this->commandbus->dispatch(new Command('repository.create', [
             'id'              => $id,
@@ -143,13 +138,6 @@ final class RepositoryController extends ResourceController
             ],
         ]);
 
-        $this->commandbus->register('repository.update', function (Command $command) {
-            $data = $command->getData();
-
-            $repository = Repository::find($command->getObjectId());
-            $repository->update($data['attributes']);
-        });
-
         $attributes = [];
 
         foreach (['name', 'display_name', 'description'] as $key) {
@@ -180,15 +168,7 @@ final class RepositoryController extends ResourceController
     {
         $this->authorize('destroy', $repository = Repository::findOrFail($id));
 
-        $this->commandbus->register('repository.delete', function (Command $command) {
-            try {
-                Repository::find($command->getObjectId())->delete();
-            } catch (Throwable $ex) {
-                abort(500, 'Failed to delete repository');
-            }
-        });
-
-        $this->commandbus->dispatch(new Command('repository.delete', [
+        $this->commandbus->dispatch(new Command('repository.destroy', [
             'id' => $id,
         ]));
 

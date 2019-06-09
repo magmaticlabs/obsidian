@@ -12,6 +12,16 @@ final class CommandBus
     private $registrations;
 
     /**
+     * Accessor for the registrations
+     *
+     * @return array
+     */
+    public function getRegistrations(): array
+    {
+        return $this->registrations;
+    }
+
+    /**
      * Register a new command callback
      *
      * @param string   $command
@@ -21,11 +31,11 @@ final class CommandBus
      */
     public function register(string $command, callable $callback, int $priority = 10): self
     {
-        if (!isset($this->registrations[$command][$priority])) {
+        if (!isset($this->registrations[$priority])) {
             $this->registrations[$priority] = [];
         }
 
-        if (!isset($this->registrations[$command])) {
+        if (!isset($this->registrations[$priority][$command])) {
             $this->registrations[$priority][$command] = [];
         }
 

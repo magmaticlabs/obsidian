@@ -14,7 +14,6 @@ use MagmaticLabs\Obsidian\Domain\Transformers\BuildTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\PackageTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
-use Throwable;
 
 final class PackageController extends ResourceController
 {
@@ -76,10 +75,6 @@ final class PackageController extends ResourceController
             abort(500, 'Unable to generate UUID');
             $id = null;
         }
-
-        $this->commandbus->register('package.create', function (Command $command) {
-            Package::create($command->getData());
-        });
 
         $this->commandbus->dispatch(new Command('package.create', [
             'id'            => $id,
@@ -147,13 +142,6 @@ final class PackageController extends ResourceController
             ],
         ]);
 
-        $this->commandbus->register('package.update', function (Command $command) {
-            $data = $command->getData();
-
-            $package = Package::find($command->getObjectId());
-            $package->update($data['attributes']);
-        });
-
         $attributes = [];
 
         foreach (['name', 'source', 'ref', 'schedule'] as $key) {
@@ -183,14 +171,6 @@ final class PackageController extends ResourceController
     public function destroy(string $id): Response
     {
         $this->authorize('destroy', $package = Package::findOrFail($id));
-
-        $this->commandbus->register('package.destroy', function (Command $command) {
-            try {
-                Package::find($command->getObjectId())->delete();
-            } catch (Throwable $ex) {
-                abort(500, 'Failed to delete token');
-            }
-        });
 
         $this->commandbus->dispatch(new Command('package.destroy', [
             'id' => $id,

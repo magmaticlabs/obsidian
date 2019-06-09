@@ -7,14 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use MagmaticLabs\Obsidian\Domain\Support\Command;
 use MagmaticLabs\Obsidian\Domain\Support\UUID;
 use MagmaticLabs\Obsidian\Domain\Transformers\OrganizationTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\Transformer;
-use Throwable;
 
 final class OrganizationController extends ResourceController
 {
@@ -58,12 +56,6 @@ final class OrganizationController extends ResourceController
             abort(500, 'Unable to generate UUID');
             $id = null;
         }
-
-        $this->commandbus->register('organization.create', function (Command $command) {
-            $organization = Organization::create($command->getData());
-            $organization->addMember($user = $this->getUser());
-            $organization->promoteMember($user);
-        });
 
         $this->commandbus->dispatch(new Command('organization.create', [
             'id'           => $id,
@@ -121,12 +113,6 @@ final class OrganizationController extends ResourceController
             'relationships' => 'not_present',
         ]);
 
-        $this->commandbus->register('organization.update', function (Command $command) {
-            $data = $command->getData();
-            $organization = Organization::find($data['id']);
-            $organization->update($data['attributes']);
-        });
-
         $attributes = [];
 
         foreach (['name', 'display_name', 'description'] as $key) {
@@ -156,14 +142,6 @@ final class OrganizationController extends ResourceController
     public function destroy(string $id): Response
     {
         $this->authorize('destroy', $organization = Organization::findOrFail($id));
-
-        $this->commandbus->register('organization.destroy', function (Command $command) {
-            try {
-                Organization::find($command->getObjectId())->delete();
-            } catch (Throwable $ex) {
-                abort(500, 'Failed to delete token');
-            }
-        });
 
         $this->commandbus->dispatch(new Command('organization.destroy', [
             'id' => $id,
@@ -237,16 +215,7 @@ final class OrganizationController extends ResourceController
             'data.*.id'   => 'required|exists:users,id',
         ])['data'];
 
-        $this->commandbus->register('organization.addmember', function (Command $command) {
-            $data = $command->getData();
-            $organization = Organization::find($data['id']);
-
-            foreach ($data['users'] as $userid) {
-                $organization->addMember(User::find($userid));
-            }
-        });
-
-        $this->commandbus->dispatch(new Command('organization.addmember', [
+        $this->commandbus->dispatch(new Command('organization.members.create', [
             'id'    => $id,
             'users' => array_map(function ($data) {
                 return $data['id'];
@@ -281,16 +250,7 @@ final class OrganizationController extends ResourceController
             'data.*.id'   => 'required|exists:users,id|not_match:' . $this->getUser()->getKey(),
         ])['data'];
 
-        $this->commandbus->register('organization.removemember', function (Command $command) {
-            $data = $command->getData();
-            $organization = Organization::find($data['id']);
-
-            foreach ($data['users'] as $userid) {
-                $organization->removeMember(User::find($userid));
-            }
-        });
-
-        $this->commandbus->dispatch(new Command('organization.removemember', [
+        $this->commandbus->dispatch(new Command('organization.members.destroy', [
             'id'    => $id,
             'users' => array_map(function ($data) {
                 return $data['id'];
@@ -373,16 +333,7 @@ final class OrganizationController extends ResourceController
             ],
         ])['data'];
 
-        $this->commandbus->register('organization.promotemember', function (Command $command) {
-            $data = $command->getData();
-            $organization = Organization::find($data['id']);
-
-            foreach ($data['users'] as $userid) {
-                $organization->promoteMember(User::find($userid));
-            }
-        });
-
-        $this->commandbus->dispatch(new Command('organization.promotemember', [
+        $this->commandbus->dispatch(new Command('organization.owners.create', [
             'id'    => $id,
             'users' => array_map(function ($data) {
                 return $data['id'];
@@ -422,16 +373,7 @@ final class OrganizationController extends ResourceController
             ],
         ])['data'];
 
-        $this->commandbus->register('organization.demotemember', function (Command $command) {
-            $data = $command->getData();
-            $organization = Organization::find($data['id']);
-
-            foreach ($data['users'] as $userid) {
-                $organization->demoteMember(User::find($userid));
-            }
-        });
-
-        $this->commandbus->dispatch(new Command('organization.demotemember', [
+        $this->commandbus->dispatch(new Command('organization.owners.destroy', [
             'id'    => $id,
             'users' => array_map(function ($data) {
                 return $data['id'];

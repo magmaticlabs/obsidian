@@ -1,5 +1,7 @@
 <?php
 
+use MagmaticLabs\Obsidian\Providers\RouteServiceProvider;
+
 return [
 
     /*
@@ -174,6 +176,9 @@ return [
         // MagmaticLabs\Obsidian\Providers\BroadcastServiceProvider::class,
         MagmaticLabs\Obsidian\Providers\EventServiceProvider::class,
         MagmaticLabs\Obsidian\Providers\RouteServiceProvider::class,
+
+        // Custom
+        MagmaticLabs\Obsidian\Providers\BusServiceProvider::class,
 
     ],
 

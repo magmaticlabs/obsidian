@@ -2,11 +2,14 @@
 
 namespace MagmaticLabs\Obsidian\Http\Controllers\API;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use MagmaticLabs\Obsidian\Domain\Support\Command;
+use MagmaticLabs\Obsidian\Domain\Support\UUID;
 use MagmaticLabs\Obsidian\Domain\Transformers\BuildTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\PackageTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
@@ -56,19 +59,27 @@ final class BuildController extends ResourceController
             abort(403, 'You are not a member of the specified organization');
         }
 
-        $build = Build::create([
+        try {
+            $id = (string) UUID::generate();
+        } catch (Exception $e) {
+            abort(500, 'Unable to generate UUID');
+            $id = null;
+        }
+
+        $this->commandbus->dispatch(new Command('build.create', [
+            'id'         => $id,
             'package_id' => $relationships['package']['data']['id'],
             'ref'        => trim($data['attributes']['ref']),
             'status'     => 'pending',
-        ]);
+        ]));
 
         $response = new Response($this->item(
-            $build,
+            Build::find($id),
             new BuildTransformer()
         ), 201);
 
         $response->withHeaders([
-            'Location' => route('api.builds.show', (string) $build->getKey()),
+            'Location' => route('api.builds.show', (string) $id),
         ]);
 
         return $response;

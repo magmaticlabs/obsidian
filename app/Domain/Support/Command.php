@@ -78,10 +78,14 @@ class Command
     /**
      * Data accessor
      *
-     * @return array
+     * @return array|null
      */
-    public function getData(): array
+    public function getData(?string $key = null): ?array
     {
+        if (!empty($key)) {
+            return $this->data[$key] ?? null;
+        }
+
         return $this->data;
     }
 
@@ -123,6 +127,16 @@ class Command
     public function getUser(): array
     {
         return $this->user->toArray();
+    }
+
+    /**
+     * User id accessor
+     *
+     * @return string
+     */
+    public function getUserId(): string
+    {
+        return (string) $this->user->id;
     }
 
     /**
