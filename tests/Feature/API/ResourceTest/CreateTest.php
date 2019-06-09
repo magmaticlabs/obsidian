@@ -105,6 +105,11 @@ trait CreateTest
             $output[] = [$key, $value];
         }
 
+        // Prevent skipped tests
+        if (empty($output)) {
+            return [['', '']];
+        }
+
         return $output;
     }
 
@@ -113,6 +118,13 @@ trait CreateTest
      */
     public function testMissingOptionalAttributesSetToDefault($attribute, $value)
     {
+        if (empty($attribute)) {
+            // Prevent "no assertions"
+            $this->assertTrue(true);
+
+            return;
+        }
+
         unset($this->data['data']['attributes'][$attribute]);
 
         /* @var \Illuminate\Foundation\Testing\TestResponse $response */

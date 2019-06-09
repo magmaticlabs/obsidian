@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use MagmaticLabs\Obsidian\Domain\Transformers\BuildTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\PackageTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
@@ -238,6 +239,84 @@ final class PackageController extends ResourceController
      * @return Response
      */
     public function repository_destroy(Request $request, string $id): Response
+    {
+        return abort(405, 'Not Allowed');
+    }
+
+    // --
+
+    /**
+     * Builds relationship
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function builds(Request $request, string $id): Response
+    {
+        /* @var Package $package */
+        $this->authorize('builds_index', $package = Package::findOrFail($id));
+
+        return new Response($this->collection(
+            $request,
+            $package->builds(),
+            new BuildTransformer()
+        ), 200);
+    }
+
+    /**
+     * Builds relationship index
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function builds_index(Request $request, string $id): Response
+    {
+        /* @var Package $package */
+        $this->authorize('builds_index', $package = Package::findOrFail($id));
+
+        return new Response($this->collection(
+            $request,
+            $package->builds(),
+            new RelationshipTransformer()
+        ), 200);
+    }
+
+    /**
+     * Builds relationship creation
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function builds_create(Request $request, string $id): Response
+    {
+        return abort(405, 'Not Allowed');
+    }
+
+    /**
+     * Builds relationship destruction
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function builds_destroy(Request $request, string $id): Response
     {
         return abort(405, 'Not Allowed');
     }

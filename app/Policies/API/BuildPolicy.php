@@ -2,10 +2,10 @@
 
 namespace MagmaticLabs\Obsidian\Policies\API;
 
-use MagmaticLabs\Obsidian\Domain\Eloquent\Package as Model;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Build as Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 
-final class PackagePolicy
+final class BuildPolicy
 {
     /**
      * Determine whether the user can view the collection.
@@ -29,7 +29,7 @@ final class PackagePolicy
      */
     public function show(User $user, Model $model): bool
     {
-        return true; // All users can view any individual package
+        return true; // All users can view any individual repository
     }
 
     /**
@@ -41,7 +41,7 @@ final class PackagePolicy
      */
     public function create(User $user): bool
     {
-        return true; // Allow all users to create packages
+        return true; // Allow all users to create repositories
     }
 
     /**
@@ -54,7 +54,7 @@ final class PackagePolicy
      */
     public function update(User $user, Model $model): bool
     {
-        return $model->repository->organization->hasMember($user);
+        return false; // No one can update builds
     }
 
     /**
@@ -67,36 +67,21 @@ final class PackagePolicy
      */
     public function destroy(User $user, Model $model): bool
     {
-        return $model->repository->organization->hasMember($user);
+        return false; // No one can delete builds
     }
 
     // --
 
     /**
-     * Determine whether the user can view the repository relationship collection.
+     * Determine whether the user can view the package relationship collection.
      *
      * @param User  $user
      * @param Model $model
      *
      * @return bool
      */
-    public function repository_index(User $user, Model $model): bool
+    public function package_index(User $user, Model $model): bool
     {
-        return true; // All users can view the collection
-    }
-
-    // --
-
-    /**
-     * Determine whether the user can view the builds relationship collection.
-     *
-     * @param User                                              $user
-     * @param \MagmaticLabs\Obsidian\Domain\Eloquent\Repository $model
-     *
-     * @return bool
-     */
-    public function builds_index(User $user, Model $model): bool
-    {
-        return true; // All users can view the collection
+        return true; // All users can view the parent package
     }
 }
