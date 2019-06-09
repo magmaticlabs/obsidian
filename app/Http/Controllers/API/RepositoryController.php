@@ -2,15 +2,19 @@
 
 namespace MagmaticLabs\Obsidian\Http\Controllers\API;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use MagmaticLabs\Obsidian\Domain\Support\Command;
+use MagmaticLabs\Obsidian\Domain\Support\UUID;
 use MagmaticLabs\Obsidian\Domain\Transformers\OrganizationTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\PackageTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
+use Throwable;
 
 final class RepositoryController extends ResourceController
 {
@@ -64,20 +68,32 @@ final class RepositoryController extends ResourceController
             abort(403, 'You are not a member of the specified organization');
         }
 
-        $repository = Repository::create([
+        try {
+            $id = (string) UUID::generate();
+        } catch (Exception $e) {
+            abort(500, 'Unable to generate UUID');
+            $id = null;
+        }
+
+        $this->commandbus->register('repository.create', function (Command $command) {
+            Repository::create($command->getData());
+        });
+
+        $this->commandbus->dispatch(new Command('repository.create', [
+            'id'              => $id,
             'name'            => trim($data['attributes']['name']),
             'organization_id' => $relationships['organization']['data']['id'],
             'display_name'    => isset($data['attributes']['display_name']) ? trim($data['attributes']['display_name']) : trim($data['attributes']['name']),
             'description'     => isset($data['attributes']['description']) ? trim($data['attributes']['description']) : '',
-        ]);
+        ]));
 
         $response = new Response($this->item(
-            $repository,
+            Repository::find($id),
             new RepositoryTransformer()
         ), 201);
 
         $response->withHeaders([
-            'Location' => route('api.repositories.show', (string) $repository->getKey()),
+            'Location' => route('api.repositories.show', (string) $id),
         ]);
 
         return $response;
@@ -127,6 +143,13 @@ final class RepositoryController extends ResourceController
             ],
         ]);
 
+        $this->commandbus->register('repository.update', function (Command $command) {
+            $data = $command->getData();
+
+            $repository = Repository::find($command->getObjectId());
+            $repository->update($data['attributes']);
+        });
+
         $attributes = [];
 
         foreach (['name', 'display_name', 'description'] as $key) {
@@ -136,11 +159,14 @@ final class RepositoryController extends ResourceController
         }
 
         if (!empty($attributes)) {
-            $repository->update($attributes);
+            $this->commandbus->dispatch(new Command('repository.update', [
+                'id'         => $id,
+                'attributes' => $attributes,
+            ]));
         }
 
         return new Response($this->item(
-            $repository,
+            $repository->refresh(),
             new RepositoryTransformer()
         ), 200);
     }
@@ -154,11 +180,17 @@ final class RepositoryController extends ResourceController
     {
         $this->authorize('destroy', $repository = Repository::findOrFail($id));
 
-        try {
-            $repository->delete();
-        } catch (\Throwable $ex) {
-            return new Response('Failed to delete repository', 500);
-        }
+        $this->commandbus->register('repository.delete', function (Command $command) {
+            try {
+                Repository::find($command->getObjectId())->delete();
+            } catch (Throwable $ex) {
+                abort(500, 'Failed to delete repository');
+            }
+        });
+
+        $this->commandbus->dispatch(new Command('repository.delete', [
+            'id' => $id,
+        ]));
 
         return new Response(null, 204);
     }

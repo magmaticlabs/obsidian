@@ -15,6 +15,7 @@ use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
+use MagmaticLabs\Obsidian\Domain\Support\CommandBus;
 use MagmaticLabs\Obsidian\Domain\Support\JsonApiSerializer;
 use MagmaticLabs\Obsidian\Domain\Support\Paginator;
 use MagmaticLabs\Obsidian\Domain\Transformers\Transformer;
@@ -31,9 +32,16 @@ abstract class Controller extends BaseController
     protected $fractal;
 
     /**
+     * Command Bus
+     *
+     * @var CommandBus
+     */
+    protected $commandbus;
+
+    /**
      * Class constructor
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request, CommandBus $commandbus)
     {
         $this->fractal = new Manager();
         $this->fractal->setSerializer(new JsonApiSerializer(url()->to('/api/')));
@@ -49,6 +57,8 @@ abstract class Controller extends BaseController
         if ($includes = $request->query('include')) {
             $this->fractal->parseIncludes($includes);
         }
+
+        $this->commandbus = $commandbus;
     }
 
     /**

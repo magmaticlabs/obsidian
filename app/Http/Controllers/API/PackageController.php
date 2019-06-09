@@ -2,15 +2,19 @@
 
 namespace MagmaticLabs\Obsidian\Http\Controllers\API;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use MagmaticLabs\Obsidian\Domain\Support\Command;
+use MagmaticLabs\Obsidian\Domain\Support\UUID;
 use MagmaticLabs\Obsidian\Domain\Transformers\BuildTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\PackageTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RelationshipTransformer;
 use MagmaticLabs\Obsidian\Domain\Transformers\RepositoryTransformer;
+use Throwable;
 
 final class PackageController extends ResourceController
 {
@@ -66,21 +70,33 @@ final class PackageController extends ResourceController
             abort(403, 'You are not a member of the specified organization');
         }
 
-        $package = Package::create([
+        try {
+            $id = (string) UUID::generate();
+        } catch (Exception $e) {
+            abort(500, 'Unable to generate UUID');
+            $id = null;
+        }
+
+        $this->commandbus->register('package.create', function (Command $command) {
+            Package::create($command->getData());
+        });
+
+        $this->commandbus->dispatch(new Command('package.create', [
+            'id'            => $id,
             'name'          => trim($data['attributes']['name']),
             'repository_id' => $relationships['repository']['data']['id'],
             'source'        => trim($data['attributes']['source']),
             'ref'           => isset($data['attributes']['ref']) ? trim($data['attributes']['ref']) : 'master',
             'schedule'      => isset($data['attributes']['schedule']) ? trim($data['attributes']['schedule']) : 'hook',
-        ]);
+        ]));
 
         $response = new Response($this->item(
-            $package,
+            Package::find($id),
             new PackageTransformer()
         ), 201);
 
         $response->withHeaders([
-            'Location' => route('api.packages.show', (string) $package->getKey()),
+            'Location' => route('api.packages.show', (string) $id),
         ]);
 
         return $response;
@@ -131,6 +147,13 @@ final class PackageController extends ResourceController
             ],
         ]);
 
+        $this->commandbus->register('package.update', function (Command $command) {
+            $data = $command->getData();
+
+            $package = Package::find($command->getObjectId());
+            $package->update($data['attributes']);
+        });
+
         $attributes = [];
 
         foreach (['name', 'source', 'ref', 'schedule'] as $key) {
@@ -140,11 +163,14 @@ final class PackageController extends ResourceController
         }
 
         if (!empty($attributes)) {
-            $package->update($attributes);
+            $this->commandbus->dispatch(new Command('package.update', [
+                'id'         => $id,
+                'attributes' => $attributes,
+            ]));
         }
 
         return new Response($this->item(
-            $package,
+            $package->refresh(),
             new PackageTransformer()
         ), 200);
     }
@@ -158,11 +184,17 @@ final class PackageController extends ResourceController
     {
         $this->authorize('destroy', $package = Package::findOrFail($id));
 
-        try {
-            $package->delete();
-        } catch (\Throwable $ex) {
-            return new Response('Failed to delete package', 500);
-        }
+        $this->commandbus->register('package.destroy', function (Command $command) {
+            try {
+                Package::find($command->getObjectId())->delete();
+            } catch (Throwable $ex) {
+                abort(500, 'Failed to delete token');
+            }
+        });
+
+        $this->commandbus->dispatch(new Command('package.destroy', [
+            'id' => $id,
+        ]));
 
         return new Response(null, 204);
     }
