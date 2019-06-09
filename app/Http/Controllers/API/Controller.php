@@ -44,6 +44,10 @@ abstract class Controller extends BaseController
 
             $this->fractal->parseFieldsets($fields);
         }
+
+        if ($includes = $request->query('include')) {
+            $this->fractal->parseIncludes($includes);
+        }
     }
 
     /**

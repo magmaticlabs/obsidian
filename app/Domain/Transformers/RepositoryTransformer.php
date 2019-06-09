@@ -3,6 +3,7 @@
 namespace MagmaticLabs\Obsidian\Domain\Transformers;
 
 use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 
 final class RepositoryTransformer extends Transformer
@@ -14,11 +15,11 @@ final class RepositoryTransformer extends Transformer
 
     public function includeOrganization(Repository $repository)
     {
-        return new Collection($repository->organization(), new OrganizationTransformer(), 'organizations');
+        return new Item($repository->organization, new OrganizationTransformer(), 'organizations');
     }
 
     public function includePackages(Repository $repository)
     {
-        return new Collection($repository->packages(), new PackageTransformer(), 'packages');
+        return new Collection($repository->packages, new PackageTransformer(), 'packages');
     }
 }
