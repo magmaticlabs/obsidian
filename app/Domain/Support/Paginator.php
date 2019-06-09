@@ -29,7 +29,7 @@ final class Paginator implements PaginatorInterface
     /**
      * Final data
      *
-     * @var Builder|Relation;
+     * @var \Illuminate\Support\Collection
      */
     private $data;
 
@@ -59,15 +59,9 @@ final class Paginator implements PaginatorInterface
      *
      * @param \Illuminate\Http\Request $request
      * @param Builder|Relation         $query
-     *
-     * @throws \InvalidArgumentException
      */
     public function __construct(Request $request, $query)
     {
-        if (!($query instanceof Builder || $query instanceof Relation)) {
-            throw new \InvalidArgumentException();
-        }
-
         $this->request = $request;
 
         $this->total = $query->count();
@@ -83,7 +77,7 @@ final class Paginator implements PaginatorInterface
     /**
      * Get the data
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function getData()
     {
@@ -127,7 +121,7 @@ final class Paginator implements PaginatorInterface
      */
     public function getCount()
     {
-        return count($this->data);
+        return $this->data->count();
     }
 
     /**

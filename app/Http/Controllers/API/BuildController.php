@@ -97,7 +97,9 @@ final class BuildController extends ResourceController
      */
     public function update(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     /**
@@ -107,7 +109,9 @@ final class BuildController extends ResourceController
      */
     public function destroy(string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     // --
@@ -167,7 +171,9 @@ final class BuildController extends ResourceController
      */
     public function package_create(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     /**
@@ -183,6 +189,8 @@ final class BuildController extends ResourceController
      */
     public function package_destroy(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 }

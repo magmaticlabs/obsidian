@@ -424,7 +424,9 @@ final class OrganizationController extends ResourceController
      */
     public function repositories_create(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     /**
@@ -440,6 +442,8 @@ final class OrganizationController extends ResourceController
      */
     public function repositories_destroy(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 }

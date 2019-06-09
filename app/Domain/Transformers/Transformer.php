@@ -15,7 +15,11 @@ class Transformer extends TransformerAbstract
     protected $noAutoInclude = [];
 
     /**
-     * {@inheritdoc}
+     * Setter for defaultIncludes.
+     *
+     * @param array $defaultIncludes
+     *
+     * @return TransformerAbstract
      */
     public function setDefaultIncludes($defaultIncludes)
     {

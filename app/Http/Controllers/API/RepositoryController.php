@@ -220,7 +220,9 @@ final class RepositoryController extends ResourceController
      */
     public function organization_create(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     /**
@@ -236,7 +238,9 @@ final class RepositoryController extends ResourceController
      */
     public function organization_destroy(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     // --
@@ -296,7 +300,9 @@ final class RepositoryController extends ResourceController
      */
     public function packages_create(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 
     /**
@@ -312,6 +318,8 @@ final class RepositoryController extends ResourceController
      */
     public function packages_destroy(Request $request, string $id): Response
     {
-        return abort(405, 'Not Allowed');
+        abort(405, 'Not Allowed');
+
+        return new Response('Not Allowed', 405);
     }
 }

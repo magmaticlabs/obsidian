@@ -90,8 +90,8 @@ final class PackagePolicy
     /**
      * Determine whether the user can view the builds relationship collection.
      *
-     * @param User                                              $user
-     * @param \MagmaticLabs\Obsidian\Domain\Eloquent\Repository $model
+     * @param User  $user
+     * @param Model $model
      *
      * @return bool
      */

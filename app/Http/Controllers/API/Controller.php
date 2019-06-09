@@ -58,7 +58,7 @@ abstract class Controller extends BaseController
      */
     protected function getUser(): ?User
     {
-        return auth()->user();
+        return User::find(auth()->user()->getAuthIdentifier());
     }
 
     /**
@@ -72,10 +72,6 @@ abstract class Controller extends BaseController
      */
     protected function collection(Request $request, $query, Transformer $transformer): array
     {
-        if (!($query instanceof Builder || $query instanceof Relation)) {
-            throw new \InvalidArgumentException();
-        }
-
         if (empty($this->fractal->getRequestedIncludes())) {
             $transformer->setDefaultIncludes($transformer->getAvailableIncludes());
         }
