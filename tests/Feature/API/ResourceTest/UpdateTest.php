@@ -97,6 +97,27 @@ trait UpdateTest
         ]);
     }
 
+    public function testRelationshipFails()
+    {
+        $this->data['relationships'] = [
+            'something' => [
+                'data' => [
+                    'type' => 'foobar',
+                    'id'   => 'foobar',
+                ],
+            ],
+        ];
+
+        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
+        $this->validateResponse($response, 400);
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/relationships']],
+            ],
+        ]);
+    }
+
     public function testNonExist()
     {
         $response = $this->patch($this->getRoute('update', '__INVALID__'), $this->data);

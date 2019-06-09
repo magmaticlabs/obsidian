@@ -74,41 +74,57 @@ trait CreateTest
         ]);
     }
 
-    public function testMissingRequiredAttributesCausesValidationError()
+    public function getRequiredAttributes()
     {
-        foreach ($this->required as $attribute) {
-            $data = $this->data;
-            unset($data['data']['attributes'][$attribute]);
-
-            /* @var \Illuminate\Foundation\Testing\TestResponse $response */
-            $response = $this->post($this->getRoute('create'), $data);
-            $this->validateResponse($response, 400);
-
-            $response->assertJson([
-                'errors' => [
-                    ['source' => ['pointer' => sprintf('/data/attributes/%s', $attribute)]],
-                ],
-            ]);
-        }
+        return [$this->required];
     }
 
-    public function testMissingOptionalAttributesSetToDefault()
+    /**
+     * @dataProvider getRequiredAttributes
+     */
+    public function testMissingRequiredAttributesCausesValidationError($attribute)
     {
-        foreach ($this->optional as $attribute => $value) {
-            $data = $this->data;
-            unset($data['data']['attributes'][$attribute]);
+        unset($this->data['data']['attributes'][$attribute]);
 
-            /* @var \Illuminate\Foundation\Testing\TestResponse $response */
-            $response = $this->post($this->getRoute('create'), $data);
-            $this->validateResponse($response, 201);
+        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        $response = $this->post($this->getRoute('create'), $this->data);
+        $this->validateResponse($response, 400);
 
-            $response->assertJson([
-                'data' => [
-                    'attributes' => [
-                        $attribute => $value,
-                    ],
-                ],
-            ]);
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => sprintf('/data/attributes/%s', $attribute)]],
+            ],
+        ]);
+    }
+
+    public function getOptionalAttributes()
+    {
+        $output = [];
+
+        foreach ($this->optional as $key => $value) {
+            $output[] = [$key, $value];
         }
+
+        return $output;
+    }
+
+    /**
+     * @dataProvider getOptionalAttributes
+     */
+    public function testMissingOptionalAttributesSetToDefault($attribute, $value)
+    {
+        unset($this->data['data']['attributes'][$attribute]);
+
+        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        $response = $this->post($this->getRoute('create'), $this->data);
+        $this->validateResponse($response, 201);
+
+        $response->assertJson([
+            'data' => [
+                'attributes' => [
+                    $attribute => $value,
+                ],
+            ],
+        ]);
     }
 }

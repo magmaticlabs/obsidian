@@ -91,6 +91,10 @@ final class TokenController extends ResourceController
             'data.attributes.scopes' => 'sometimes|array|in:' . implode(',', Passport::scopeIds()),
         ])['data'];
 
+        $this->validate($request, [
+            'relationships' => 'not_present',
+        ]);
+
         $attributes = [];
 
         if (isset($data['attributes']['name'])) {

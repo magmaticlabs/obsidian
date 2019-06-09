@@ -102,18 +102,16 @@ final class OrganizationController extends ResourceController
             'data.attributes.description'  => 'sometimes|string',
         ])['data'];
 
+        $this->validate($request, [
+            'relationships' => 'not_present',
+        ]);
+
         $attributes = [];
 
-        if (isset($data['attributes']['name'])) {
-            $attributes['name'] = trim($data['attributes']['name']);
-        }
-
-        if (isset($data['attributes']['display_name'])) {
-            $attributes['display_name'] = $data['attributes']['display_name'];
-        }
-
-        if (isset($data['attributes']['description'])) {
-            $attributes['description'] = $data['attributes']['description'];
+        foreach (['name', 'display_name', 'description'] as $key) {
+            if (isset($data['attributes'][$key])) {
+                $attributes[$key] = trim($data['attributes'][$key]);
+            }
         }
 
         if (!empty($attributes)) {
