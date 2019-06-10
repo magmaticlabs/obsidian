@@ -2,9 +2,12 @@
 
 namespace MagmaticLabs\Obsidian\Providers;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use MagmaticLabs\Obsidian\Domain\ProcessExecutor\ProcessExecutor;
+use MagmaticLabs\Obsidian\Domain\ProcessExecutor\SymfonyProcessExecutor;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +16,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Schema::defaultStringLength(191);
+        $this->app->bind(ProcessExecutor::class, function (Application $app) {
+            $storage = $app->make('filesystem.disk');
+
+            return new SymfonyProcessExecutor($storage);
+        });
 
         Passport::ignoreMigrations();
         Passport::withCookieSerialization();
@@ -24,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
+
         /** @var \Illuminate\Container\Container $validator */
         $validator = $this->app['validator'];
 

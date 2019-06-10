@@ -19,7 +19,7 @@ class CreateBuildsTable extends Migration
             $table->uuid('package_id')->index();
             $table->string('ref', 40);
             $table->string('commit', 40)->nullable();
-            $table->enum('status', ['pending', 'running', 'success', 'failure'])->default('pending');
+            $table->enum('status', ['pending', 'ready', 'running', 'success', 'failure'])->default('pending');
             $table->dateTime('start_time')->nullable();
             $table->dateTime('completion_time')->nullable();
             $table->dateTime(Model::CREATED_AT);
