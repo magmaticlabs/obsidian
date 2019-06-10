@@ -45,7 +45,6 @@ final class BuildController extends ResourceController
         $data = $this->validate($request, [
             'data.id'                  => 'not_present',
             'data.type'                => 'required|match:builds',
-            'data.attributes.ref'      => 'required|max:40',
         ])['data'];
 
         $relationships = $this->validate($request, [
@@ -69,7 +68,7 @@ final class BuildController extends ResourceController
         $this->commandbus->dispatch(new Command('build.create', [
             'id'         => $id,
             'package_id' => $relationships['package']['data']['id'],
-            'ref'        => trim($data['attributes']['ref']),
+            'ref'        => $package->ref,
             'status'     => 'pending',
         ]));
 

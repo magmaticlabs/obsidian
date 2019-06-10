@@ -24,12 +24,17 @@ trait CreateTest
         $resourceid = basename($location);
         $this->assertEquals($this->getRoute('show', $resourceid), $location);
 
+        $data = [
+            'type'       => $this->type,
+            'id'         => $resourceid,
+        ];
+
+        if (isset($this->data['data']['attributes'])) {
+            $data['attributes'] = $this->data['data']['attributes'];
+        }
+
         $response->assertJson([
-            'data' => [
-                'type'       => $this->type,
-                'id'         => $resourceid,
-                'attributes' => $this->data['data']['attributes'],
-            ],
+            'data' => $data,
         ]);
     }
 
@@ -76,6 +81,10 @@ trait CreateTest
 
     public function getRequiredAttributes()
     {
+        if (empty($this->required)) {
+            return [['']];
+        }
+
         return [$this->required];
     }
 
@@ -84,6 +93,13 @@ trait CreateTest
      */
     public function testMissingRequiredAttributesCausesValidationError($attribute)
     {
+        if (empty($attribute)) {
+            // Prevent "no assertions"
+            $this->assertTrue(true);
+
+            return;
+        }
+
         unset($this->data['data']['attributes'][$attribute]);
 
         /* @var \Illuminate\Foundation\Testing\TestResponse $response */

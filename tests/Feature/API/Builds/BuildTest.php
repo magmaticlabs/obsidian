@@ -69,10 +69,7 @@ abstract class BuildTest extends ResourceTest
 
         $this->data = [
             'data' => [
-                'type'       => 'builds',
-                'attributes' => [
-                    'ref' => 'master',
-                ],
+                'type' => 'builds',
             ],
             'relationships' => [
                 'package' => [
@@ -99,15 +96,5 @@ abstract class BuildTest extends ResourceTest
     protected function factoryArgs(): array
     {
         return ['package_id' => $this->package->id];
-    }
-
-    // --
-
-    public function invalidDataRef()
-    {
-        return [
-            'non-string' => [[]],
-            'too-long'   => [str_repeat('.', 50)],
-        ];
     }
 }
