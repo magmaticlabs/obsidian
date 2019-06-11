@@ -2,7 +2,6 @@
 
 namespace MagmaticLabs\Obsidian\Providers;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
@@ -16,11 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(ProcessExecutor::class, function (Application $app) {
-            $storage = $app->make('filesystem.disk');
-
-            return new SymfonyProcessExecutor($storage);
-        });
+        $this->app->bind(ProcessExecutor::class, SymfonyProcessExecutor::class);
 
         Passport::ignoreMigrations();
         Passport::withCookieSerialization();

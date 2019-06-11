@@ -3,11 +3,14 @@
 namespace Tests\Unit\Domain;
 
 use Illuminate\Support\Facades\Storage;
+use MagmaticLabs\Obsidian\Domain\BuildProcessing\BuildProcessor;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 use MagmaticLabs\Obsidian\Domain\ProcessExecutor\MockProcessExecutor;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\Output;
 use Tests\TestCase;
 
 class BuildTest extends TestCase
@@ -25,20 +28,6 @@ class BuildTest extends TestCase
      * @var \Illuminate\Filesystem\FilesystemAdapter
      */
     private $storage;
-
-    /**
-     * Working directory path for the build
-     *
-     * @var string
-     */
-    private $working_dir;
-
-    /**
-     * Path to log file for the build
-     *
-     * @var string
-     */
-    private $logfile;
 
     /**
      * {@inheritdoc}
@@ -68,9 +57,6 @@ class BuildTest extends TestCase
         ]);
 
         $this->storage = Storage::fake('local');
-
-        $this->working_dir = sprintf('builds/working/%s', $this->build->id);
-        $this->logfile = sprintf('builds/logs/%s.log', $this->build->id);
     }
 
     /**
@@ -85,135 +71,181 @@ class BuildTest extends TestCase
 
     // --
 
+    public function testWorkingDirValue()
+    {
+        $workingdir = sprintf('builds/working/%s', $this->build->id);
+
+        $processor = new BuildProcessor(
+            new MockProcessExecutor([], []),
+            $this->storage,
+            new NullOutput()
+        );
+
+        $this->assertEquals($workingdir, $processor->getWorkingDir($this->build));
+    }
+
     public function testPreflight()
     {
         $commithash = sha1('testing');
+        $commandExecuted = false;
 
         $responses = [
-            '/^git rev-parse/' => $commithash,
+            '/^git/' => $commithash,
         ];
 
+        $pattern = sprintf('#^%s#', app_path('Scripts/clone_repository.sh'));
+
         $actions = [
-            '#^' . app_path('Scripts/clone_repository.sh') . '#' => function () {
-                $this->storage->makeDirectory($this->working_dir);
-                $this->storage->makeDirectory($this->working_dir . '/.git');
+            $pattern => function () use (&$commandExecuted) {
+                $commandExecuted = true;
             },
         ];
 
-        $executor = new MockProcessExecutor($this->storage, $responses, $actions);
+        $executor = new MockProcessExecutor($responses, $actions);
+        $output = new TestOutput();
 
-        $this->build->preflight($executor, $this->storage);
+        // --
+
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            $output
+        );
+
+        $processor->preflight($this->build);
         $this->build->refresh();
 
         $this->assertEquals('ready', $this->build->status);
         $this->assertEquals($commithash, $this->build->commit);
-        $this->assertNotNull($this->build->start_time);
 
-        $this->storage->assertExists($this->working_dir);
-        $this->storage->assertExists($this->working_dir . '/.git');
+        $this->assertTrue($commandExecuted);
 
-        $this->storage->assertExists($this->logfile);
+        $this->assertNotEmpty($output->output);
     }
 
-    public function testPreflightLogFile()
+    public function testBuild()
     {
-        $commithash = sha1('testing');
-        $scriptpath = app_path('Scripts/clone_repository.sh');
+        $executor = new MockProcessExecutor([], []);
 
-        $responses = [
-            "#^${scriptpath}#" => 'Clone',
-            '/^git rev-parse/' => $commithash,
-        ];
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            new NullOutput()
+        );
 
-        $executor = new MockProcessExecutor($this->storage, $responses, []);
+        $this->build->status = 'ready';
+        $this->storage->makeDirectory($workingdir = $processor->getWorkingDir($this->build));
 
-        $this->build->preflight($executor, $this->storage);
+        $processor->process($this->build);
 
-        $this->storage->assertExists($this->logfile);
-        $this->assertStringContainsString("Clone\n$commithash", $this->storage->get($this->logfile));
-    }
-
-    // --
-
-    public function testBuildSuccessful()
-    {
-        $this->build->update(['status' => 'ready']);
-
-        $this->storage->makeDirectory($this->working_dir);
-        $this->storage->put($this->logfile, '__testing__');
-
-        $executor = new MockProcessExecutor($this->storage, [], []);
-
-        $result = $this->build->build($executor, $this->storage);
-
-        $this->assertTrue($result);
+        $command = app_path('Scripts/build_package.sh');
+        $this->assertEquals([$command], $executor->getCommands());
     }
 
     public function testBuildFailure()
     {
-        $this->build->update(['status' => 'ready']);
+        $pattern = sprintf('#^%s#', app_path('Scripts/build_package.sh'));
 
-        $this->storage->makeDirectory($this->working_dir);
-        $this->storage->put($this->logfile, '__testing__');
-
-        $actions = [
-            '#^' . app_path('Scripts/build_package.sh') . '#' => function () {
-                throw new \RuntimeException('__testing__');
+        $executor = new MockProcessExecutor([], [
+            $pattern => function () {
+                throw new \RuntimeException();
             },
-        ];
+        ]);
 
-        $executor = new MockProcessExecutor($this->storage, [], $actions);
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            new NullOutput()
+        );
 
-        $result = $this->build->build($executor, $this->storage);
+        $this->build->status = 'ready';
+        $this->storage->makeDirectory($workingdir = $processor->getWorkingDir($this->build));
 
-        $this->assertFalse($result);
+        $this->expectException(\RuntimeException::class);
+        $processor->process($this->build);
     }
 
     public function testBuildMissingWorkingDir()
     {
-        $this->build->update(['status' => 'ready']);
+        $executor = new MockProcessExecutor([], []);
 
-        $executor = new MockProcessExecutor($this->storage, [], []);
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            new NullOutput()
+        );
 
-        $this->expectException(\Exception::class);
-        $this->build->build($executor, $this->storage);
+        $this->build->status = 'ready';
+
+        $this->expectException(\RuntimeException::class);
+        $processor->process($this->build);
     }
-
-    public function testBuildCleanup()
-    {
-        $this->build->update(['status' => 'ready']);
-
-        $this->storage->makeDirectory($this->working_dir);
-        $this->storage->put($this->logfile, '__testing__');
-
-        $executor = new MockProcessExecutor($this->storage, [], []);
-
-        $this->build->build($executor, $this->storage);
-
-        $this->storage->assertMissing($this->working_dir);
-    }
-
-    //--
 
     public function testSuccess()
     {
-        $this->build->update(['status' => 'running']);
+        $executor = new MockProcessExecutor([], []);
 
-        $this->build->success();
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            new NullOutput()
+        );
+
+        $processor->success($this->build);
         $this->build->refresh();
 
         $this->assertEquals('success', $this->build->status);
+        $this->assertNotNull($this->build->start_time);
         $this->assertNotNull($this->build->completion_time);
     }
 
     public function testFailure()
     {
-        $this->build->update(['status' => 'running']);
+        $executor = new MockProcessExecutor([], []);
 
-        $this->build->failure();
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            new NullOutput()
+        );
+
+        $processor->failure($this->build);
         $this->build->refresh();
 
         $this->assertEquals('failure', $this->build->status);
+        $this->assertNotNull($this->build->start_time);
         $this->assertNotNull($this->build->completion_time);
+    }
+
+    public function testCleanup()
+    {
+        $executor = new MockProcessExecutor([], []);
+
+        $processor = new BuildProcessor(
+            $executor,
+            $this->storage,
+            new NullOutput()
+        );
+
+        $this->storage->makeDirectory($workingdir = $processor->getWorkingDir($this->build));
+
+        $processor->cleanup($this->build);
+
+        $this->storage->assertMissing($workingdir);
+    }
+}
+
+class TestOutput extends Output
+{
+    public $output = '';
+
+    public function clear()
+    {
+        $this->output = '';
+    }
+
+    protected function doWrite($message, $newline)
+    {
+        $this->output .= $message . ($newline ? "\n" : '');
     }
 }

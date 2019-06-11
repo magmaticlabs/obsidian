@@ -2,6 +2,8 @@
 
 namespace MagmaticLabs\Obsidian\Domain\ProcessExecutor;
 
+use Illuminate\Support\Arr;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
 final class SymfonyProcessExecutor extends ProcessExecutor
@@ -9,19 +11,17 @@ final class SymfonyProcessExecutor extends ProcessExecutor
     /**
      * {@inheritdoc}
      */
-    public function exec(string $command, ?string $cwd = null): string
+    public function exec(string $command, array $args, OutputInterface $output, ?string $cwd = null): string
     {
-        $process = new Process(["$command 2>&1"], $cwd, null, null, 60);
-        $exitcode = $process->run();
+        $input = Arr::flatten([$command, $args]);
+        $return = '';
 
-        $output = $process->getOutput();
+        $process = new Process($input, $cwd);
+        $process->mustRun(function ($type, $buffer) use ($output, &$return) {
+            $output->write($buffer);
+            $return .= $buffer;
+        })->wait();
 
-        $this->log(trim($output));
-
-        if (0 != $exitcode) {
-            throw new \RuntimeException('Error during execution');
-        }
-
-        return $output;
+        return $return;
     }
 }

@@ -4,8 +4,11 @@ namespace MagmaticLabs\Obsidian\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use MagmaticLabs\Obsidian\Domain\BuildProcessing\BuildProcessor;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\ProcessExecutor\ProcessExecutor;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\NullOutput;
 
 class ProcessBuild extends Command
 {
@@ -14,7 +17,7 @@ class ProcessBuild extends Command
      *
      * @var string
      */
-    protected $signature = 'obsidian:build {id}';
+    protected $signature = 'obsidian:build {id} {--force}';
 
     /**
      * The console command description.
@@ -39,23 +42,36 @@ class ProcessBuild extends Command
             return 1;
         }
 
+        if ($this->option('force')) {
+            $build->update([
+                'status'          => 'pending',
+                'start_time'      => null,
+                'completion_time' => null,
+            ]);
+        }
+
         if ('pending' != $build->status) {
             $this->output->error('The specified build has already been processed');
 
             return 1;
         }
 
-        // Process the build
+        $output = $this->getOutput()->isVerbose() ? new ConsoleOutput() : new NullOutput();
 
-        $build->preflight($executor, $storage);
+        $processor = new BuildProcessor($executor, $storage, $output);
 
-        $success = $build->build($executor, $storage);
+        try {
+            $processor->preflight($build);
 
-        if ($success) {
-            $build->success();
-        } else {
-            $build->failure();
+            $processor->process($build);
+
+            $processor->success($build);
+        } catch (\Exception $ex) {
+            $processor->failure($build);
+            $this->output->error('Build Failed: ' . $ex->getMessage());
         }
+
+        $processor->cleanup($build);
 
         return 0;
     }

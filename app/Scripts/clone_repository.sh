@@ -14,4 +14,4 @@ if [ -z "${GITURL}" ] || [ -z "${TARGET}" ]; then
 fi
 
 export GIT_SSH_COMMAND="ssh -i '${ROOTPATH}/storage/app/obsidian-build.key'"
-git clone --depth 1 "${GITURL}" "${TARGET}"
+git clone --depth 1 "${GITURL}" "${TARGET}" --verbose
