@@ -2,69 +2,96 @@
 
 namespace Tests\Feature\API\Tokens;
 
+use Tests\Feature\API\APIResource\CreateTestCase;
+
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class CreateTest extends TokenTestCase
+final class CreateTest extends CreateTestCase
 {
-    use \Tests\Feature\API\APIResource\CreateTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'tokens';
 
-    protected $required = [
-        'name',
-    ];
-
-    protected $optional = [
-        'scopes' => [],
-    ];
-
-    // --
-
+    /**
+     * Test that the creation response has an access token attached to it.
+     */
     public function testHasAccessToken()
     {
-        $response = $this->post($this->getRoute('create'), $this->data);
+        $attributes = $this->getValidAttributes();
+
+        $data = [
+            'data' => [
+                'type'       => $this->type,
+                'attributes' => $attributes,
+            ],
+        ];
+
+        $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 201);
 
         $attr = json_decode($response->getContent(), true)['data']['attributes'];
-        static::assertArrayHasKey('accessToken', $attr);
         static::assertNotEmpty($attr['accessToken']);
     }
 
     /**
-     * @dataProvider invalidDataName
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateName($value)
+    public function validAttributesProvider(): array
     {
-        $this->data['data']['attributes']['name'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
+        return [
+            'basic' => [[
+                'name'   => '__TESTING__',
+                'scopes' => [],
+            ]],
+            'no-scopes' => [[
+                'name' => '__TESTING__',
+            ]],
+            'fancy-name' => [[
+                'name' => 'ThIs is a %5up3r% fancy name!',
+            ]],
+        ];
     }
 
     /**
-     * @dataProvider invalidDataScopes
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateScopes($value)
+    public function invalidAttributesProvider(): array
     {
-        $this->data['data']['attributes']['scopes'] = $value;
+        return [
+            'nonstring-name' => [[
+                'name' => [],
+            ], 'name'],
+            'nonarray-scopes' => [[
+                'name'   => '__TESTING__',
+                'scopes' => 'foobar',
+            ], 'scopes'],
+            'invalid-scopes' => [[
+                'name'   => '__TESTING__',
+                'scopes' => ['__INVALID__'],
+            ], 'scopes'],
+        ];
+    }
 
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
+    /**
+     * {@inheritdoc}
+     */
+    public function requiredAttributesProvider(): array
+    {
+        return [
+            'required' => ['name'],
+        ];
+    }
 
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/scopes']],
-            ],
-        ]);
+    /**
+     * {@inheritdoc}
+     */
+    public function optionalAttributesProvider(): array
+    {
+        return [
+            'optional' => ['scopes', []],
+        ];
     }
 }

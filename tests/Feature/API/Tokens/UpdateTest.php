@@ -2,61 +2,74 @@
 
 namespace Tests\Feature\API\Tokens;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
+use Tests\Feature\API\APIResource\UpdateTestCase;
+
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class UpdateTest extends TokenTestCase
+final class UpdateTest extends UpdateTestCase
 {
-    use \Tests\Feature\API\APIResource\UpdateTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'tokens';
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp(): void
+    public function validAttributesProvider(): array
     {
-        parent::setUp();
-
-        $this->data['data']['id'] = $this->model->id;
-    }
-
-    // --
-
-    /**
-     * @dataProvider invalidDataName
-     *
-     * @param mixed $value
-     */
-    public function testValidateName($value)
-    {
-        $this->data['data']['attributes']['name'] = $value;
-
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
+        return [
+            'basic' => [[
+                'name'   => '__TESTING__',
+                'scopes' => [],
+            ]],
+            'no-scopes' => [[
+                'name' => '__TESTING__',
+            ]],
+            'no-name' => [[
+                'scopes' => [],
+            ]],
+            'fancy-name' => [[
+                'name' => 'ThIs is a %5up3r% fancy name!',
+            ]],
+        ];
     }
 
     /**
-     * @dataProvider invalidDataScopes
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateScopes($value)
+    public function invalidAttributesProvider(): array
     {
-        $this->data['data']['attributes']['scopes'] = $value;
+        return [
+            'nonstring-name' => [[
+                'name' => [],
+            ], 'name'],
+            'nonarray-scopes' => [[
+                'scopes' => 'foobar',
+            ], 'scopes'],
+            'invalid-scopes' => [[
+                'scopes' => ['__INVALID__'],
+            ], 'scopes'],
+        ];
+    }
 
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
+    /**
+     * {@inheritdoc}
+     */
+    protected function createModel(int $times = 1)
+    {
+        if (1 === $times) {
+            return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
+        }
 
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/scopes']],
-            ],
-        ]);
+        $IDs = [];
+        for ($i = 0; $i < $times; ++$i) {
+            $IDs[] = $this->user->createToken('__TESTING__')->token->id;
+        }
+
+        return PassportToken::query()->whereIn('id', $IDs)->get();
     }
 }

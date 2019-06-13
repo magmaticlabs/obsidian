@@ -2,69 +2,50 @@
 
 namespace Tests\Feature\API\Tokens;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
+use Tests\Feature\API\APIResource\IndexTestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class IndexTest extends TokenTestCase
+final class IndexTest extends IndexTestCase
 {
-    public function testDataMatchesShow()
-    {
-        $response = $this->get($this->getRoute('index'));
-        $this->validateResponse($response, 200);
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'tokens';
 
-        $compare = $this->get($this->getRoute('show', $this->model->id));
-        $compare = json_decode($compare->getContent(), true);
-
-        $response->assertJson([
-            'data' => [
-                $compare['data'],
-            ],
-        ]);
-    }
-
-    public function testCountsMatches()
-    {
-        // Empty the collection
-        $class = \get_class($this->model);
-        $class::query()->delete();
-
-        $response = $this->get($this->getRoute('index'));
-        $this->validateResponse($response, 200);
-
-        $data = json_decode($response->getContent(), true);
-        static::assertSame(0, \count($data['data']));
-
-        // --
-
-        $count = 5;
-
-        for ($i = 0; $i < $count; ++$i) {
-            $this->user->createToken('__TESTING__');
-        }
-
-        $response = $this->get($this->getRoute('index'));
-        $this->validateResponse($response, 200);
-
-        $data = json_decode($response->getContent(), true);
-        static::assertSame($count, \count($data['data']));
-    }
-
+    /**
+     * Test that only the authenticated user's tokens are displayed.
+     */
     public function testOnlyShowsMine()
     {
-        $class = \get_class($this->model);
-        $class::query()->delete();
-
-        /** @var User $owner */
         $owner = $this->factory(User::class)->create();
         $owner->createToken('_test_')->token;
 
-        $response = $this->get($this->getRoute('index'));
+        $response = $this->get($this->route('index'));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
         static::assertEmpty($data['data']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createModel(int $times = 1)
+    {
+        if (1 === $times) {
+            return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
+        }
+
+        $IDs = [];
+        for ($i = 0; $i < $times; ++$i) {
+            $IDs[] = $this->user->createToken('__TESTING__')->token->id;
+        }
+
+        return PassportToken::query()->whereIn('id', $IDs)->get();
     }
 }

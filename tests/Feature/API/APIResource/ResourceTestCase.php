@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\API\APIResource;
 
+use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
@@ -17,18 +18,11 @@ abstract class ResourceTestCase extends TestCase
     protected $type = '__INVALID__';
 
     /**
-     * Required attributes.
+     * Resource model class.
      *
-     * @var array
+     * @var string
      */
-    protected $required = [];
-
-    /**
-     * Optional attributes.
-     *
-     * @var array
-     */
-    protected $optional = [];
+    protected $class = '__INVALID__';
 
     /**
      * Authenticated user.
@@ -38,20 +32,6 @@ abstract class ResourceTestCase extends TestCase
     protected $user;
 
     /**
-     * Model instance.
-     *
-     * @var \MagmaticLabs\Obsidian\Domain\Eloquent\Model
-     */
-    protected $model;
-
-    /**
-     * Data to send to API.
-     *
-     * @var array
-     */
-    protected $data = [];
-
-    /**
      * {@inheritdoc}
      */
     protected function setUp(): void
@@ -59,6 +39,12 @@ abstract class ResourceTestCase extends TestCase
         parent::setUp();
 
         $this->user = Passport::actingAs(factory(User::class)->create());
+
+        (new ClientRepository())->createPersonalAccessClient(
+            null,
+            '__TESTING__',
+            'http://localhost'
+        );
     }
 
     /**
@@ -69,17 +55,27 @@ abstract class ResourceTestCase extends TestCase
      *
      * @return string
      */
-    protected function getRoute(string $method, $arg = null): string
+    protected function route(string $method, $arg = null): string
     {
         return route(sprintf('api.%s.%s', $this->type, $method), $arg);
     }
 
     /**
-     * Arguments to the factory to create the model.
+     * Create model instances.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|Model
+     */
+    protected function createModel(int $times = 1)
+    {
+        return $this->factory($this->class)->times($times)->create();
+    }
+
+    /**
+     * Specific parameters to pass into the factory.
      *
      * @return array
      */
-    protected function factoryArgs(): array
+    protected function factoryParameters(): array
     {
         return [];
     }
