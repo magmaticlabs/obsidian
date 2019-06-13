@@ -5,9 +5,13 @@ namespace Tests\Feature\Console;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-class BuildKeyTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class BuildKeyTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         parent::setUp();
 
@@ -16,7 +20,7 @@ class BuildKeyTest extends TestCase
 
     public function testKeyGenWorks()
     {
-        /* @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
         $storage = Storage::fake('local');
 
         $cmd = $this->artisan('obsidian:buildkey');
@@ -30,7 +34,7 @@ class BuildKeyTest extends TestCase
 
     public function testKeyAlreadyExistsNoReplace()
     {
-        /* @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
         $storage = Storage::fake('local');
         $storage->put('obsidian-build.key', '__testing__');
 
@@ -41,12 +45,12 @@ class BuildKeyTest extends TestCase
         $cmd->execute();
 
         $storage->assertExists('obsidian-build.key');
-        $this->assertEquals('__testing__', $storage->get('obsidian-build.key'));
+        static::assertSame('__testing__', $storage->get('obsidian-build.key'));
     }
 
     public function testKeyAlreadyExistsReplace()
     {
-        /* @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
         $storage = Storage::fake('local');
         $storage->put('obsidian-build.key', '__testing__');
 
@@ -57,6 +61,6 @@ class BuildKeyTest extends TestCase
         $cmd->execute();
 
         $storage->assertExists('obsidian-build.key');
-        $this->assertNotEquals('__testing__', $storage->get('obsidian-build.key'));
+        static::assertNotSame('__testing__', $storage->get('obsidian-build.key'));
     }
 }

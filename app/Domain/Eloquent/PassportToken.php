@@ -3,10 +3,14 @@
 namespace MagmaticLabs\Obsidian\Domain\Eloquent;
 
 /**
- * Read-only model - Use \Laravel\Passport\Token for non-read operations
+ * Read-only model - Use \Laravel\Passport\Token for non-read operations.
  */
 final class PassportToken extends Model
 {
+    /**
+     * {@inheritdoc}
+     */
+    public $timestamps = false;
     /**
      * {@inheritdoc}
      */
@@ -44,11 +48,6 @@ final class PassportToken extends Model
     protected $dates = [
         'expires_at',
     ];
-
-    /**
-     * {@inheritdoc}
-     */
-    public $timestamps = false;
 
     /**
      * {@inheritdoc}

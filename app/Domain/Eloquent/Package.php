@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Package extends Model
 {
     /**
-     * Repository relationship
+     * Repository relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -18,7 +18,7 @@ final class Package extends Model
     }
 
     /**
-     * Builds relationship
+     * Builds relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

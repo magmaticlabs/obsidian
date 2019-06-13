@@ -5,6 +5,10 @@ namespace Tests\Feature\API\Packages;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class UpdateTest extends PackageTest
 {
     use \Tests\Feature\API\ResourceTest\UpdateTest;
@@ -12,7 +16,7 @@ final class UpdateTest extends PackageTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -32,6 +36,8 @@ final class UpdateTest extends PackageTest
 
     /**
      * @dataProvider invalidDataName
+     *
+     * @param mixed $value
      */
     public function testValidateName($value)
     {
@@ -49,6 +55,8 @@ final class UpdateTest extends PackageTest
 
     /**
      * @dataProvider invalidDataSource
+     *
+     * @param mixed $value
      */
     public function testValidateSource($value)
     {
@@ -66,6 +74,8 @@ final class UpdateTest extends PackageTest
 
     /**
      * @dataProvider invalidDataRef
+     *
+     * @param mixed $value
      */
     public function testValidateRef($value)
     {
@@ -83,6 +93,8 @@ final class UpdateTest extends PackageTest
 
     /**
      * @dataProvider invalidDataSchedule
+     *
+     * @param mixed $value
      */
     public function testValidateSchedule($value)
     {
@@ -100,6 +112,8 @@ final class UpdateTest extends PackageTest
 
     /**
      * @dataProvider validDataSchedule
+     *
+     * @param mixed $value
      */
     public function testValidateGoodScheduleName($value)
     {
@@ -135,8 +149,8 @@ final class UpdateTest extends PackageTest
         ]);
 
         $this->factory(Package::class)->create([
-            'name'            => 'duplicate',
-            'repository_id'   => $repository->id,
+            'name'          => 'duplicate',
+            'repository_id' => $repository->id,
         ]);
 
         $this->data['data']['attributes']['name'] = 'duplicate';

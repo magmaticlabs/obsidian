@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Tokens;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class ShowTest extends TokenTest
 {
     use \Tests\Feature\API\ResourceTest\ShowTest;

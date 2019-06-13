@@ -9,7 +9,7 @@ use MagmaticLabs\Obsidian\Domain\Support\CommandHandler;
 final class BuildHandler extends CommandHandler
 {
     /**
-     * Create a new build
+     * Create a new build.
      *
      * @param Command $command
      *

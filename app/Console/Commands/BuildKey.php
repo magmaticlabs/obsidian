@@ -45,7 +45,7 @@ class BuildKey extends Command
         $keypair = $rsa->createKey();
 
         $storage->put($keypath, $keypair['privatekey'], 'private');
-        $storage->put("$keypath.pub", $keypair['publickey']);
+        $storage->put("{$keypath}.pub", $keypair['publickey']);
 
         return 0;
     }

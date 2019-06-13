@@ -11,35 +11,35 @@ use Tests\Feature\API\ResourceTest\ResourceTest;
 abstract class BuildTest extends ResourceTest
 {
     /**
-     * Resource type
+     * Resource type.
      *
      * @var string
      */
     protected $type = 'builds';
 
     /**
-     * Organization
+     * Organization.
      *
      * @var Organization
      */
     protected $organization;
 
     /**
-     * Repository
+     * Repository.
      *
      * @var Repository
      */
     protected $repository;
 
     /**
-     * Package
+     * Package.
      *
      * @var Package
      */
     protected $package;
 
     /**
-     * Model instance
+     * Model instance.
      *
      * @var Repository
      */
@@ -48,7 +48,7 @@ abstract class BuildTest extends ResourceTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -83,7 +83,7 @@ abstract class BuildTest extends ResourceTest
     }
 
     /**
-     * Remove the authenticated user from the parent organization
+     * Remove the authenticated user from the parent organization.
      */
     protected function removeUser()
     {

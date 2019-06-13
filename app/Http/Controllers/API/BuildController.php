@@ -43,8 +43,8 @@ final class BuildController extends ResourceController
         $this->authorize('create', Repository::class);
 
         $data = $this->validate($request, [
-            'data.id'                  => 'not_present',
-            'data.type'                => 'required|match:builds',
+            'data.id'   => 'not_present',
+            'data.type' => 'required|match:builds',
         ])['data'];
 
         $relationships = $this->validate($request, [
@@ -52,7 +52,7 @@ final class BuildController extends ResourceController
             'relationships.package.data.id'   => 'required|exists:packages,id',
         ])['relationships'];
 
-        /* @var Package $package */
+        /** @var Package $package */
         $package = Package::find($relationships['package']['data']['id']);
         if (!$package->repository->organization->hasMember($this->getUser())) {
             abort(403, 'You are not a member of the specified organization');
@@ -127,7 +127,7 @@ final class BuildController extends ResourceController
     // --
 
     /**
-     * Package relationship
+     * Package relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -138,7 +138,7 @@ final class BuildController extends ResourceController
      */
     public function package(Request $request, string $id): Response
     {
-        /* @var Build $build */
+        // @var Build $build
         $this->authorize('package_index', $build = Build::findOrFail($id));
 
         return new Response($this->item(
@@ -148,7 +148,7 @@ final class BuildController extends ResourceController
     }
 
     /**
-     * Repository relationship index
+     * Repository relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -159,7 +159,7 @@ final class BuildController extends ResourceController
      */
     public function package_index(Request $request, string $id): Response
     {
-        /* @var Build $build */
+        // @var Build $build
         $this->authorize('package_index', $build = Build::findOrFail($id));
 
         return new Response($this->item(
@@ -169,7 +169,7 @@ final class BuildController extends ResourceController
     }
 
     /**
-     * Package relationship creation
+     * Package relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -187,7 +187,7 @@ final class BuildController extends ResourceController
     }
 
     /**
-     * Package relationship destruction
+     * Package relationship destruction.
      *
      * @param Request $request
      * @param string  $id

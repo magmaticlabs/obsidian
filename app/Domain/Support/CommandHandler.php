@@ -5,7 +5,7 @@ namespace MagmaticLabs\Obsidian\Domain\Support;
 abstract class CommandHandler
 {
     /**
-     * Register command callbacks for this handler with the command bus
+     * Register command callbacks for this handler with the command bus.
      *
      * @param CommandBus $bus
      */

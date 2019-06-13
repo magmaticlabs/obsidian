@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Tokens;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class DeleteTest extends TokenTest
 {
     use \Tests\Feature\API\ResourceTest\DeleteTest;
@@ -18,6 +22,6 @@ final class DeleteTest extends TokenTest
         $this->validateResponse($response, 404);
 
         $this->model->refresh();
-        $this->assertTrue($this->model->exists);
+        static::assertTrue($this->model->exists);
     }
 }

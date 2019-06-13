@@ -5,6 +5,10 @@ namespace Tests\Feature\API\Repositories\Packages;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use Tests\Feature\API\Repositories\RepositoryTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class IndexTest extends RepositoryTest
 {
     public function testCorrectCounts()
@@ -13,7 +17,7 @@ final class IndexTest extends RepositoryTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(0, count($data['data']));
+        static::assertSame(0, \count($data['data']));
 
         // --
 
@@ -27,7 +31,7 @@ final class IndexTest extends RepositoryTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testCorrectData()
@@ -45,8 +49,8 @@ final class IndexTest extends RepositoryTest
         $response->assertJson([
             'data' => [
                 [
-                    'type'       => 'packages',
-                    'id'         => $package->id,
+                    'type' => 'packages',
+                    'id'   => $package->id,
                 ],
             ],
         ]);

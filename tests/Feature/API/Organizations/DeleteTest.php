@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\API\Organizations;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class DeleteTest extends OrganizationTest
 {
     use \Tests\Feature\API\ResourceTest\DeleteTest;

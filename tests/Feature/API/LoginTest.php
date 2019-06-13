@@ -7,15 +7,12 @@ use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class LoginTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class LoginTest extends TestCase
 {
-    private function attemptLogin($username, $password)
-    {
-        return $this->post(route('api.login'), [], [
-            'authorization' => sprintf('Basic %s', base64_encode("$username:$password")),
-        ]);
-    }
-
     // --
 
     public function testNoAuthReportsCorrectly()
@@ -72,7 +69,9 @@ class LoginTest extends TestCase
     public function testAuthTokenWorks()
     {
         (new ClientRepository())->createPersonalAccessClient(
-            null, '__TESTING__', 'http://localhost'
+            null,
+            '__TESTING__',
+            'http://localhost'
         );
 
         $user = $this->factory(User::class)->create();
@@ -112,5 +111,12 @@ class LoginTest extends TestCase
 
         $response = $this->attemptLogin($user->username, 'passwd');
         $this->validateResponse($response, 403);
+    }
+
+    private function attemptLogin($username, $password)
+    {
+        return $this->post(route('api.login'), [], [
+            'authorization' => sprintf('Basic %s', base64_encode("{$username}:{$password}")),
+        ]);
     }
 }

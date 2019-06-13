@@ -7,11 +7,15 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 use Tests\Feature\API\ResourceTest\ResourceTest;
 
-class IncludesTest extends ResourceTest
+/**
+ * @internal
+ * @coversNothing
+ */
+final class IncludesTest extends ResourceTest
 {
     public function testDefaultReturnAll()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
 
         $repository = $this->factory(Repository::class)->create([
@@ -25,7 +29,7 @@ class IncludesTest extends ResourceTest
         $response = $this->get(route('api.repositories.show', $repository->id));
 
         $response->assertJson([
-            'included'  => [
+            'included' => [
                 [
                     'type'       => 'organizations',
                     'id'         => $organization->id,
@@ -42,7 +46,7 @@ class IncludesTest extends ResourceTest
 
     public function testRequestNone()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
 
         $repository = $this->factory(Repository::class)->create([
@@ -56,7 +60,7 @@ class IncludesTest extends ResourceTest
         $response = $this->get(route('api.repositories.show', [$repository->id, 'include=null']));
 
         $response->assertJsonMissing([
-            'included'  => [
+            'included' => [
                 [
                     'type'       => 'organizations',
                     'id'         => $organization->id,
@@ -73,7 +77,7 @@ class IncludesTest extends ResourceTest
 
     public function testRequestPackageOnly()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
 
         $repository = $this->factory(Repository::class)->create([
@@ -87,7 +91,7 @@ class IncludesTest extends ResourceTest
         $response = $this->get(route('api.repositories.show', [$repository->id, 'include=packages']));
 
         $response->assertJson([
-            'included'  => [
+            'included' => [
                 [
                     'type'       => 'packages',
                     'id'         => $package->id,

@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Organizations\Repositories;
 
 use Tests\Feature\API\Organizations\OrganizationTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class DeleteTest extends OrganizationTest
 {
     public function testDestroyNotAllowed()

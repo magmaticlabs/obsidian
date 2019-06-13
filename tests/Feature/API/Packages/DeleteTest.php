@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\API\Packages;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class DeleteTest extends PackageTest
 {
     use \Tests\Feature\API\ResourceTest\DeleteTest;

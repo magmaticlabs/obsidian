@@ -13,17 +13,21 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\Output;
 use Tests\TestCase;
 
-class BuildTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class BuildTest extends TestCase
 {
     /**
-     * Build instance
+     * Build instance.
      *
      * @var Build
      */
     private $build;
 
     /**
-     * Filesystem
+     * Filesystem.
      *
      * @var \Illuminate\Filesystem\FilesystemAdapter
      */
@@ -32,7 +36,7 @@ class BuildTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -62,7 +66,7 @@ class BuildTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         Storage::fake('local');
 
@@ -81,7 +85,7 @@ class BuildTest extends TestCase
             new NullOutput()
         );
 
-        $this->assertEquals($workingdir, $processor->getWorkingDir($this->build));
+        static::assertSame($workingdir, $processor->getWorkingDir($this->build));
     }
 
     public function testPreflight()
@@ -115,12 +119,12 @@ class BuildTest extends TestCase
         $processor->preflight($this->build);
         $this->build->refresh();
 
-        $this->assertEquals('ready', $this->build->status);
-        $this->assertEquals($commithash, $this->build->commit);
+        static::assertSame('ready', $this->build->status);
+        static::assertSame($commithash, $this->build->commit);
 
-        $this->assertTrue($commandExecuted);
+        static::assertTrue($commandExecuted);
 
-        $this->assertNotEmpty($output->output);
+        static::assertNotEmpty($output->output);
     }
 
     public function testBuild()
@@ -139,7 +143,7 @@ class BuildTest extends TestCase
         $processor->process($this->build);
 
         $command = app_path('Scripts/build_package.sh');
-        $this->assertEquals([$command], $executor->getCommands());
+        static::assertSame([$command], $executor->getCommands());
     }
 
     public function testBuildFailure()
@@ -194,9 +198,9 @@ class BuildTest extends TestCase
         $processor->success($this->build);
         $this->build->refresh();
 
-        $this->assertEquals('success', $this->build->status);
-        $this->assertNotNull($this->build->start_time);
-        $this->assertNotNull($this->build->completion_time);
+        static::assertSame('success', $this->build->status);
+        static::assertNotNull($this->build->start_time);
+        static::assertNotNull($this->build->completion_time);
     }
 
     public function testFailure()
@@ -212,9 +216,9 @@ class BuildTest extends TestCase
         $processor->failure($this->build);
         $this->build->refresh();
 
-        $this->assertEquals('failure', $this->build->status);
-        $this->assertNotNull($this->build->start_time);
-        $this->assertNotNull($this->build->completion_time);
+        static::assertSame('failure', $this->build->status);
+        static::assertNotNull($this->build->start_time);
+        static::assertNotNull($this->build->completion_time);
     }
 
     public function testCleanup()

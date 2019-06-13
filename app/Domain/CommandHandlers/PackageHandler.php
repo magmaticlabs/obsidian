@@ -9,7 +9,7 @@ use MagmaticLabs\Obsidian\Domain\Support\CommandHandler;
 final class PackageHandler extends CommandHandler
 {
     /**
-     * Create a new package
+     * Create a new package.
      *
      * @param Command $command
      *
@@ -21,7 +21,7 @@ final class PackageHandler extends CommandHandler
     }
 
     /**
-     * Update an existing package
+     * Update an existing package.
      *
      * @param Command $command
      *
@@ -34,7 +34,7 @@ final class PackageHandler extends CommandHandler
     }
 
     /**
-     * Destroy an existing package
+     * Destroy an existing package.
      *
      * @param Command $command
      *

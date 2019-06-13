@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Tokens;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class IndexTest extends TokenTest
 {
     public function testDataMatchesShow()
@@ -24,14 +28,14 @@ final class IndexTest extends TokenTest
     public function testCountsMatches()
     {
         // Empty the collection
-        $class = get_class($this->model);
+        $class = \get_class($this->model);
         $class::query()->delete();
 
         $response = $this->get($this->getRoute('index'));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(0, count($data['data']));
+        static::assertSame(0, \count($data['data']));
 
         // --
 
@@ -45,12 +49,12 @@ final class IndexTest extends TokenTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testOnlyShowsMine()
     {
-        $class = get_class($this->model);
+        $class = \get_class($this->model);
         $class::query()->delete();
 
         /** @var User $owner */
@@ -61,6 +65,6 @@ final class IndexTest extends TokenTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEmpty($data['data']);
+        static::assertEmpty($data['data']);
     }
 }

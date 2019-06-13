@@ -8,7 +8,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 class Transformer extends TransformerAbstract
 {
     /**
-     * Do not automatically include the listed relationships
+     * Do not automatically include the listed relationships.
      *
      * @var array
      */

@@ -8,14 +8,14 @@ use Tests\Feature\API\ResourceTest\ResourceTest;
 abstract class OrganizationTest extends ResourceTest
 {
     /**
-     * Resource type
+     * Resource type.
      *
      * @var string
      */
     protected $type = 'organizations';
 
     /**
-     * Model instance
+     * Model instance.
      *
      * @var Organization
      */
@@ -24,7 +24,7 @@ abstract class OrganizationTest extends ResourceTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -44,14 +44,6 @@ abstract class OrganizationTest extends ResourceTest
         ];
     }
 
-    /**
-     * Demote the authenticated user from owner of the organization
-     */
-    protected function demote()
-    {
-        $this->model->demoteMember($this->user);
-    }
-
     // --
 
     public function invalidDataName()
@@ -66,15 +58,23 @@ abstract class OrganizationTest extends ResourceTest
     public function invalidDataDisplayName()
     {
         return [
-            'non-string'  => [[]],
-            'too-short'   => ['no'],
+            'non-string' => [[]],
+            'too-short'  => ['no'],
         ];
     }
 
     public function invalidDataDescription()
     {
         return [
-            'non-string'  => [[]],
+            'non-string' => [[]],
         ];
+    }
+
+    /**
+     * Demote the authenticated user from owner of the organization.
+     */
+    protected function demote()
+    {
+        $this->model->demoteMember($this->user);
     }
 }

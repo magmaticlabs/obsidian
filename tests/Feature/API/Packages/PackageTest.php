@@ -10,28 +10,28 @@ use Tests\Feature\API\ResourceTest\ResourceTest;
 abstract class PackageTest extends ResourceTest
 {
     /**
-     * Resource type
+     * Resource type.
      *
      * @var string
      */
     protected $type = 'packages';
 
     /**
-     * Organization
+     * Organization.
      *
      * @var Organization
      */
     protected $organization;
 
     /**
-     * Repository
+     * Repository.
      *
      * @var Repository
      */
     protected $repository;
 
     /**
-     * Model instance
+     * Model instance.
      *
      * @var Repository
      */
@@ -40,7 +40,7 @@ abstract class PackageTest extends ResourceTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -76,22 +76,6 @@ abstract class PackageTest extends ResourceTest
         ];
     }
 
-    /**
-     * Remove the authenticated user from the parent organization
-     */
-    protected function removeUser()
-    {
-        $this->organization->removeMember($this->user);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function factoryArgs(): array
-    {
-        return ['repository_id' => $this->repository->id];
-    }
-
     // --
 
     public function invalidDataName()
@@ -106,16 +90,16 @@ abstract class PackageTest extends ResourceTest
     public function invalidDataSource()
     {
         return [
-            'non-string'  => [[]],
-            'non-ssh'     => ['https://github.com/testing/test.git'],
-            'bogus'       => ['foobar'],
+            'non-string' => [[]],
+            'non-ssh'    => ['https://github.com/testing/test.git'],
+            'bogus'      => ['foobar'],
         ];
     }
 
     public function invalidDataRef()
     {
         return [
-            'non-string'  => [[]],
+            'non-string' => [[]],
         ];
     }
 
@@ -129,8 +113,24 @@ abstract class PackageTest extends ResourceTest
     public function invalidDataSchedule()
     {
         return [
-            'non-string'  => [[]],
-            'non-enum'    => ['foobar'],
+            'non-string' => [[]],
+            'non-enum'   => ['foobar'],
         ];
+    }
+
+    /**
+     * Remove the authenticated user from the parent organization.
+     */
+    protected function removeUser()
+    {
+        $this->organization->removeMember($this->user);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function factoryArgs(): array
+    {
+        return ['repository_id' => $this->repository->id];
     }
 }

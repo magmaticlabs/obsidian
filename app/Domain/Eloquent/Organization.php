@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Organization extends Model
 {
     /**
-     * Repositories relationship
+     * Repositories relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -18,7 +18,7 @@ final class Organization extends Model
     }
 
     /**
-     * Members relationship
+     * Members relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -28,7 +28,7 @@ final class Organization extends Model
     }
 
     /**
-     * Owners relationship
+     * Owners relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -38,7 +38,7 @@ final class Organization extends Model
     }
 
     /**
-     * Determines if the given user is a member of the organization
+     * Determines if the given user is a member of the organization.
      *
      * @param User $user
      *
@@ -46,11 +46,11 @@ final class Organization extends Model
      */
     public function hasMember(User $user)
     {
-        return null != $this->members()->find($user->id);
+        return null !== $this->members()->find($user->id);
     }
 
     /**
-     * Determines if the given user is an owner of the organization
+     * Determines if the given user is an owner of the organization.
      *
      * @param User $user
      *
@@ -58,23 +58,24 @@ final class Organization extends Model
      */
     public function hasOwner(User $user)
     {
-        return null != $this->owners()->find($user->id);
+        return null !== $this->owners()->find($user->id);
     }
 
     /**
-     * Add a member to the organization
+     * Add a member to the organization.
      *
      * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
      */
     public function addMember(User $user): void
     {
-        $this->members()->syncWithoutDetaching([
+        $this->members()->syncWithoutDetaching(
+            [
             $user->getKey() => ['owner' => false], ]
         );
     }
 
     /**
-     * Remove a member from the organization
+     * Remove a member from the organization.
      *
      * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
      */
@@ -84,7 +85,7 @@ final class Organization extends Model
     }
 
     /**
-     * Promote a member of the organization to owner
+     * Promote a member of the organization to owner.
      *
      * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
      *
@@ -93,17 +94,18 @@ final class Organization extends Model
     public function promoteMember(User $user): void
     {
         $userid = $user->getKey();
-        if (0 == $this->members()->where('id', $userid)->count()) {
+        if (0 === $this->members()->where('id', $userid)->count()) {
             throw new \InvalidArgumentException('User is not a member of the organization');
         }
 
-        $this->members()->syncWithoutDetaching([
+        $this->members()->syncWithoutDetaching(
+            [
             $userid => ['owner' => true], ]
         );
     }
 
     /**
-     * Demote an owner of the organization to member
+     * Demote an owner of the organization to member.
      *
      * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
      *
@@ -112,11 +114,12 @@ final class Organization extends Model
     public function demoteMember(User $user): void
     {
         $userid = $user->getKey();
-        if (0 == $this->members()->where('id', $userid)->count()) {
+        if (0 === $this->members()->where('id', $userid)->count()) {
             throw new \InvalidArgumentException('User is not a member of the organization');
         }
 
-        $this->members()->syncWithoutDetaching([
+        $this->members()->syncWithoutDetaching(
+            [
                 $userid => ['owner' => false], ]
         );
     }

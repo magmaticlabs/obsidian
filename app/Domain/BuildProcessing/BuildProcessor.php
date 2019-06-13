@@ -13,28 +13,28 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class BuildProcessor
 {
     /**
-     * Process Executor
+     * Process Executor.
      *
      * @var ProcessExecutor
      */
     private $executor;
 
     /**
-     * Filesystem backend
+     * Filesystem backend.
      *
      * @var Filesystem
      */
     private $storage;
 
     /**
-     * Output
+     * Output.
      *
      * @var OutputInterface
      */
     private $output;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ProcessExecutor $executor
      * @param Filesystem      $storage
@@ -48,19 +48,7 @@ final class BuildProcessor
     }
 
     /**
-     * Get the path to a script
-     *
-     * @param string $script
-     *
-     * @return string
-     */
-    private function scriptPath(string $script): string
-    {
-        return app_path(sprintf('Scripts/%s', $script));
-    }
-
-    /**
-     * Get the path to the working directory for the build
+     * Get the path to the working directory for the build.
      *
      * @param Build $build
      *
@@ -72,7 +60,7 @@ final class BuildProcessor
     }
 
     /**
-     * Operations to perform before the build itself
+     * Operations to perform before the build itself.
      *
      * In particular, we will be sanity checking the working directory, cloning
      * down the repository from the source, recording the commit hash of the
@@ -85,14 +73,14 @@ final class BuildProcessor
      */
     public function preflight(Build $build): void
     {
-        if ('pending' != $build->status) {
+        if ('pending' !== $build->status) {
             throw new LogicException('Attempting to build out of order');
         }
 
         // What we actually get back is a FilesystemAdapter, but type hinting
         // as that can break things, so we soft convert, and call the path()
         // method later on.
-        /* @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
         $storage = $this->storage;
 
         // Clean up the working directory if it already exists
@@ -124,7 +112,7 @@ final class BuildProcessor
     }
 
     /**
-     * Process the build
+     * Process the build.
      *
      * @param Build $build
      *
@@ -133,7 +121,7 @@ final class BuildProcessor
      */
     public function process(Build $build): void
     {
-        if ('ready' != $build->status) {
+        if ('ready' !== $build->status) {
             throw new LogicException('Attempting to build out of order');
         }
 
@@ -147,7 +135,7 @@ final class BuildProcessor
             'start_time' => Carbon::now(),
         ]);
 
-        /* @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
         // What we actually get back is a FilesystemAdapter, but type hinting
         // as that can break things, so we soft convert, and call the path()
         // method later on.
@@ -160,7 +148,7 @@ final class BuildProcessor
     }
 
     /**
-     * Clean up after the build
+     * Clean up after the build.
      *
      * @param Build $build
      */
@@ -172,7 +160,7 @@ final class BuildProcessor
     }
 
     /**
-     * Mark the build as having completed successfully
+     * Mark the build as having completed successfully.
      *
      * @param Build $build
      */
@@ -182,7 +170,7 @@ final class BuildProcessor
     }
 
     /**
-     * Mark the build as having completed in failure
+     * Mark the build as having completed in failure.
      *
      * @param Build $build
      */
@@ -192,7 +180,19 @@ final class BuildProcessor
     }
 
     /**
-     * Mark the build as having completed with the given status
+     * Get the path to a script.
+     *
+     * @param string $script
+     *
+     * @return string
+     */
+    private function scriptPath(string $script): string
+    {
+        return app_path(sprintf('Scripts/%s', $script));
+    }
+
+    /**
+     * Mark the build as having completed with the given status.
      *
      * @param Build  $build
      * @param string $status

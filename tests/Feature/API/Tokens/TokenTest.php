@@ -9,14 +9,14 @@ use Tests\Feature\API\ResourceTest\ResourceTest;
 abstract class TokenTest extends ResourceTest
 {
     /**
-     * Resource type
+     * Resource type.
      *
      * @var string
      */
     protected $type = 'tokens';
 
     /**
-     * Model instance
+     * Model instance.
      *
      * @var PassportToken
      */
@@ -25,12 +25,14 @@ abstract class TokenTest extends ResourceTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         (new ClientRepository())->createPersonalAccessClient(
-            null, '__TESTING__', 'http://localhost'
+            null,
+            '__TESTING__',
+            'http://localhost'
         );
 
         $this->model = PassportToken::find($this->user->createToken('__TESTING__')->token->id);

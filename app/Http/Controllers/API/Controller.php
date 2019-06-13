@@ -32,14 +32,14 @@ abstract class Controller extends BaseController
     protected $fractal;
 
     /**
-     * Command Bus
+     * Command Bus.
      *
      * @var CommandBus
      */
     protected $commandbus;
 
     /**
-     * Class constructor
+     * Class constructor.
      */
     public function __construct(Request $request, CommandBus $commandbus)
     {
@@ -47,7 +47,7 @@ abstract class Controller extends BaseController
         $this->fractal->setSerializer(new JsonApiSerializer(url()->to('/api/')));
 
         if ($fields = $request->query('fields')) {
-            if (!is_array($fields)) {
+            if (!\is_array($fields)) {
                 abort(400, 'Invalid sparse fields format, requires: fields[type]=attr,attr');
             }
 
@@ -62,9 +62,9 @@ abstract class Controller extends BaseController
     }
 
     /**
-     * Get the active user
+     * Get the active user.
      *
-     * @return \MagmaticLabs\Obsidian\Domain\Eloquent\User|null
+     * @return null|\MagmaticLabs\Obsidian\Domain\Eloquent\User
      */
     protected function getUser(): ?User
     {
@@ -72,7 +72,7 @@ abstract class Controller extends BaseController
     }
 
     /**
-     * Construct a resource collection
+     * Construct a resource collection.
      *
      * @param Request          $request
      * @param Builder|Relation $query
@@ -101,7 +101,7 @@ abstract class Controller extends BaseController
     }
 
     /**
-     * Construct a collection item
+     * Construct a collection item.
      *
      * @param Model       $model
      * @param Transformer $transformer
@@ -120,7 +120,7 @@ abstract class Controller extends BaseController
     }
 
     /**
-     * Apply sorting to the query
+     * Apply sorting to the query.
      *
      * @param Request          $request
      * @param Builder|Relation $query
@@ -134,7 +134,7 @@ abstract class Controller extends BaseController
 
         // Apply requested sorting
         if (!empty($sorting)) {
-            if (!is_string($sorting)) {
+            if (!\is_string($sorting)) {
                 abort(400, 'Invalid sort format, requires: sort=attr,-attr');
             }
 
@@ -170,7 +170,7 @@ abstract class Controller extends BaseController
     }
 
     /**
-     * Apply filtering to the query
+     * Apply filtering to the query.
      *
      * @param Request          $request
      * @param Builder|Relation $query
@@ -179,7 +179,7 @@ abstract class Controller extends BaseController
     {
         $filters = $request->input('filter', []);
 
-        if (!is_array($filters)) {
+        if (!\is_array($filters)) {
             abort(400, 'Filter parameter must be in the form of an array');
         }
 
@@ -205,11 +205,11 @@ abstract class Controller extends BaseController
 
             foreach ($operations as $op) {
                 $qop = preg_quote($op, '/');
-                if (!preg_match("/^$qop/", $criteria)) {
+                if (!preg_match("/^{$qop}/", $criteria)) {
                     continue;
                 }
 
-                $criteria = substr($criteria, strlen($op));
+                $criteria = substr($criteria, \strlen($op));
                 $operation = $op;
             }
 
@@ -223,9 +223,11 @@ abstract class Controller extends BaseController
             switch ($criteria) {
                 case 'true':
                     $criteria = true;
+
                     break;
                 case 'false':
                     $criteria = false;
+
                     break;
             }
 

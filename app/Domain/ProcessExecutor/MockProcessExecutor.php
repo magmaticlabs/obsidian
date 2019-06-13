@@ -7,28 +7,28 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class MockProcessExecutor extends ProcessExecutor
 {
     /**
-     * Responses to commands
+     * Responses to commands.
      *
      * @var array
      */
     private $responses;
 
     /**
-     * Actions to perform in response to commands
+     * Actions to perform in response to commands.
      *
      * @var array
      */
     private $actions;
 
     /**
-     * History of commands
+     * History of commands.
      *
      * @var array
      */
     private $commands;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param array $responses
      * @param array $actions
@@ -49,7 +49,8 @@ final class MockProcessExecutor extends ProcessExecutor
 
         foreach ($this->actions as $pattern => $callback) {
             if (preg_match($pattern, $command)) {
-                call_user_func($callback);
+                \call_user_func($callback);
+
                 break;
             }
         }
@@ -67,7 +68,7 @@ final class MockProcessExecutor extends ProcessExecutor
     }
 
     /**
-     * Reset the command log
+     * Reset the command log.
      */
     public function reset()
     {
@@ -75,7 +76,7 @@ final class MockProcessExecutor extends ProcessExecutor
     }
 
     /**
-     * Commands accessor
+     * Commands accessor.
      *
      * @return array
      */

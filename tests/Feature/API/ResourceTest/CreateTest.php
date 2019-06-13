@@ -14,7 +14,7 @@ trait CreateTest
 {
     public function testCreate()
     {
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 201);
 
@@ -22,11 +22,11 @@ trait CreateTest
 
         $location = $response->headers->get('Location');
         $resourceid = basename($location);
-        $this->assertEquals($this->getRoute('show', $resourceid), $location);
+        $this->assertSame($this->getRoute('show', $resourceid), $location);
 
         $data = [
-            'type'       => $this->type,
-            'id'         => $resourceid,
+            'type' => $this->type,
+            'id'   => $resourceid,
         ];
 
         if (isset($this->data['data']['attributes'])) {
@@ -42,7 +42,7 @@ trait CreateTest
     {
         $this->data['data']['id'] = 'foobar';
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
@@ -57,7 +57,7 @@ trait CreateTest
     {
         unset($this->data['data']['type']);
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
@@ -90,6 +90,8 @@ trait CreateTest
 
     /**
      * @dataProvider getRequiredAttributes
+     *
+     * @param mixed $attribute
      */
     public function testMissingRequiredAttributesCausesValidationError($attribute)
     {
@@ -102,7 +104,7 @@ trait CreateTest
 
         unset($this->data['data']['attributes'][$attribute]);
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 400);
 
@@ -131,6 +133,9 @@ trait CreateTest
 
     /**
      * @dataProvider getOptionalAttributes
+     *
+     * @param mixed $attribute
+     * @param mixed $value
      */
     public function testMissingOptionalAttributesSetToDefault($attribute, $value)
     {
@@ -143,7 +148,7 @@ trait CreateTest
 
         unset($this->data['data']['attributes'][$attribute]);
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->post($this->getRoute('create'), $this->data);
         $this->validateResponse($response, 201);
 

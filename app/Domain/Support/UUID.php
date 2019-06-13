@@ -7,14 +7,14 @@ use Ramsey\Uuid\Uuid as Concrete;
 final class UUID
 {
     /**
-     * Concrete instance
+     * Concrete instance.
      *
      * @var \Ramsey\Uuid\UuidInterface
      */
     private $concrete;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param string $string
      *
@@ -26,33 +26,7 @@ final class UUID
     }
 
     /**
-     * Create a new instance
-     *
-     * @return static
-     *
-     * @throws \Exception
-     */
-    public static function generate()
-    {
-        return new static();
-    }
-
-    /**
-     * Create from a string
-     *
-     * @param string $string
-     *
-     * @return static
-     *
-     * @throws \Exception
-     */
-    public static function fromString(string $string): UUID
-    {
-        return new static($string);
-    }
-
-    /**
-     * Magic method to convert to string
+     * Magic method to convert to string.
      *
      * @return string
      */
@@ -62,7 +36,33 @@ final class UUID
     }
 
     /**
-     * Explicit conversion to string
+     * Create a new instance.
+     *
+     * @throws \Exception
+     *
+     * @return static
+     */
+    public static function generate()
+    {
+        return new static();
+    }
+
+    /**
+     * Create from a string.
+     *
+     * @param string $string
+     *
+     * @throws \Exception
+     *
+     * @return static
+     */
+    public static function fromString(string $string): self
+    {
+        return new static($string);
+    }
+
+    /**
+     * Explicit conversion to string.
      *
      * @return string
      */

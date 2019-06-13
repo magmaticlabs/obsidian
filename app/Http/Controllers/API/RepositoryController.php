@@ -117,11 +117,11 @@ final class RepositoryController extends ResourceController
      */
     public function update(Request $request, string $id): Response
     {
-        /* @var Repository $repository */
+        // @var Repository $repository
         $this->authorize('update', $repository = Repository::findOrFail($id));
 
         $data = $this->validate($request, [
-            'data.id'                      => "required|match:$id",
+            'data.id'                      => "required|match:{$id}",
             'data.type'                    => 'required|match:repositories',
             'data.attributes.name'         => 'sometimes|min:3|regex:/^[a-z0-9\-]+$/i',
             'data.attributes.display_name' => 'sometimes|string|min:3|max:255',
@@ -178,7 +178,7 @@ final class RepositoryController extends ResourceController
     // --
 
     /**
-     * Organization relationship
+     * Organization relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -189,7 +189,7 @@ final class RepositoryController extends ResourceController
      */
     public function organization(Request $request, string $id): Response
     {
-        /* @var Repository $repository */
+        // @var Repository $repository
         $this->authorize('organization_index', $repository = Repository::findOrFail($id));
 
         return new Response($this->item(
@@ -199,7 +199,7 @@ final class RepositoryController extends ResourceController
     }
 
     /**
-     * Organization relationship index
+     * Organization relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -210,7 +210,7 @@ final class RepositoryController extends ResourceController
      */
     public function organization_index(Request $request, string $id): Response
     {
-        /* @var Repository $repository */
+        // @var Repository $repository
         $this->authorize('organization_index', $repository = Repository::findOrFail($id));
 
         return new Response($this->item(
@@ -220,7 +220,7 @@ final class RepositoryController extends ResourceController
     }
 
     /**
-     * Organization relationship creation
+     * Organization relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -238,7 +238,7 @@ final class RepositoryController extends ResourceController
     }
 
     /**
-     * Organization relationship destruction
+     * Organization relationship destruction.
      *
      * @param Request $request
      * @param string  $id
@@ -258,7 +258,7 @@ final class RepositoryController extends ResourceController
     // --
 
     /**
-     * Packages relationship
+     * Packages relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -279,7 +279,7 @@ final class RepositoryController extends ResourceController
     }
 
     /**
-     * Packages relationship index
+     * Packages relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -300,7 +300,7 @@ final class RepositoryController extends ResourceController
     }
 
     /**
-     * Packages relationship creation
+     * Packages relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -318,7 +318,7 @@ final class RepositoryController extends ResourceController
     }
 
     /**
-     * Packages relationship destruction
+     * Packages relationship destruction.
      *
      * @param Request $request
      * @param string  $id

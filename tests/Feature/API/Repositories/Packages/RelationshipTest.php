@@ -5,6 +5,10 @@ namespace Tests\Feature\API\Repositories\Packages;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use Tests\Feature\API\Repositories\RepositoryTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class RelationshipTest extends RepositoryTest
 {
     public function testCorrectCounts()
@@ -13,7 +17,7 @@ final class RelationshipTest extends RepositoryTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(0, count($data['data']));
+        static::assertSame(0, \count($data['data']));
 
         // --
 
@@ -27,7 +31,7 @@ final class RelationshipTest extends RepositoryTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testCorrectData()

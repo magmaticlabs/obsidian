@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Organizations;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class UpdateTest extends OrganizationTest
 {
     use \Tests\Feature\API\ResourceTest\UpdateTest;
@@ -11,7 +15,7 @@ final class UpdateTest extends OrganizationTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,6 +26,8 @@ final class UpdateTest extends OrganizationTest
 
     /**
      * @dataProvider invalidDataName
+     *
+     * @param mixed $value
      */
     public function testValidateName($value)
     {
@@ -54,6 +60,8 @@ final class UpdateTest extends OrganizationTest
 
     /**
      * @dataProvider invalidDataDisplayName
+     *
+     * @param mixed $value
      */
     public function testValidateDisplayName($value)
     {
@@ -71,6 +79,8 @@ final class UpdateTest extends OrganizationTest
 
     /**
      * @dataProvider invalidDataDescription
+     *
+     * @param mixed $value
      */
     public function testValidateDescription($value)
     {

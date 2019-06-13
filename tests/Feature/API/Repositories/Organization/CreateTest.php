@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Repositories\Organization;
 
 use Tests\Feature\API\Repositories\RepositoryTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class CreateTest extends RepositoryTest
 {
     public function testCreateNotAllowed()

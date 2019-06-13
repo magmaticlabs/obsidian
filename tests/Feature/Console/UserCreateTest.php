@@ -5,7 +5,11 @@ namespace Tests\Feature\Console;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class UserCreateTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class UserCreateTest extends TestCase
 {
     public function testCreate()
     {
@@ -15,9 +19,9 @@ class UserCreateTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        $this->assertNotEmpty($user);
-        $this->assertEquals('test@example.com', $user->email);
-        $this->assertFalse((bool) $user->administrator);
+        static::assertNotEmpty($user);
+        static::assertSame('test@example.com', $user->email);
+        static::assertFalse((bool) $user->administrator);
     }
 
     public function testCreateAdministrator()
@@ -28,9 +32,9 @@ class UserCreateTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        $this->assertNotEmpty($user);
-        $this->assertEquals('test@example.com', $user->email);
-        $this->assertTrue((bool) $user->administrator);
+        static::assertNotEmpty($user);
+        static::assertSame('test@example.com', $user->email);
+        static::assertTrue((bool) $user->administrator);
     }
 
     public function testDuplicate()
@@ -42,7 +46,7 @@ class UserCreateTest extends TestCase
 
         $cmd->execute();
 
-        $this->assertEquals(1, User::count());
+        static::assertSame(1, User::count());
     }
 
     public function testUsernameIsLowerAndTrimmed()
@@ -53,8 +57,8 @@ class UserCreateTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        $this->assertNotEmpty($user);
-        $this->assertEquals('testuser', $user->username);
+        static::assertNotEmpty($user);
+        static::assertSame('testuser', $user->username);
     }
 
     public function testEmailCaseIsKeptAndTrimmed()
@@ -65,7 +69,7 @@ class UserCreateTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        $this->assertNotEmpty($user);
-        $this->assertEquals('tEsT@eXaMpLe.com', $user->email);
+        static::assertNotEmpty($user);
+        static::assertSame('tEsT@eXaMpLe.com', $user->email);
     }
 }

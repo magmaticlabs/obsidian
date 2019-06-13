@@ -5,11 +5,15 @@ namespace Tests\Feature\API\APIFeatures;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use Tests\Feature\API\ResourceTest\ResourceTest;
 
-class SortingTest extends ResourceTest
+/**
+ * @internal
+ * @coversNothing
+ */
+final class SortingTest extends ResourceTest
 {
     public function testDefaultSortByID()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organizations = $this->factory(Organization::class)->times(10)->create();
 
         $data = [];
@@ -22,13 +26,13 @@ class SortingTest extends ResourceTest
         $response = $this->get(route('api.organizations.index'));
 
         $response->assertJson([
-            'data'  => $this->sortData($data, 'id'),
+            'data' => $this->sortData($data, 'id'),
         ]);
     }
 
     public function testSortByName()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organizations = $this->factory(Organization::class)->times(10)->create();
 
         $data = [];
@@ -44,13 +48,13 @@ class SortingTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'sort=name'));
 
         $response->assertJson([
-            'data'  => $this->sortData($data, 'attributes.name'),
+            'data' => $this->sortData($data, 'attributes.name'),
         ]);
     }
 
     public function testReverseSortByName()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organizations = $this->factory(Organization::class)->times(10)->create();
 
         $data = [];
@@ -66,7 +70,7 @@ class SortingTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'sort=-name'));
 
         $response->assertJson([
-            'data'  => array_reverse($this->sortData($data, 'attributes.name')),
+            'data' => array_reverse($this->sortData($data, 'attributes.name')),
         ]);
     }
 

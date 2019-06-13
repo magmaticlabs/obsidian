@@ -10,7 +10,7 @@ use MagmaticLabs\Obsidian\Domain\Support\CommandHandler;
 final class OrganizationHandler extends CommandHandler
 {
     /**
-     * Create a new organization
+     * Create a new organization.
      *
      * @param Command $command
      *
@@ -24,7 +24,7 @@ final class OrganizationHandler extends CommandHandler
     }
 
     /**
-     * Update an existing organization
+     * Update an existing organization.
      *
      * @param Command $command
      *
@@ -37,7 +37,7 @@ final class OrganizationHandler extends CommandHandler
     }
 
     /**
-     * Destroy an existing organization
+     * Destroy an existing organization.
      *
      * @param Command $command
      *
@@ -49,7 +49,7 @@ final class OrganizationHandler extends CommandHandler
     }
 
     /**
-     * Add a new member to an organization
+     * Add a new member to an organization.
      *
      * @param Command $command
      *
@@ -65,7 +65,7 @@ final class OrganizationHandler extends CommandHandler
     }
 
     /**
-     * Remove a member from an organization
+     * Remove a member from an organization.
      *
      * @param Command $command
      *
@@ -81,7 +81,7 @@ final class OrganizationHandler extends CommandHandler
     }
 
     /**
-     * Promote a member of an organization to owner
+     * Promote a member of an organization to owner.
      *
      * @param Command $command
      *
@@ -97,7 +97,7 @@ final class OrganizationHandler extends CommandHandler
     }
 
     /**
-     * Demote an owner of an organization to normal member
+     * Demote an owner of an organization to normal member.
      *
      * @param Command $command
      *

@@ -33,11 +33,11 @@ class ProcessBuild extends Command
      */
     public function handle(ProcessExecutor $executor, Filesystem $storage)
     {
-        /* @var Build $build */
+        /** @var Build $build */
         $build = Build::find($id = $this->argument('id'));
 
         if (empty($build)) {
-            $this->output->error("Unable to locate a build with id '$id'");
+            $this->output->error("Unable to locate a build with id '{$id}'");
 
             return 1;
         }
@@ -50,7 +50,7 @@ class ProcessBuild extends Command
             ]);
         }
 
-        if ('pending' != $build->status) {
+        if ('pending' !== $build->status) {
             $this->output->error('The specified build has already been processed');
 
             return 1;

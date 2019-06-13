@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Packages\Repository;
 
 use Tests\Feature\API\Packages\PackageTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class IndexTest extends PackageTest
 {
     public function testCorrectData()

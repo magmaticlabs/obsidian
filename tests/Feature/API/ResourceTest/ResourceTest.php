@@ -10,42 +10,42 @@ use Tests\TestCase;
 abstract class ResourceTest extends TestCase
 {
     /**
-     * Resource type
+     * Resource type.
      *
      * @var string
      */
     protected $type = '__INVALID__';
 
     /**
-     * Required attributes
+     * Required attributes.
      *
      * @var array
      */
     protected $required = [];
 
     /**
-     * Optional attributes
+     * Optional attributes.
      *
      * @var array
      */
     protected $optional = [];
 
     /**
-     * Authenticated user
+     * Authenticated user.
      *
      * @var User
      */
     protected $user;
 
     /**
-     * Model instance
+     * Model instance.
      *
      * @var \MagmaticLabs\Obsidian\Domain\Eloquent\Model
      */
     protected $model;
 
     /**
-     * Data to send to API
+     * Data to send to API.
      *
      * @var array
      */
@@ -54,7 +54,7 @@ abstract class ResourceTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -62,7 +62,7 @@ abstract class ResourceTest extends TestCase
     }
 
     /**
-     * Get a route string
+     * Get a route string.
      *
      * @param string $method
      * @param null   $arg
@@ -75,7 +75,7 @@ abstract class ResourceTest extends TestCase
     }
 
     /**
-     * Arguments to the factory to create the model
+     * Arguments to the factory to create the model.
      *
      * @return array
      */

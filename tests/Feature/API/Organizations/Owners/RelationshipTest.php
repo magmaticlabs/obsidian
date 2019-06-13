@@ -5,6 +5,10 @@ namespace Tests\Feature\API\Organizations\Owners;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\Feature\API\Organizations\OrganizationTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class RelationshipTest extends OrganizationTest
 {
     public function testCorrectCounts()
@@ -13,7 +17,7 @@ final class RelationshipTest extends OrganizationTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(1, count($data['data']));
+        static::assertSame(1, \count($data['data']));
 
         // --
 
@@ -28,7 +32,7 @@ final class RelationshipTest extends OrganizationTest
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count + 1, count($data['data']));
+        static::assertSame($count + 1, \count($data['data']));
     }
 
     public function testCorrectData()
@@ -46,8 +50,8 @@ final class RelationshipTest extends OrganizationTest
         $response->assertJson([
             'data' => $this->sortData([
                 [
-                    'type'       => 'users',
-                    'id'         => $this->user->id,
+                    'type' => 'users',
+                    'id'   => $this->user->id,
                 ],
                 [
                     'type'       => 'users',

@@ -14,7 +14,7 @@ trait UpdateTest
 {
     public function testUpdate()
     {
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
         $this->validateResponse($response, 200);
 
@@ -31,7 +31,7 @@ trait UpdateTest
     {
         unset($this->data['data']['id']);
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
         $this->validateResponse($response, 400);
 
@@ -43,7 +43,7 @@ trait UpdateTest
 
         $this->data['data']['id'] = 'foobar';
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
         $this->validateResponse($response, 400);
 
@@ -58,7 +58,7 @@ trait UpdateTest
     {
         unset($this->data['data']['type']);
 
-        /* @var \Illuminate\Foundation\Testing\TestResponse $response */
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
         $this->validateResponse($response, 400);
 

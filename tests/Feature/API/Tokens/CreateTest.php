@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\API\Tokens;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class CreateTest extends TokenTest
 {
     use \Tests\Feature\API\ResourceTest\CreateTest;
@@ -22,12 +26,14 @@ final class CreateTest extends TokenTest
         $this->validateResponse($response, 201);
 
         $attr = json_decode($response->getContent(), true)['data']['attributes'];
-        $this->assertArrayHasKey('accessToken', $attr);
-        $this->assertNotEmpty($attr['accessToken']);
+        static::assertArrayHasKey('accessToken', $attr);
+        static::assertNotEmpty($attr['accessToken']);
     }
 
     /**
      * @dataProvider invalidDataName
+     *
+     * @param mixed $value
      */
     public function testValidateName($value)
     {
@@ -45,6 +51,8 @@ final class CreateTest extends TokenTest
 
     /**
      * @dataProvider invalidDataScopes
+     *
+     * @param mixed $value
      */
     public function testValidateScopes($value)
     {

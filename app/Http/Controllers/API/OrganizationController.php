@@ -102,7 +102,7 @@ final class OrganizationController extends ResourceController
         $this->authorize('update', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
-            'data.id'                      => "required|match:$id",
+            'data.id'                      => "required|match:{$id}",
             'data.type'                    => 'required|match:organizations',
             'data.attributes.name'         => 'sometimes|unique:organizations,name|min:3|regex:/^[a-z0-9\-]+$/i',
             'data.attributes.display_name' => 'sometimes|string|min:3|max:255',
@@ -153,7 +153,7 @@ final class OrganizationController extends ResourceController
     // --
 
     /**
-     * Members relationship
+     * Members relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -174,7 +174,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Members relationship index
+     * Members relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -195,7 +195,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Members relationship creation
+     * Members relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -230,7 +230,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Members relationship destruction
+     * Members relationship destruction.
      *
      * @param Request $request
      * @param string  $id
@@ -267,7 +267,7 @@ final class OrganizationController extends ResourceController
     // --
 
     /**
-     * Owners relationship
+     * Owners relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -288,7 +288,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Owners relationship index
+     * Owners relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -309,7 +309,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Owners relationship creation
+     * Owners relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -348,7 +348,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Owners relationship destruction
+     * Owners relationship destruction.
      *
      * @param Request $request
      * @param string  $id
@@ -390,7 +390,7 @@ final class OrganizationController extends ResourceController
     // --
 
     /**
-     * Repositories relationship
+     * Repositories relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -411,7 +411,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Repositories relationship index
+     * Repositories relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -432,7 +432,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Repositories relationship creation
+     * Repositories relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -450,7 +450,7 @@ final class OrganizationController extends ResourceController
     }
 
     /**
-     * Repositories relationship destruction
+     * Repositories relationship destruction.
      *
      * @param Request $request
      * @param string  $id

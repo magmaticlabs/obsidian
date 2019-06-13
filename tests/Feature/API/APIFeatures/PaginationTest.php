@@ -6,14 +6,18 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Support\Paginator;
 use Tests\Feature\API\ResourceTest\ResourceTest;
 
-class PaginationTest extends ResourceTest
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PaginationTest extends ResourceTest
 {
     public function testDefaultEmpty()
     {
         $response = $this->get(route('api.organizations.index'));
 
         $response->assertJson([
-            'meta'  => [
+            'meta' => [
                 'pagination' => [
                     'total'  => 0,
                     'count'  => 0,
@@ -53,6 +57,8 @@ class PaginationTest extends ResourceTest
 
     /**
      * @dataProvider dataTotal
+     *
+     * @param mixed $total
      */
     public function testNumPages($total)
     {
@@ -61,9 +67,9 @@ class PaginationTest extends ResourceTest
         $response = $this->get(route('api.organizations.index'));
 
         $response->assertJson([
-            'meta'  => [
+            'meta' => [
                 'pagination' => [
-                    'pages'  => (int) ceil($total / Paginator::DEFAULT_LIMIT),
+                    'pages' => (int) ceil($total / Paginator::DEFAULT_LIMIT),
                 ],
             ],
         ]);
@@ -71,6 +77,8 @@ class PaginationTest extends ResourceTest
 
     /**
      * @dataProvider dataTotal
+     *
+     * @param mixed $total
      */
     public function testCounts($total)
     {
@@ -81,7 +89,7 @@ class PaginationTest extends ResourceTest
         $count = min(Paginator::DEFAULT_LIMIT, $total);
 
         $response->assertJson([
-            'meta'  => [
+            'meta' => [
                 'pagination' => [
                     'total' => $total,
                     'count' => $count,
@@ -90,34 +98,37 @@ class PaginationTest extends ResourceTest
         ]);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     /**
      * @dataProvider dataTotalLimits
+     *
+     * @param mixed $total
+     * @param mixed $limit
      */
     public function testWithLimit($total, $limit)
     {
         $this->factory(Organization::class)->times($total)->create();
 
-        $response = $this->get(route('api.organizations.index', "page[limit]=$limit"));
+        $response = $this->get(route('api.organizations.index', "page[limit]={$limit}"));
 
         $limit = max(1, min(Paginator::MAX_LIMIT, $limit));
         $count = min($limit, $total);
 
         $response->assertJson([
-            'meta'  => [
+            'meta' => [
                 'pagination' => [
-                    'total'  => $total,
-                    'count'  => $count,
-                    'limit'  => $limit,
-                    'pages'  => (int) ceil($total / $limit),
+                    'total' => $total,
+                    'count' => $count,
+                    'limit' => $limit,
+                    'pages' => (int) ceil($total / $limit),
                 ],
             ],
         ]);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testLinksFirstPage()
@@ -127,7 +138,7 @@ class PaginationTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'page[limit]=1'));
 
         $response->assertJson([
-            'links'  => [
+            'links' => [
                 'first' => route('api.organizations.index', 'page[limit]=1&page[number]=1'),
                 'next'  => route('api.organizations.index', 'page[limit]=1&page[number]=2'),
                 'last'  => route('api.organizations.index', 'page[limit]=1&page[number]=5'),
@@ -142,7 +153,7 @@ class PaginationTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'page[limit]=1&page[number]=2'));
 
         $response->assertJson([
-            'links'  => [
+            'links' => [
                 'first' => route('api.organizations.index', 'page[limit]=1&page[number]=1'),
                 'next'  => route('api.organizations.index', 'page[limit]=1&page[number]=3'),
                 'prev'  => route('api.organizations.index', 'page[limit]=1&page[number]=1'),
@@ -161,6 +172,6 @@ class PaginationTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'page[limit]=1&page[number]=3'));
         $B = json_decode($response->getContent(), true);
 
-        $this->assertNotEquals($A['data'], $B['data']);
+        static::assertNotSame($A['data'], $B['data']);
     }
 }

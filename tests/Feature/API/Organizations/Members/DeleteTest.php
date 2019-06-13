@@ -5,10 +5,14 @@ namespace Tests\Feature\API\Organizations\Members;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\Feature\API\Organizations\OrganizationTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class DeleteTest extends OrganizationTest
 {
     /**
-     * Fragment for the authenticated user
+     * Fragment for the authenticated user.
      *
      * @var array
      */
@@ -17,7 +21,7 @@ final class DeleteTest extends OrganizationTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -51,8 +55,8 @@ final class DeleteTest extends OrganizationTest
             'data' => [$this->self],
         ]);
 
-        $this->assertFalse($this->model->hasMember($user));
-        $this->assertFalse($this->model->hasOwner($user));
+        static::assertFalse($this->model->hasMember($user));
+        static::assertFalse($this->model->hasOwner($user));
     }
 
     public function testDestroyOwner()
@@ -69,8 +73,8 @@ final class DeleteTest extends OrganizationTest
             'data' => [$this->self],
         ]);
 
-        $this->assertFalse($this->model->hasMember($user));
-        $this->assertFalse($this->model->hasOwner($user));
+        static::assertFalse($this->model->hasMember($user));
+        static::assertFalse($this->model->hasOwner($user));
     }
 
     public function testDestroyNonMember()
@@ -85,8 +89,8 @@ final class DeleteTest extends OrganizationTest
             'data' => [$this->self],
         ]);
 
-        $this->assertFalse($this->model->hasMember($user));
-        $this->assertFalse($this->model->hasOwner($user));
+        static::assertFalse($this->model->hasMember($user));
+        static::assertFalse($this->model->hasOwner($user));
     }
 
     public function testUnknownUser()

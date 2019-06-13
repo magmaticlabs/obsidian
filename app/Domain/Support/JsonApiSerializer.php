@@ -35,8 +35,8 @@ final class JsonApiSerializer extends BaseSerializer
         if (isset($data['__relationship__'])) {
             return [
                 'data' => [
-                    'type'       => $resourceKey,
-                    'id'         => $this->getIdFromData($data),
+                    'type' => $resourceKey,
+                    'id'   => $this->getIdFromData($data),
                 ],
             ];
         }

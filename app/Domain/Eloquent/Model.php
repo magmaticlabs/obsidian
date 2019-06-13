@@ -41,22 +41,6 @@ abstract class Model extends BaseModel
     const DELETED_AT = 'deleted';
 
     /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * The "type" of the primary key ID.
-     *
-     * We will be using UUID strings by default.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-
-    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * Since we are using non-integer keys, disable this.
@@ -73,6 +57,22 @@ abstract class Model extends BaseModel
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
+
+    /**
+     * The "type" of the primary key ID.
+     *
+     * We will be using UUID strings by default.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
 
     /**
      * The attributes that aren't mass assignable.
@@ -103,28 +103,14 @@ abstract class Model extends BaseModel
     protected $generateKey = true;
 
     /**
-     * API resource key
+     * API resource key.
      *
      * @var string
      */
     protected $resource_key = '';
 
     /**
-     * {@inheritdoc}
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function (Model $model) {
-            if ($model->generateKey && empty($model->attributes[$model->getKeyName()])) {
-                $model->{$model->getKeyName()} = UUID::generate()->toString();
-            }
-        });
-    }
-
-    /**
-     * Resource key accessor
+     * Resource key accessor.
      *
      * @return string
      */
@@ -135,5 +121,19 @@ abstract class Model extends BaseModel
         }
 
         return $this->resource_key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (self $model) {
+            if ($model->generateKey && empty($model->attributes[$model->getKeyName()])) {
+                $model->{$model->getKeyName()} = UUID::generate()->toString();
+            }
+        });
     }
 }

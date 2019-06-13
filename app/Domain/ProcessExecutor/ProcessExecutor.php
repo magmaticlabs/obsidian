@@ -7,12 +7,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class ProcessExecutor
 {
     /**
-     * Execute a command
+     * Execute a command.
      *
      * @param string          $command
      * @param array           $args
      * @param OutputInterface $output
-     * @param string|null     $cwd
+     * @param null|string     $cwd
      *
      * @return string
      */

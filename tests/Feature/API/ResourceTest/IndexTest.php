@@ -30,25 +30,25 @@ trait IndexTest
     public function testCountsMatches()
     {
         // Empty the collection
-        $class = get_class($this->model);
+        $class = \get_class($this->model);
         $class::query()->delete();
 
         $response = $this->get($this->getRoute('index'));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(0, count($data['data']));
+        $this->assertSame(0, \count($data['data']));
 
         // --
 
         $count = 5;
 
-        $this->factory(get_class($this->model))->times($count)->create($this->factoryArgs());
+        $this->factory(\get_class($this->model))->times($count)->create($this->factoryArgs());
 
         $response = $this->get($this->getRoute('index'));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($count, count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 }

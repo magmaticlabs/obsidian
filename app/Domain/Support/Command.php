@@ -8,49 +8,49 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 class Command
 {
     /**
-     * Type of command
+     * Type of command.
      *
      * @var string
      */
     protected $type;
 
     /**
-     * Data passed into the command
+     * Data passed into the command.
      *
      * @var array
      */
     protected $data;
 
     /**
-     * ID of the object being acted on
+     * ID of the object being acted on.
      *
      * @var string
      */
     protected $objectid;
 
     /**
-     * Timestamp of when the command was issued
+     * Timestamp of when the command was issued.
      *
      * @var \Carbon\Carbon|\Carbon\CarbonInterface
      */
     protected $timestamp;
 
     /**
-     * Context around the command
+     * Context around the command.
      *
      * @var string
      */
     protected $context;
 
     /**
-     * Currently authenticated user
+     * Currently authenticated user.
      *
      * @var \MagmaticLabs\Obsidian\Domain\Eloquent\User
      */
     protected $user;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param string $type
      * @param array  $data
@@ -66,7 +66,7 @@ class Command
     }
 
     /**
-     * Type accessor
+     * Type accessor.
      *
      * @return string
      */
@@ -76,9 +76,9 @@ class Command
     }
 
     /**
-     * Data accessor
+     * Data accessor.
      *
-     * @return array|null
+     * @return null|array
      */
     public function getData(?string $key = null): ?array
     {
@@ -90,7 +90,7 @@ class Command
     }
 
     /**
-     * Object id accessor
+     * Object id accessor.
      *
      * @return string
      */
@@ -100,7 +100,7 @@ class Command
     }
 
     /**
-     * Timestamp accessor
+     * Timestamp accessor.
      *
      * @return string
      */
@@ -110,7 +110,7 @@ class Command
     }
 
     /**
-     * Context accessor
+     * Context accessor.
      *
      * @return string
      */
@@ -120,7 +120,7 @@ class Command
     }
 
     /**
-     * User accessor
+     * User accessor.
      *
      * @return array
      */
@@ -130,7 +130,7 @@ class Command
     }
 
     /**
-     * User id accessor
+     * User id accessor.
      *
      * @return string
      */
@@ -140,7 +140,7 @@ class Command
     }
 
     /**
-     * Dump all info to an array
+     * Dump all info to an array.
      *
      * @return array
      */
@@ -156,11 +156,11 @@ class Command
     }
 
     /**
-     * Find the object ID
+     * Find the object ID.
      *
      * @param array $data
      *
-     * @return string|null
+     * @return null|string
      */
     private function findObjectId(array $data): ?string
     {
@@ -176,7 +176,7 @@ class Command
     }
 
     /**
-     * Find the context around the command
+     * Find the context around the command.
      *
      * @param array $backtrace
      *

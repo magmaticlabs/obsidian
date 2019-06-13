@@ -21,7 +21,7 @@ trait DeleteTest
 
     public function testDeleteActuallyWorks()
     {
-        /* @var \Tests\Feature\API\ResourceTest\ResourceTest $this */
+        // @var \Tests\Feature\API\ResourceTest\ResourceTest $this
         $this->delete($this->getRoute('destroy', $this->model->id));
         $this->expectException(ModelNotFoundException::class);
         $this->model->refresh();

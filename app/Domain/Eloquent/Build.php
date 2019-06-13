@@ -15,7 +15,7 @@ final class Build extends Model
     ];
 
     /**
-     * Package relationship
+     * Package relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

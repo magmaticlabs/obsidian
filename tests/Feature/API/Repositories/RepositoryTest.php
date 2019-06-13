@@ -9,21 +9,21 @@ use Tests\Feature\API\ResourceTest\ResourceTest;
 abstract class RepositoryTest extends ResourceTest
 {
     /**
-     * Resource type
+     * Resource type.
      *
      * @var string
      */
     protected $type = 'repositories';
 
     /**
-     * Organization
+     * Organization.
      *
      * @var Organization
      */
     protected $organization;
 
     /**
-     * Model instance
+     * Model instance.
      *
      * @var Repository
      */
@@ -32,7 +32,7 @@ abstract class RepositoryTest extends ResourceTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -63,22 +63,6 @@ abstract class RepositoryTest extends ResourceTest
         ];
     }
 
-    /**
-     * Remove the authenticated user from the parent organization
-     */
-    protected function removeUser()
-    {
-        $this->organization->removeMember($this->user);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function factoryArgs(): array
-    {
-        return ['organization_id' => $this->organization->id];
-    }
-
     // --
 
     public function invalidDataName()
@@ -93,15 +77,31 @@ abstract class RepositoryTest extends ResourceTest
     public function invalidDataDisplayName()
     {
         return [
-            'non-string'  => [[]],
-            'too-short'   => ['no'],
+            'non-string' => [[]],
+            'too-short'  => ['no'],
         ];
     }
 
     public function invalidDataDescription()
     {
         return [
-            'non-string'  => [[]],
+            'non-string' => [[]],
         ];
+    }
+
+    /**
+     * Remove the authenticated user from the parent organization.
+     */
+    protected function removeUser()
+    {
+        $this->organization->removeMember($this->user);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function factoryArgs(): array
+    {
+        return ['organization_id' => $this->organization->id];
     }
 }

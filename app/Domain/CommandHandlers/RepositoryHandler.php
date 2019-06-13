@@ -9,7 +9,7 @@ use MagmaticLabs\Obsidian\Domain\Support\CommandHandler;
 final class RepositoryHandler extends CommandHandler
 {
     /**
-     * Create a new repository
+     * Create a new repository.
      *
      * @param Command $command
      *
@@ -21,7 +21,7 @@ final class RepositoryHandler extends CommandHandler
     }
 
     /**
-     * Update an existing repository
+     * Update an existing repository.
      *
      * @param Command $command
      *
@@ -34,7 +34,7 @@ final class RepositoryHandler extends CommandHandler
     }
 
     /**
-     * Destroy an existing repository
+     * Destroy an existing repository.
      *
      * @param Command $command
      *

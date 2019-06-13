@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\API\Repositories;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class DeleteTest extends RepositoryTest
 {
     use \Tests\Feature\API\ResourceTest\DeleteTest;

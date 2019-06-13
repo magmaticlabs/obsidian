@@ -4,6 +4,10 @@ namespace Tests\Feature\API\Packages\Builds;
 
 use Tests\Feature\API\Packages\PackageTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class CreateTest extends PackageTest
 {
     public function testCreateNotAllowed()

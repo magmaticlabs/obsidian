@@ -6,7 +6,11 @@ use Illuminate\Support\Facades\Hash;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class UserPasswordTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class UserPasswordTest extends TestCase
 {
     public function testSetPassword()
     {
@@ -18,7 +22,7 @@ class UserPasswordTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        $this->assertTrue(Hash::check('testing', $user->password));
+        static::assertTrue(Hash::check('testing', $user->password));
     }
 
     public function testAskPassword()
@@ -32,7 +36,7 @@ class UserPasswordTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        $this->assertTrue(Hash::check('testing', $user->password));
+        static::assertTrue(Hash::check('testing', $user->password));
     }
 
     public function testMissingUserErrors()

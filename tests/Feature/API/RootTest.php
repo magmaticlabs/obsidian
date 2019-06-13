@@ -6,7 +6,11 @@ use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class RootTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class RootTest extends TestCase
 {
     public function testAvailable()
     {
@@ -47,7 +51,7 @@ class RootTest extends TestCase
         $this->validateResponse($response, 200);
 
         $body = json_decode($response->getContent(), true);
-        $this->assertArrayNotHasKey('login', $body['links']);
+        static::assertArrayNotHasKey('login', $body['links']);
     }
 
     public function testSessionLinkWhenLoggedIn()

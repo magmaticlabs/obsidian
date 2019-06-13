@@ -30,7 +30,7 @@ final class BusServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the command bus and subscribe handlers
+     * Register the command bus and subscribe handlers.
      */
     private function registerCommandBus()
     {
@@ -38,7 +38,7 @@ final class BusServiceProvider extends ServiceProvider
             $bus = new CommandBus();
 
             $namespace = __NAMESPACE__;
-            $namespace = dirname(strtr($namespace, ['\\' => '/']));
+            $namespace = \dirname(strtr($namespace, ['\\' => '/']));
             $namespace = sprintf('\\%s\\Domain\\CommandHandlers', strtr($namespace, ['/' => '\\']));
 
             $handlers = scandir(app_path('Domain/CommandHandlers'));

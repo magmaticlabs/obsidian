@@ -5,14 +5,14 @@ namespace MagmaticLabs\Obsidian\Domain\Support;
 final class CommandBus
 {
     /**
-     * Registered callbacks for commands
+     * Registered callbacks for commands.
      *
      * @var array
      */
     private $registrations;
 
     /**
-     * Accessor for the registrations
+     * Accessor for the registrations.
      *
      * @return array
      */
@@ -22,7 +22,7 @@ final class CommandBus
     }
 
     /**
-     * Register a new command callback
+     * Register a new command callback.
      *
      * @param string   $command
      * @param callable $callback
@@ -49,7 +49,7 @@ final class CommandBus
     }
 
     /**
-     * Dispatch the command to all registered callbacks
+     * Dispatch the command to all registered callbacks.
      *
      * @param Command $command
      */
@@ -66,7 +66,7 @@ final class CommandBus
                 }
 
                 foreach ($callbacks as $callback) {
-                    call_user_func($callback, $command);
+                    \call_user_func($callback, $command);
                 }
             }
         }

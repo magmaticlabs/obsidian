@@ -5,11 +5,15 @@ namespace Tests\Feature\API\APIFeatures;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use Tests\Feature\API\ResourceTest\ResourceTest;
 
-class SparseFieldsTest extends ResourceTest
+/**
+ * @internal
+ * @coversNothing
+ */
+final class SparseFieldsTest extends ResourceTest
 {
     public function testDefaultReturnAll()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
         $attributes = $organization->toArray();
         unset($attributes['id']);
@@ -17,7 +21,7 @@ class SparseFieldsTest extends ResourceTest
         $response = $this->get(route('api.organizations.index'));
 
         $response->assertJson([
-            'data'  => [
+            'data' => [
                 [
                     'attributes' => $attributes,
                 ],
@@ -33,12 +37,12 @@ class SparseFieldsTest extends ResourceTest
 
         sort($fields);
 
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
 
         $attributes = [];
         foreach ($fields as $field) {
-            $attributes[$field] = $organization->$field;
+            $attributes[$field] = $organization->{$field};
         }
 
         $response = $this->get(route('api.organizations.index', [
@@ -50,12 +54,12 @@ class SparseFieldsTest extends ResourceTest
 
         ksort($compare);
 
-        $this->assertEquals($attributes, $compare);
+        static::assertSame($attributes, $compare);
     }
 
     public function testMismatchTypeReturnAll()
     {
-        /* @var Organization $organization */
+        /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
         $attributes = $organization->toArray();
         unset($attributes['id']);
@@ -65,7 +69,7 @@ class SparseFieldsTest extends ResourceTest
         ]));
 
         $response->assertJson([
-            'data'  => [
+            'data' => [
                 [
                     'attributes' => $attributes,
                 ],
@@ -92,6 +96,6 @@ class SparseFieldsTest extends ResourceTest
 
         ksort($compare);
 
-        $this->assertEquals([], $compare);
+        static::assertSame([], $compare);
     }
 }

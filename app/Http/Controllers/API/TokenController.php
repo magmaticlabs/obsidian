@@ -85,7 +85,7 @@ final class TokenController extends ResourceController
         }
 
         $data = $this->validate($request, [
-            'data.id'                => "required|match:$id",
+            'data.id'                => "required|match:{$id}",
             'data.type'              => 'required|match:tokens',
             'data.attributes.name'   => 'sometimes|string|max:255',
             'data.attributes.scopes' => 'sometimes|array|in:' . implode(',', Passport::scopeIds()),

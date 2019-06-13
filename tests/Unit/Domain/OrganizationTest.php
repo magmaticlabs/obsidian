@@ -6,10 +6,14 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-class OrganizationTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class OrganizationTest extends TestCase
 {
     /**
-     * Organization instance
+     * Organization instance.
      *
      * @var Organization
      */
@@ -18,7 +22,7 @@ class OrganizationTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -29,18 +33,18 @@ class OrganizationTest extends TestCase
 
     public function testAddRemoveMembers()
     {
-        $this->assertEquals(0, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->members()->count());
 
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
 
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(0, $this->organization->owners()->count());
-        $this->assertEquals($user->getKey(), $this->organization->members()->first()->getKey());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->owners()->count());
+        static::assertSame($user->getKey(), $this->organization->members()->first()->getKey());
 
         $this->organization->removeMember($user);
 
-        $this->assertEquals(0, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->members()->count());
     }
 
     public function testPromoteDemote()
@@ -48,19 +52,19 @@ class OrganizationTest extends TestCase
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
 
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(0, $this->organization->owners()->count());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->owners()->count());
 
         $this->organization->promoteMember($user);
 
         // Owners are counted in members
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(1, $this->organization->owners()->count());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(1, $this->organization->owners()->count());
 
         $this->organization->demoteMember($user);
 
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(0, $this->organization->owners()->count());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->owners()->count());
     }
 
     public function testRedundantOperations()
@@ -72,21 +76,21 @@ class OrganizationTest extends TestCase
         $this->organization->addMember($user);
         $this->organization->addMember($user);
 
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(0, $this->organization->owners()->count());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->owners()->count());
 
         $this->organization->promoteMember($user);
         $this->organization->promoteMember($user);
 
         // Owners are counted in members
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(1, $this->organization->owners()->count());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(1, $this->organization->owners()->count());
 
         $this->organization->demoteMember($user);
         $this->organization->demoteMember($user);
 
-        $this->assertEquals(1, $this->organization->members()->count());
-        $this->assertEquals(0, $this->organization->owners()->count());
+        static::assertSame(1, $this->organization->members()->count());
+        static::assertSame(0, $this->organization->owners()->count());
     }
 
     public function testInvalidPromote()

@@ -10,52 +10,52 @@ use League\Fractal\Pagination\PaginatorInterface;
 final class Paginator implements PaginatorInterface
 {
     /**
-     * The default per page limit
+     * The default per page limit.
      */
     const DEFAULT_LIMIT = 10;
 
     /**
-     * The maximum per page limit
+     * The maximum per page limit.
      */
     const MAX_LIMIT = 100;
 
     /**
-     * The request object
+     * The request object.
      *
      * @var \Illuminate\Http\Request
      */
     private $request;
 
     /**
-     * Final data
+     * Final data.
      *
      * @var \Illuminate\Support\Collection
      */
     private $data;
 
     /**
-     * Total number of entries
+     * Total number of entries.
      *
      * @var int
      */
     private $total;
 
     /**
-     * Per page limit
+     * Per page limit.
      *
      * @var int
      */
     private $limit;
 
     /**
-     * The current page number
+     * The current page number.
      *
      * @var int
      */
     private $currentPage;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param \Illuminate\Http\Request $request
      * @param Builder|Relation         $query
@@ -67,15 +67,15 @@ final class Paginator implements PaginatorInterface
         $this->total = $query->count();
 
         $paging = $request->input('page', null);
-        $this->currentPage = max(1, empty($paging['number']) ? 1 : intval($paging['number']));
-        $this->limit = max(1, min(self::MAX_LIMIT, (!isset($paging['limit']) ? self::DEFAULT_LIMIT : intval($paging['limit']))));
+        $this->currentPage = max(1, empty($paging['number']) ? 1 : (int) ($paging['number']));
+        $this->limit = max(1, min(self::MAX_LIMIT, (!isset($paging['limit']) ? self::DEFAULT_LIMIT : (int) ($paging['limit']))));
         $skip = (($this->currentPage - 1) * $this->limit);
 
         $this->data = $query->skip($skip)->take($this->limit)->get();
     }
 
     /**
-     * Get the data
+     * Get the data.
      *
      * @return \Illuminate\Support\Collection
      */

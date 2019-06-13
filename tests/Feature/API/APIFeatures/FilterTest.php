@@ -5,7 +5,11 @@ namespace Tests\Feature\API\APIFeatures;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use Tests\Feature\API\ResourceTest\ResourceTest;
 
-class FilterTest extends ResourceTest
+/**
+ * @internal
+ * @coversNothing
+ */
+final class FilterTest extends ResourceTest
 {
     public function testDefaultNoFilter()
     {
@@ -15,7 +19,7 @@ class FilterTest extends ResourceTest
         $response = $this->get(route('api.organizations.index'));
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testSimpleFilter()
@@ -28,7 +32,7 @@ class FilterTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'filter[name]=foobar'));
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(1, count($data['data']));
+        static::assertSame(1, \count($data['data']));
     }
 
     public function testOperationsFilter()
@@ -42,7 +46,7 @@ class FilterTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'filter[name]=!=foobar'));
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testWildcardFilter()
@@ -62,7 +66,7 @@ class FilterTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'filter[name]=foo*'));
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(3, count($data['data']));
+        static::assertSame(3, \count($data['data']));
     }
 
     public function testNegativeWildcardFilter()
@@ -82,7 +86,7 @@ class FilterTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'filter[name]=!=foo*'));
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals($count, count($data['data']));
+        static::assertSame($count, \count($data['data']));
     }
 
     public function testFilterPercent()
@@ -99,7 +103,7 @@ class FilterTest extends ResourceTest
         $response = $this->get(route('api.organizations.index', 'filter[name]==foobar%buzz'));
         $data = json_decode($response->getContent(), true);
 
-        $this->assertEquals(1, count($data['data']));
+        static::assertSame(1, \count($data['data']));
     }
 
     public function testMultiLevelNotSupported()

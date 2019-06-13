@@ -16,7 +16,7 @@ abstract class TestCase extends BaseTestCase
     use RefreshDatabase;
 
     /**
-     * Faker utility
+     * Faker utility.
      *
      * @var \Faker\Generator
      */
@@ -46,7 +46,7 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Validate that a response has the specified status code, and conforms to schema
+     * Validate that a response has the specified status code, and conforms to schema.
      *
      * @param TestResponse $response
      * @param int          $status
@@ -58,14 +58,14 @@ abstract class TestCase extends BaseTestCase
         $content = $response->getContent();
 
         if (204 === $status) {
-            $this->assertEmpty($content);
+            static::assertEmpty($content);
         } elseif (!empty($content)) {
             $this->assertJSONSchema($content, 'jsonapi');
         }
     }
 
     /**
-     * Assert that the given string is valid JSON Schema
+     * Assert that the given string is valid JSON Schema.
      *
      * @param string $data
      */
@@ -89,7 +89,7 @@ abstract class TestCase extends BaseTestCase
         /** @var \Opis\JsonSchema\ValidationResult $result */
         $result = $validator->schemaValidation(json_decode($data), $schemas[$schema]);
 
-        $this->assertTrue($result->isValid(), 'Schema validation failed');
+        static::assertTrue($result->isValid(), 'Schema validation failed');
     }
 
     final protected function sortData(array $array, $key)

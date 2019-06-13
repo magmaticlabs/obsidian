@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\API\Tokens;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class UpdateTest extends TokenTest
 {
     use \Tests\Feature\API\ResourceTest\UpdateTest;
@@ -9,7 +13,7 @@ final class UpdateTest extends TokenTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -20,6 +24,8 @@ final class UpdateTest extends TokenTest
 
     /**
      * @dataProvider invalidDataName
+     *
+     * @param mixed $value
      */
     public function testValidateName($value)
     {
@@ -37,6 +43,8 @@ final class UpdateTest extends TokenTest
 
     /**
      * @dataProvider invalidDataScopes
+     *
+     * @param mixed $value
      */
     public function testValidateScopes($value)
     {

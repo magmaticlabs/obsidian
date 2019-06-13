@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Cookie;
 final class AuthController extends Controller
 {
     /**
-     * Display information about the current session
+     * Display information about the current session.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -38,8 +38,8 @@ final class AuthController extends Controller
         }
 
         return new Response([
-            'data'  => null,
-            'meta'  => [
+            'data' => null,
+            'meta' => [
                 'authenticated' => $loggedin,
                 'username'      => $loggedin ? $this->getUser()->username : null,
                 'authtype'      => $authtype,
@@ -51,7 +51,7 @@ final class AuthController extends Controller
     }
 
     /**
-     * Process a login attempt
+     * Process a login attempt.
      *
      * @param \Illuminate\Http\Request         $request
      * @param \Illuminate\Encryption\Encrypter $encrypter
@@ -76,8 +76,8 @@ final class AuthController extends Controller
         }
 
         $response = new Response([
-            'data'  => null,
-            'meta'  => [
+            'data' => null,
+            'meta' => [
                 'authenticated' => true,
                 'username'      => $user->username,
             ],
@@ -93,7 +93,7 @@ final class AuthController extends Controller
     }
 
     /**
-     * Create an authentication cookie
+     * Create an authentication cookie.
      *
      * @param \MagmaticLabs\Obsidian\Domain\Eloquent\User $user
      * @param \Illuminate\Encryption\Encrypter            $encrypter

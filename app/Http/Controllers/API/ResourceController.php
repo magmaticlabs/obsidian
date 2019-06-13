@@ -8,23 +8,20 @@ use Illuminate\Http\Response;
 abstract class ResourceController extends Controller
 {
     /**
-     * Generate a 501 response
+     * Catch all for missing methods.
      *
-     * @return Response
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return \Illuminate\Http\Response|mixed
      */
-    private function _notimplemented(): Response
+    public function __call($method, $parameters)
     {
-        return new Response([
-            'errors' => [[
-                'status' => 501,
-                'title'  => 'Not Implemented',
-                'detail' => 'This operation has not been implemented',
-            ]],
-        ], 501);
+        return $this->_notimplemented();
     }
 
     /**
-     * Display all resources in the collection
+     * Display all resources in the collection.
      *
      * @param Request $request
      *
@@ -36,7 +33,7 @@ abstract class ResourceController extends Controller
     }
 
     /**
-     * Create a new resource
+     * Create a new resource.
      *
      * @param Request $request
      *
@@ -48,7 +45,7 @@ abstract class ResourceController extends Controller
     }
 
     /**
-     * Display the specified resource
+     * Display the specified resource.
      *
      * @param string $id
      *
@@ -60,7 +57,7 @@ abstract class ResourceController extends Controller
     }
 
     /**
-     * Update the specified resource
+     * Update the specified resource.
      *
      * @param Request $request
      * @param string  $id
@@ -73,7 +70,7 @@ abstract class ResourceController extends Controller
     }
 
     /**
-     * Destroy the specified resource
+     * Destroy the specified resource.
      *
      * @param string $id
      *
@@ -85,15 +82,18 @@ abstract class ResourceController extends Controller
     }
 
     /**
-     * Catch all for missing methods
+     * Generate a 501 response.
      *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return \Illuminate\Http\Response|mixed
+     * @return Response
      */
-    public function __call($method, $parameters)
+    private function _notimplemented(): Response
     {
-        return $this->_notimplemented();
+        return new Response([
+            'errors' => [[
+                'status' => 501,
+                'title'  => 'Not Implemented',
+                'detail' => 'This operation has not been implemented',
+            ]],
+        ], 501);
     }
 }

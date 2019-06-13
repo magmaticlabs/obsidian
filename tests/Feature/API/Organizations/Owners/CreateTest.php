@@ -5,10 +5,14 @@ namespace Tests\Feature\API\Organizations\Owners;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\Feature\API\Organizations\OrganizationTest;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class CreateTest extends OrganizationTest
 {
     /**
-     * Fragment for the authenticated user
+     * Fragment for the authenticated user.
      *
      * @var array
      */
@@ -17,7 +21,7 @@ final class CreateTest extends OrganizationTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -54,8 +58,8 @@ final class CreateTest extends OrganizationTest
             ],
         ]);
 
-        $this->assertTrue($this->model->hasMember($user));
-        $this->assertTrue($this->model->hasOwner($user));
+        static::assertTrue($this->model->hasMember($user));
+        static::assertTrue($this->model->hasOwner($user));
     }
 
     public function testCreateNonMember()
@@ -72,8 +76,8 @@ final class CreateTest extends OrganizationTest
             ],
         ]);
 
-        $this->assertFalse($this->model->hasMember($user));
-        $this->assertFalse($this->model->hasOwner($user));
+        static::assertFalse($this->model->hasMember($user));
+        static::assertFalse($this->model->hasOwner($user));
     }
 
     public function testCreateDuplicate()
@@ -93,8 +97,8 @@ final class CreateTest extends OrganizationTest
             ],
         ]);
 
-        $this->assertTrue($this->model->hasMember($user));
-        $this->assertTrue($this->model->hasOwner($user));
+        static::assertTrue($this->model->hasMember($user));
+        static::assertTrue($this->model->hasOwner($user));
     }
 
     public function testUnknownUser()

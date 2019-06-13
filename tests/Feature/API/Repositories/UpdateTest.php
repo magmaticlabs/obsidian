@@ -5,6 +5,10 @@ namespace Tests\Feature\API\Repositories;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class UpdateTest extends RepositoryTest
 {
     use \Tests\Feature\API\ResourceTest\UpdateTest;
@@ -12,7 +16,7 @@ final class UpdateTest extends RepositoryTest
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -32,6 +36,8 @@ final class UpdateTest extends RepositoryTest
 
     /**
      * @dataProvider invalidDataName
+     *
+     * @param mixed $value
      */
     public function testValidateName($value)
     {
@@ -49,6 +55,8 @@ final class UpdateTest extends RepositoryTest
 
     /**
      * @dataProvider invalidDataDisplayName
+     *
+     * @param mixed $value
      */
     public function testValidateDisplayName($value)
     {
@@ -66,6 +74,8 @@ final class UpdateTest extends RepositoryTest
 
     /**
      * @dataProvider invalidDataDescription
+     *
+     * @param mixed $value
      */
     public function testValidateDescription($value)
     {

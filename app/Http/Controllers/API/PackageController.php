@@ -63,7 +63,7 @@ final class PackageController extends ResourceController
             ],
         ]);
 
-        /* @var Repository $repository */
+        /** @var Repository $repository */
         $repository = Repository::find($relationships['repository']['data']['id']);
         if (!$repository->organization->hasMember($this->getUser())) {
             abort(403, 'You are not a member of the specified organization');
@@ -120,11 +120,11 @@ final class PackageController extends ResourceController
      */
     public function update(Request $request, string $id): Response
     {
-        /* @var Package $package */
+        // @var Package $package
         $this->authorize('update', $package = Package::findOrFail($id));
 
         $data = $this->validate($request, [
-            'data.id'                  => "required|match:$id",
+            'data.id'                  => "required|match:{$id}",
             'data.type'                => 'required|match:packages',
             'data.attributes.name'     => 'sometimes|min:3|regex:/^[a-z0-9\-]+$/i',
             'data.attributes.source'   => 'sometimes|string|regex:/^git@[\S]+:[\S]+$/i',
@@ -182,7 +182,7 @@ final class PackageController extends ResourceController
     // --
 
     /**
-     * Repository relationship
+     * Repository relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -193,7 +193,7 @@ final class PackageController extends ResourceController
      */
     public function repository(Request $request, string $id): Response
     {
-        /* @var Package $package */
+        // @var Package $package
         $this->authorize('repository_index', $package = Package::findOrFail($id));
 
         return new Response($this->item(
@@ -203,7 +203,7 @@ final class PackageController extends ResourceController
     }
 
     /**
-     * Repository relationship index
+     * Repository relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -214,7 +214,7 @@ final class PackageController extends ResourceController
      */
     public function repository_index(Request $request, string $id): Response
     {
-        /* @var Package $package */
+        // @var Package $package
         $this->authorize('repository_index', $package = Package::findOrFail($id));
 
         return new Response($this->item(
@@ -224,7 +224,7 @@ final class PackageController extends ResourceController
     }
 
     /**
-     * Repository relationship creation
+     * Repository relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -242,7 +242,7 @@ final class PackageController extends ResourceController
     }
 
     /**
-     * Repository relationship destruction
+     * Repository relationship destruction.
      *
      * @param Request $request
      * @param string  $id
@@ -262,7 +262,7 @@ final class PackageController extends ResourceController
     // --
 
     /**
-     * Builds relationship
+     * Builds relationship.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -273,7 +273,7 @@ final class PackageController extends ResourceController
      */
     public function builds(Request $request, string $id): Response
     {
-        /* @var Package $package */
+        // @var Package $package
         $this->authorize('builds_index', $package = Package::findOrFail($id));
 
         return new Response($this->collection(
@@ -284,7 +284,7 @@ final class PackageController extends ResourceController
     }
 
     /**
-     * Builds relationship index
+     * Builds relationship index.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -295,7 +295,7 @@ final class PackageController extends ResourceController
      */
     public function builds_index(Request $request, string $id): Response
     {
-        /* @var Package $package */
+        // @var Package $package
         $this->authorize('builds_index', $package = Package::findOrFail($id));
 
         return new Response($this->collection(
@@ -306,7 +306,7 @@ final class PackageController extends ResourceController
     }
 
     /**
-     * Builds relationship creation
+     * Builds relationship creation.
      *
      * @param Request $request
      * @param string  $id
@@ -324,7 +324,7 @@ final class PackageController extends ResourceController
     }
 
     /**
-     * Builds relationship destruction
+     * Builds relationship destruction.
      *
      * @param Request $request
      * @param string  $id
