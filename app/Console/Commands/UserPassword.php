@@ -5,6 +5,7 @@ namespace MagmaticLabs\Obsidian\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
+use RuntimeException;
 
 class UserPassword extends Command
 {
@@ -13,7 +14,7 @@ class UserPassword extends Command
      *
      * @var string
      */
-    protected $signature = 'user:passwd {username} {--passwd=}';
+    protected $signature = 'user:password {username} {--password=}';
 
     /**
      * The console command description.
@@ -40,16 +41,14 @@ class UserPassword extends Command
         }
 
         // Grab password
-        if ($this->hasOption('passwd') && !empty($this->option('passwd'))) {
-            $password = $this->option('passwd');
-        } else {
-            $password = $this->output->askHidden('Password', function ($password) {
-                if (empty($password)) {
-                    throw new \RuntimeException('Password cannot be empty.');
-                }
+        $password = $this->option('password');
+        if (empty($this->option('password'))) {
+            $password = $this->output->askHidden('Password');
+        }
 
-                return $password;
-            });
+        // Final validation check
+        if (empty($password)) {
+            throw new RuntimeException('Password cannot be empty.');
         }
 
         // Save the password

@@ -14,7 +14,7 @@ class UserCreate extends Command
      *
      * @var string
      */
-    protected $signature = 'user:create {username} {email} {--administrator}';
+    protected $signature = 'user:create {username} {email} {--administrator} {--password=}';
 
     /**
      * The console command description.
@@ -40,11 +40,23 @@ class UserCreate extends Command
             return 1;
         }
 
+        // Check if the email address already exists
+        if (User::query()->where('email', $email)->count() > 0) {
+            $this->output->error('The specified email address is already in use!');
+
+            return 1;
+        }
+
+        $password = $this->option('password');
+        if (empty($password)) {
+            $password = Str::random(32); // Random password
+        }
+
         // Create user
         User::create([
             'username'      => $username,
             'email'         => $email,
-            'password'      => Hash::make(Str::random(32)), // Random password
+            'password'      => Hash::make($password),
             'administrator' => !empty($this->option('administrator')),
         ]);
 
