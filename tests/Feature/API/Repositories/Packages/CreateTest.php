@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Repositories\Packages;
 
-use Tests\Feature\API\Repositories\RepositoryTest;
+use Tests\Feature\API\Repositories\RepositoryTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class CreateTest extends RepositoryTest
+final class CreateTest extends RepositoryTestCase
 {
     public function testCreateNotAllowed()
     {

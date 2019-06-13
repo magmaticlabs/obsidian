@@ -6,9 +6,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
-abstract class BuildTest extends ResourceTest
+abstract class BuildTestCase extends ResourceTestCase
 {
     /**
      * Resource type.

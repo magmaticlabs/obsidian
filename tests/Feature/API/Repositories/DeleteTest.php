@@ -6,9 +6,9 @@ namespace Tests\Feature\API\Repositories;
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends RepositoryTest
+final class DeleteTest extends RepositoryTestCase
 {
-    use \Tests\Feature\API\ResourceTest\DeleteTest;
+    use \Tests\Feature\API\APIResource\DeleteTest;
 
     public function testDeletePermissions()
     {

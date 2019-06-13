@@ -3,13 +3,13 @@
 namespace Tests\Feature\API\Packages\Builds;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
-use Tests\Feature\API\Packages\PackageTest;
+use Tests\Feature\API\Packages\PackageTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class IndexTest extends PackageTest
+final class IndexTest extends PackageTestCase
 {
     public function testCorrectCounts()
     {

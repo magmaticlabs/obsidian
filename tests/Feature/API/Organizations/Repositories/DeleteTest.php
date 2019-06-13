@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Organizations\Repositories;
 
-use Tests\Feature\API\Organizations\OrganizationTest;
+use Tests\Feature\API\Organizations\OrganizationTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends OrganizationTest
+final class DeleteTest extends OrganizationTestCase
 {
     public function testDestroyNotAllowed()
     {

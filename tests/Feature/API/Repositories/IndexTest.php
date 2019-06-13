@@ -6,7 +6,7 @@ namespace Tests\Feature\API\Repositories;
  * @internal
  * @coversNothing
  */
-final class IndexTest extends RepositoryTest
+final class IndexTest extends RepositoryTestCase
 {
-    use \Tests\Feature\API\ResourceTest\IndexTest;
+    use \Tests\Feature\API\APIResource\IndexTest;
 }

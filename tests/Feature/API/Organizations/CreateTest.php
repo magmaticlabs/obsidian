@@ -8,9 +8,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
  * @internal
  * @coversNothing
  */
-final class CreateTest extends OrganizationTest
+final class CreateTest extends OrganizationTestCase
 {
-    use \Tests\Feature\API\ResourceTest\CreateTest;
+    use \Tests\Feature\API\APIResource\CreateTest;
 
     protected $required = [
         'name',

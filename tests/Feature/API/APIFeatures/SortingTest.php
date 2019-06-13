@@ -3,13 +3,13 @@
 namespace Tests\Feature\API\APIFeatures;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class SortingTest extends ResourceTest
+final class SortingTest extends ResourceTestCase
 {
     public function testDefaultSortByID()
     {

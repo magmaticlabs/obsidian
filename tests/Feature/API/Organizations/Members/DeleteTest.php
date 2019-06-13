@@ -3,13 +3,13 @@
 namespace Tests\Feature\API\Organizations\Members;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\Feature\API\Organizations\OrganizationTest;
+use Tests\Feature\API\Organizations\OrganizationTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends OrganizationTest
+final class DeleteTest extends OrganizationTestCase
 {
     /**
      * Fragment for the authenticated user.

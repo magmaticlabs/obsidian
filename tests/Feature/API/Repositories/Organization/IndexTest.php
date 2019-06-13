@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Repositories\Organization;
 
-use Tests\Feature\API\Repositories\RepositoryTest;
+use Tests\Feature\API\Repositories\RepositoryTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class IndexTest extends RepositoryTest
+final class IndexTest extends RepositoryTestCase
 {
     public function testCorrectData()
     {

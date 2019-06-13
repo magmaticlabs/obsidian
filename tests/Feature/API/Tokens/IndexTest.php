@@ -8,7 +8,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\User;
  * @internal
  * @coversNothing
  */
-final class IndexTest extends TokenTest
+final class IndexTest extends TokenTestCase
 {
     public function testDataMatchesShow()
     {

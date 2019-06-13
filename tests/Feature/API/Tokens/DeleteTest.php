@@ -8,9 +8,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\User;
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends TokenTest
+final class DeleteTest extends TokenTestCase
 {
-    use \Tests\Feature\API\ResourceTest\DeleteTest;
+    use \Tests\Feature\API\APIResource\DeleteTest;
 
     public function testDeleteOtherOwner404()
     {

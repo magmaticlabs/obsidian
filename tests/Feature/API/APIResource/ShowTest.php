@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\API\ResourceTest;
+namespace Tests\Feature\API\APIResource;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 
@@ -8,7 +8,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
  * @property Model  $model
  * @property string $type
  *
- * @mixin \Tests\Feature\API\ResourceTest\ResourceTest
+ * @mixin \Tests\Feature\API\APIResource\ResourceTestCase
  */
 trait ShowTest
 {

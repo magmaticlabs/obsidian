@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Builds\Package;
 
-use Tests\Feature\API\Builds\BuildTest;
+use Tests\Feature\API\Builds\BuildTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class CreateTest extends BuildTest
+final class CreateTest extends BuildTestCase
 {
     public function testCreateNotAllowed()
     {

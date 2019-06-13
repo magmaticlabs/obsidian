@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Builds\Package;
 
-use Tests\Feature\API\Builds\BuildTest;
+use Tests\Feature\API\Builds\BuildTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class IndexTest extends BuildTest
+final class IndexTest extends BuildTestCase
 {
     public function testCorrectData()
     {

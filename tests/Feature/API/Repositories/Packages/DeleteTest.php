@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Repositories\Packages;
 
-use Tests\Feature\API\Repositories\RepositoryTest;
+use Tests\Feature\API\Repositories\RepositoryTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends RepositoryTest
+final class DeleteTest extends RepositoryTestCase
 {
     public function testDestroyNotAllowed()
     {

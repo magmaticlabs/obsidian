@@ -5,13 +5,13 @@ namespace Tests\Feature\API\APIFeatures;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class IncludesTest extends ResourceTest
+final class IncludesTest extends ResourceTestCase
 {
     public function testDefaultReturnAll()
     {

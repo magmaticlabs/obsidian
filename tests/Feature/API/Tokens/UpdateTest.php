@@ -6,9 +6,9 @@ namespace Tests\Feature\API\Tokens;
  * @internal
  * @coversNothing
  */
-final class UpdateTest extends TokenTest
+final class UpdateTest extends TokenTestCase
 {
-    use \Tests\Feature\API\ResourceTest\UpdateTest;
+    use \Tests\Feature\API\APIResource\UpdateTest;
 
     /**
      * {@inheritdoc}

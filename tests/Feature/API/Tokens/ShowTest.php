@@ -8,9 +8,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\User;
  * @internal
  * @coversNothing
  */
-final class ShowTest extends TokenTest
+final class ShowTest extends TokenTestCase
 {
-    use \Tests\Feature\API\ResourceTest\ShowTest;
+    use \Tests\Feature\API\APIResource\ShowTest;
 
     public function testOtherOwner404()
     {

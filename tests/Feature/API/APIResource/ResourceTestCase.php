@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Feature\API\ResourceTest;
+namespace Tests\Feature\API\APIResource;
 
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
 use Tests\TestCase;
 
-abstract class ResourceTest extends TestCase
+abstract class ResourceTestCase extends TestCase
 {
     /**
      * Resource type.

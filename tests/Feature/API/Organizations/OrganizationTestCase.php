@@ -3,9 +3,9 @@
 namespace Tests\Feature\API\Organizations;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
-abstract class OrganizationTest extends ResourceTest
+abstract class OrganizationTestCase extends ResourceTestCase
 {
     /**
      * Resource type.

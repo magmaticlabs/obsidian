@@ -6,9 +6,9 @@ namespace Tests\Feature\API\Builds;
  * @internal
  * @coversNothing
  */
-final class CreateTest extends BuildTest
+final class CreateTest extends BuildTestCase
 {
-    use \Tests\Feature\API\ResourceTest\CreateTest;
+    use \Tests\Feature\API\APIResource\CreateTest;
 
     public function testCreatePermissions()
     {

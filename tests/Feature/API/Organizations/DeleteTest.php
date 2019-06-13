@@ -6,9 +6,9 @@ namespace Tests\Feature\API\Organizations;
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends OrganizationTest
+final class DeleteTest extends OrganizationTestCase
 {
-    use \Tests\Feature\API\ResourceTest\DeleteTest;
+    use \Tests\Feature\API\APIResource\DeleteTest;
 
     public function testDeletePermissions()
     {

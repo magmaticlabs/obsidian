@@ -9,9 +9,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
  * @internal
  * @coversNothing
  */
-final class CreateTest extends RepositoryTest
+final class CreateTest extends RepositoryTestCase
 {
-    use \Tests\Feature\API\ResourceTest\CreateTest;
+    use \Tests\Feature\API\APIResource\CreateTest;
 
     protected $required = [
         'name',

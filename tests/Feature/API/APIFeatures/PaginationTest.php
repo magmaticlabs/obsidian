@@ -4,13 +4,13 @@ namespace Tests\Feature\API\APIFeatures;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Support\Paginator;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class PaginationTest extends ResourceTest
+final class PaginationTest extends ResourceTestCase
 {
     public function testDefaultEmpty()
     {

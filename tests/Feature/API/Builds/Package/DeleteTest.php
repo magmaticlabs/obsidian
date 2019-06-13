@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Builds\Package;
 
-use Tests\Feature\API\Builds\BuildTest;
+use Tests\Feature\API\Builds\BuildTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class DeleteTest extends BuildTest
+final class DeleteTest extends BuildTestCase
 {
     public function testDeleteNotAllowed()
     {

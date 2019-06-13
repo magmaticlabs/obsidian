@@ -6,7 +6,7 @@ namespace Tests\Feature\API\Organizations;
  * @internal
  * @coversNothing
  */
-final class IndexTest extends OrganizationTest
+final class IndexTest extends OrganizationTestCase
 {
-    use \Tests\Feature\API\ResourceTest\IndexTest;
+    use \Tests\Feature\API\APIResource\IndexTest;
 }

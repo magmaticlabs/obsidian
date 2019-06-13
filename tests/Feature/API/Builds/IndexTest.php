@@ -6,7 +6,7 @@ namespace Tests\Feature\API\Builds;
  * @internal
  * @coversNothing
  */
-final class IndexTest extends BuildTest
+final class IndexTest extends BuildTestCase
 {
-    use \Tests\Feature\API\ResourceTest\IndexTest;
+    use \Tests\Feature\API\APIResource\IndexTest;
 }

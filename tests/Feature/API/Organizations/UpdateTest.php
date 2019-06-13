@@ -8,9 +8,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
  * @internal
  * @coversNothing
  */
-final class UpdateTest extends OrganizationTest
+final class UpdateTest extends OrganizationTestCase
 {
-    use \Tests\Feature\API\ResourceTest\UpdateTest;
+    use \Tests\Feature\API\APIResource\UpdateTest;
 
     /**
      * {@inheritdoc}

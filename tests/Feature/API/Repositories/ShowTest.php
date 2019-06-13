@@ -6,7 +6,7 @@ namespace Tests\Feature\API\Repositories;
  * @internal
  * @coversNothing
  */
-final class ShowTest extends RepositoryTest
+final class ShowTest extends RepositoryTestCase
 {
-    use \Tests\Feature\API\ResourceTest\ShowTest;
+    use \Tests\Feature\API\APIResource\ShowTest;
 }

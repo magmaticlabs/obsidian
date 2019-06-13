@@ -4,9 +4,9 @@ namespace Tests\Feature\API\Repositories;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
-abstract class RepositoryTest extends ResourceTest
+abstract class RepositoryTestCase extends ResourceTestCase
 {
     /**
      * Resource type.

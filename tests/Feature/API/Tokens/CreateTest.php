@@ -6,9 +6,9 @@ namespace Tests\Feature\API\Tokens;
  * @internal
  * @coversNothing
  */
-final class CreateTest extends TokenTest
+final class CreateTest extends TokenTestCase
 {
-    use \Tests\Feature\API\ResourceTest\CreateTest;
+    use \Tests\Feature\API\APIResource\CreateTest;
 
     protected $required = [
         'name',

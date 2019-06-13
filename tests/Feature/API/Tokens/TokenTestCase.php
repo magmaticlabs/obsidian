@@ -4,9 +4,9 @@ namespace Tests\Feature\API\Tokens;
 
 use Laravel\Passport\ClientRepository;
 use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
-use Tests\Feature\API\ResourceTest\ResourceTest;
+use Tests\Feature\API\APIResource\ResourceTestCase;
 
-abstract class TokenTest extends ResourceTest
+abstract class TokenTestCase extends ResourceTestCase
 {
     /**
      * Resource type.

@@ -9,9 +9,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
  * @internal
  * @coversNothing
  */
-final class UpdateTest extends PackageTest
+final class UpdateTest extends PackageTestCase
 {
-    use \Tests\Feature\API\ResourceTest\UpdateTest;
+    use \Tests\Feature\API\APIResource\UpdateTest;
 
     /**
      * {@inheritdoc}

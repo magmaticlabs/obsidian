@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Packages\Repository;
 
-use Tests\Feature\API\Packages\PackageTest;
+use Tests\Feature\API\Packages\PackageTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class RelationshipTest extends PackageTest
+final class RelationshipTest extends PackageTestCase
 {
     public function testCorrectData()
     {

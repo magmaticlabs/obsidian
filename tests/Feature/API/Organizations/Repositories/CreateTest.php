@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\API\Organizations\Repositories;
 
-use Tests\Feature\API\Organizations\OrganizationTest;
+use Tests\Feature\API\Organizations\OrganizationTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class CreateTest extends OrganizationTest
+final class CreateTest extends OrganizationTestCase
 {
     public function testCreateNotAllowed()
     {
