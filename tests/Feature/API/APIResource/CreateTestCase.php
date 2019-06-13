@@ -173,6 +173,7 @@ abstract class CreateTestCase extends ResourceTestCase
         }
 
         $attributes = $this->getValidAttributes();
+        unset($attributes[$attribute]);
 
         $data = [
             'data' => [
@@ -180,8 +181,6 @@ abstract class CreateTestCase extends ResourceTestCase
                 'attributes' => $attributes,
             ],
         ];
-
-        unset($data['data']['attributes'][$attribute]);
 
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 400);
@@ -207,6 +206,7 @@ abstract class CreateTestCase extends ResourceTestCase
         }
 
         $attributes = $this->getValidAttributes();
+        unset($attributes[$attribute]);
 
         $data = [
             'data' => [
@@ -215,7 +215,9 @@ abstract class CreateTestCase extends ResourceTestCase
             ],
         ];
 
-        unset($data['data']['attributes'][$attribute]);
+        if (\is_string($value) && preg_match('/^%(.+)%$/', $value, $matches)) {
+            $value = $attributes[$matches[1]];
+        }
 
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 201);

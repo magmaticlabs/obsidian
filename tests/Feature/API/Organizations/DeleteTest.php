@@ -2,19 +2,46 @@
 
 namespace Tests\Feature\API\Organizations;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use Tests\Feature\API\APIResource\DeleteTestCase;
+
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\OrganizationController
  */
-final class DeleteTest extends OrganizationTestCase
+final class DeleteTest extends DeleteTestCase
 {
-    use \Tests\Feature\API\APIResource\DeleteTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'organizations';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $class = Organization::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Organization $organization */
+        $organization = $this->model;
+
+        $organization->addMember($this->user);
+        $organization->promoteMember($this->user);
+    }
 
     public function testDeletePermissions()
     {
-        $this->demote();
+        /** @var Organization $organization */
+        $organization = $this->model;
+        $organization->demoteMember($this->user);
 
-        $response = $this->delete($this->getRoute('destroy', $this->model->id));
+        $response = $this->delete($this->route('destroy', $this->model->id));
         $this->validateResponse($response, 403);
     }
 }

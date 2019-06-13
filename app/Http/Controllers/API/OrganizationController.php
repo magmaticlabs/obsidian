@@ -230,6 +230,25 @@ final class OrganizationController extends ResourceController
     }
 
     /**
+     * Members relationship update.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function members_update(Request $request, string $id): Response
+    {
+        Organization::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
      * Members relationship destruction.
      *
      * @param Request $request
@@ -348,6 +367,25 @@ final class OrganizationController extends ResourceController
     }
 
     /**
+     * Owners relationship update.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function owners_update(Request $request, string $id): Response
+    {
+        Organization::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
      * Owners relationship destruction.
      *
      * @param Request $request
@@ -444,9 +482,31 @@ final class OrganizationController extends ResourceController
      */
     public function repositories_create(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Organization::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Repositories relationship update.
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function repositories_update(Request $request, string $id): Response
+    {
+        Organization::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -462,8 +522,10 @@ final class OrganizationController extends ResourceController
      */
     public function repositories_destroy(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Organization::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 }

@@ -3,104 +3,34 @@
 namespace Tests\Feature\API\Organizations;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use Tests\Feature\API\APIResource\CreateTestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\OrganizationController
  */
-final class CreateTest extends OrganizationTestCase
+final class CreateTest extends CreateTestCase
 {
-    use \Tests\Feature\API\APIResource\CreateTest;
-
-    protected $required = [
-        'name',
-    ];
-
-    protected $optional = [
-        'description' => '',
-    ];
-
-    // --
-
     /**
-     * @dataProvider invalidDataName
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateName($value)
-    {
-        $this->data['data']['attributes']['name'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataDisplayName
-     *
-     * @param mixed $value
-     */
-    public function testValidateDisplayName($value)
-    {
-        $this->data['data']['attributes']['display_name'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/display_name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataDescription
-     *
-     * @param mixed $value
-     */
-    public function testValidateDescription($value)
-    {
-        $this->data['data']['attributes']['description'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/description']],
-            ],
-        ]);
-    }
-
-    public function testMissingDisplayNameDefaultsToName()
-    {
-        unset($this->data['data']['attributes']['display_name']);
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 201);
-
-        $this->data['data']['attributes']['display_name'] = $this->data['data']['attributes']['name'];
-
-        $response->assertJson([
-            'data' => [
-                'attributes' => $this->data['data']['attributes'],
-            ],
-        ]);
-    }
+    protected $type = 'organizations';
 
     public function testNameDuplicateCausesError()
     {
         $this->factory(Organization::class)->create(['name' => 'duplicate']);
-        $this->data['data']['attributes']['name'] = 'duplicate';
 
-        $response = $this->post($this->getRoute('create'), $this->data);
+        $attributes = $this->getValidAttributes();
+        $attributes['name'] = 'duplicate';
+
+        $data = [
+            'data' => [
+                'type'       => $this->type,
+                'attributes' => $attributes,
+            ],
+        ];
+
+        $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -108,5 +38,77 @@ final class CreateTest extends OrganizationTestCase
                 ['source' => ['pointer' => '/data/attributes/name']],
             ],
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validAttributesProvider(): array
+    {
+        return [
+            'basic' => [[
+                'name'         => 'testing',
+                'display_name' => '__TESTING__',
+                'description'  => 'This is a test organization',
+            ]],
+            'no-description' => [[
+                'name'         => 'testing',
+                'display_name' => '__TESTING__',
+            ]],
+            'no-display-name' => [[
+                'name'        => 'testing',
+                'description' => 'This is a test organization',
+            ]],
+            'fancy-name' => [[
+                'name' => 'this-is-a-fancy-name',
+            ]],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function invalidAttributesProvider(): array
+    {
+        return [
+            'nonstring-name' => [[
+                'name' => [],
+            ], 'name'],
+            'tooshort-name' => [[
+                'name' => 'no',
+            ], 'name'],
+            'invalid-name' => [[
+                'name' => 'This is Illegal!',
+            ], 'name'],
+            'nonstring-display-name' => [[
+                'name'         => 'testing',
+                'display_name' => [],
+            ], 'display_name'],
+            'nonstring-description' => [[
+                'name'        => 'testing',
+                'description' => [],
+            ], 'description'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiredAttributesProvider(): array
+    {
+        return [
+            'required' => ['name'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function optionalAttributesProvider(): array
+    {
+        return [
+            'description'  => ['description', ''],
+            'display_name' => ['display_name', '%name%'],
+        ];
     }
 }

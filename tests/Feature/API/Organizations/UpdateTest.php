@@ -3,14 +3,23 @@
 namespace Tests\Feature\API\Organizations;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use Tests\Feature\API\APIResource\UpdateTestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\OrganizationController
  */
-final class UpdateTest extends OrganizationTestCase
+final class UpdateTest extends UpdateTestCase
 {
-    use \Tests\Feature\API\APIResource\UpdateTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'organizations';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $class = Organization::class;
 
     /**
      * {@inheritdoc}
@@ -19,88 +28,106 @@ final class UpdateTest extends OrganizationTestCase
     {
         parent::setUp();
 
-        $this->data['data']['id'] = $this->model->id;
+        /** @var Organization $organization */
+        $organization = $this->model;
+
+        $organization->addMember($this->user);
+        $organization->promoteMember($this->user);
     }
 
-    // --
+    /**
+     * {@inheritdoc}
+     */
+    public function validAttributesProvider(): array
+    {
+        return [
+            'basic' => [[
+                'name'         => 'testing',
+                'display_name' => '__TESTING__',
+                'description'  => 'This is a test organization',
+            ]],
+            'no-description' => [[
+                'name'         => 'testing',
+                'display_name' => '__TESTING__',
+            ]],
+            'no-display-name' => [[
+                'name'        => 'testing',
+                'description' => 'This is a test organization',
+            ]],
+            'no--name' => [[
+                'display_name' => '__TESTING__',
+                'description'  => 'This is a test organization',
+            ]],
+            'fancy-name' => [[
+                'name' => 'this-is-a-fancy-name',
+            ]],
+        ];
+    }
 
     /**
-     * @dataProvider invalidDataName
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateName($value)
+    public function invalidAttributesProvider(): array
     {
-        $this->data['data']['attributes']['name'] = $value;
-
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
+        return [
+            'nonstring-name' => [[
+                'name' => [],
+            ], 'name'],
+            'tooshort-name' => [[
+                'name' => 'no',
+            ], 'name'],
+            'invalid-name' => [[
+                'name' => 'This is Illegal!',
+            ], 'name'],
+            'nonstring-display-name' => [[
+                'display_name' => [],
+            ], 'display_name'],
+            'nonstring-description' => [[
+                'description' => [],
+            ], 'description'],
+        ];
     }
 
     public function testNameDuplicateCausesError()
     {
         $this->factory(Organization::class)->create(['name' => 'duplicate']);
-        $this->data['data']['attributes']['name'] = 'duplicate';
 
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
+        $attributes = $this->getValidAttributes();
+        $attributes['name'] = 'duplicate';
+
+        $data = [
+            'data' => [
+                'type'       => $this->type,
+                'id'         => $this->model->id,
+                'attributes' => $attributes,
+            ],
+        ];
+
+        $response = $this->patch($this->route('update', $this->model->id), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
             'errors' => [
                 ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataDisplayName
-     *
-     * @param mixed $value
-     */
-    public function testValidateDisplayName($value)
-    {
-        $this->data['data']['attributes']['display_name'] = $value;
-
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/display_name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataDescription
-     *
-     * @param mixed $value
-     */
-    public function testValidateDescription($value)
-    {
-        $this->data['data']['attributes']['description'] = $value;
-
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/description']],
             ],
         ]);
     }
 
     public function testUpdatePermissions()
     {
-        $this->demote();
+        /** @var Organization $organization */
+        $organization = $this->model;
+        $organization->demoteMember($this->user);
 
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
+        $data = [
+            'data' => [
+                'type'       => $this->type,
+                'id'         => $this->model->id,
+                'attributes' => $this->getValidAttributes(),
+            ],
+        ];
+
+        $response = $this->patch($this->route('update', $this->model->id), $data);
         $this->validateResponse($response, 403);
     }
 }

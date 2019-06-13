@@ -24,7 +24,7 @@ final class Organization extends Model
      */
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'organization_memberships', 'organization_id', 'user_id');
+        return $this->belongsToMany(User::class, 'organization_memberships', 'organization_id', 'user_id')->orderBy('user_id');
     }
 
     /**
@@ -34,7 +34,7 @@ final class Organization extends Model
      */
     public function owners(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'organization_memberships', 'organization_id', 'user_id')->wherePivot('owner', '=', true);
+        return $this->belongsToMany(User::class, 'organization_memberships', 'organization_id', 'user_id')->orderBy('user_id')->wherePivot('owner', '=', true);
     }
 
     /**

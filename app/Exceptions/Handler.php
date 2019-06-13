@@ -81,7 +81,9 @@ class Handler extends ExceptionHandler
             $message = 'You are not authenticated';
         } elseif ($exception instanceof AuthorizationException) {
             $statuscode = 403;
-            $message = 'You do not have permission to perform the requested action on this resource';
+            if (empty($message)) {
+                $message = 'You do not have permission to perform the requested action on this resource';
+            }
         } elseif ($exception instanceof ValidationException) {
             $statuscode = 400;
             $message = array_values($exception->errors())[0][0];

@@ -67,6 +67,10 @@ abstract class ResourceTestCase extends TestCase
      */
     protected function createModel(int $times = 1)
     {
+        if (1 === $times) {
+            return $this->factory($this->class)->create();
+        }
+
         return $this->factory($this->class)->times($times)->create();
     }
 

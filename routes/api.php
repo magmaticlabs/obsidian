@@ -26,6 +26,7 @@ if (!function_exists('resource_routes')) {
                     Route::name($relationship)->get("/{id}/$relationship", "${controller}@${relationship}");
                     Route::name("${relationship}.index")->get("/{id}/relationships/$relationship", "${controller}@${relationship}_index");
                     Route::name("${relationship}.create")->post("/{id}/relationships/$relationship", "${controller}@${relationship}_create");
+                    Route::name("${relationship}.update")->patch("/{id}/relationships/$relationship", "${controller}@${relationship}_update");
                     Route::name("${relationship}.destroy")->delete("/{id}/relationships/$relationship", "${controller}@${relationship}_destroy");
                 }
             });
@@ -53,6 +54,7 @@ Route::name('session')->get('/session', 'AuthController@session');
 Route::middleware(['auth:api'])->group(function() {
     resource_routes([
         'tokens',
+        'users',
         'organizations' => [
             'members',
             'owners',

@@ -2,11 +2,22 @@
 
 namespace Tests\Feature\API\Organizations;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use Tests\Feature\API\APIResource\IndexTestCase;
+
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\OrganizationController
  */
-final class IndexTest extends OrganizationTestCase
+final class IndexTest extends IndexTestCase
 {
-    use \Tests\Feature\API\APIResource\IndexTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'organizations';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $class = Organization::class;
 }
