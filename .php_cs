@@ -1,22 +1,32 @@
 <?php
-return PhpCsFixer\Config::create()
+
+use \PhpCsFixer\Config;
+
+return Config::create()
 ->setUsingCache(false)
+->setRiskyAllowed(true)
 ->setRules([
     // Base Rule Sets
-    '@PSR2' => true,
-    '@Symfony' => true,
+    '@PSR2'             => true,
+    '@Symfony'          => true,
+    '@PhpCsFixer'       => true,
+    '@Symfony:risky'    => true,
+    '@PhpCsFixer:risky' => true,
 
     // Rule Overrides
-    'phpdoc_summary' => false,
+    'array_indentation'      => false,
+    'binary_operator_spaces' => [
+        'default' => 'align_single_space_minimal',
+        'operators' => [
+            '=' => null,
+        ],
+    ],
+    'multiline_whitespace_before_semicolons' => [
+        'strategy' => 'no_multi_line',
+    ],
 
     // Additional Rules
-    'array_syntax' => ['syntax' => 'short'],
-    'binary_operator_spaces' => [
-        'align_double_arrow' => true, 
-        'align_equals' => null
-    ],
     'concat_space' => ['spacing' => 'one'],
-    'ordered_imports' => true,
 ])
 ->setFinder(PhpCsFixer\Finder::create()
     ->in(['app', 'tests'])
