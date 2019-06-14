@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\AuthController
  */
 final class LoginTest extends TestCase
 {

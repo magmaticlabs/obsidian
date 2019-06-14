@@ -108,7 +108,7 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $model = $this->createModel(1);
         $relation = $this->createRelationshipModel($model);
 
-        $response = $this->get($this->route($this->relationship, $model->id));
+        $response = $this->get($this->route(sprintf('%s.index', $this->relationship), $model->id));
         $this->validateResponse($response, 200);
 
         if (self::SINGULAR === $this->relationship_plurality) {

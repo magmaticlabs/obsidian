@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\RootController
  */
 final class RootTest extends TestCase
 {

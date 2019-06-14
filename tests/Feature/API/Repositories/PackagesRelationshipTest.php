@@ -10,7 +10,7 @@ use Tests\Feature\API\APIResource\RelationshipTestCase;
 
 /**
  * @internal
- * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\PackageController
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\RepositoryController
  */
 final class PackagesRelationshipTest extends RelationshipTestCase
 {
