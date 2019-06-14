@@ -47,7 +47,7 @@ final class PackageController extends ResourceController
             'data.id'                  => 'not_present',
             'data.type'                => 'required|match:packages',
             'data.attributes.name'     => 'required|min:3|regex:/^[a-z0-9\-]+$/i',
-            'data.attributes.source'   => 'required|string|regex:/^git@[\S]+:[\S]+$/i',
+            'data.attributes.source'   => 'required|string|regex:/^[\S]+@[\S]+:[\S]+$/i',
             'data.attributes.ref'      => 'sometimes|string',
             'data.attributes.schedule' => 'sometimes|string|in:nightly,weekly,hook,none',
         ])['data'];
@@ -127,7 +127,7 @@ final class PackageController extends ResourceController
             'data.id'                  => "required|match:{$id}",
             'data.type'                => 'required|match:packages',
             'data.attributes.name'     => 'sometimes|min:3|regex:/^[a-z0-9\-]+$/i',
-            'data.attributes.source'   => 'sometimes|string|regex:/^git@[\S]+:[\S]+$/i',
+            'data.attributes.source'   => 'sometimes|string|regex:/^[\S]+@[\S]+:[\S]+$/i',
             'data.attributes.ref'      => 'sometimes|string',
             'data.attributes.schedule' => 'sometimes|string|in:nightly,weekly,hook,none',
         ])['data'];
@@ -236,9 +236,31 @@ final class PackageController extends ResourceController
      */
     public function repository_create(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Package::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Repository relationship update.
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function repository_update(Request $request, string $id): Response
+    {
+        Package::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -254,9 +276,11 @@ final class PackageController extends ResourceController
      */
     public function repository_destroy(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Package::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     // --
@@ -318,9 +342,31 @@ final class PackageController extends ResourceController
      */
     public function builds_create(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Package::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Builds relationship update.
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function builds_update(Request $request, string $id): Response
+    {
+        Package::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -336,8 +382,10 @@ final class PackageController extends ResourceController
      */
     public function builds_destroy(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Package::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 }

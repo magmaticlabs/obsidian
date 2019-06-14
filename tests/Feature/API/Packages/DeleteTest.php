@@ -2,19 +2,62 @@
 
 namespace Tests\Feature\API\Packages;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use Tests\Feature\API\APIResource\DeleteTestCase;
+
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\PackageController
  */
-final class DeleteTest extends PackageTestCase
+final class DeleteTest extends DeleteTestCase
 {
-    use \Tests\Feature\API\APIResource\DeleteTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'packages';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $class = Package::class;
+
+    /**
+     * Organization.
+     *
+     * @var Organization
+     */
+    private $organization;
 
     public function testDeletePermissions()
     {
-        $this->removeUser();
+        $this->organization->removeMember($this->user);
 
-        $response = $this->delete($this->getRoute('destroy', $this->model->id));
+        $response = $this->delete($this->route('destroy', $this->model->id));
         $this->validateResponse($response, 403);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createModel(int $times = 1)
+    {
+        $this->organization = $this->factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+
+        $repository = $this->factory(Repository::class)->create([
+            'organization_id' => $this->organization->id,
+        ]);
+
+        if (1 === $times) {
+            return $this->factory($this->class)->create([
+                'repository_id' => $repository->id,
+            ]);
+        }
+
+        return $this->factory($this->class)->times($times)->create([
+            'repository_id' => $repository->id,
+        ]);
     }
 }

@@ -2,159 +2,223 @@
 
 namespace Tests\Feature\API\Packages;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use Tests\Feature\API\APIResource\CreateTestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\PackageController
  */
-final class CreateTest extends PackageTestCase
+final class CreateTest extends CreateTestCase
 {
-    use \Tests\Feature\API\APIResource\CreateTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'packages';
 
-    protected $required = [
-        'name',
-        'source',
-    ];
+    /**
+     * {@inheritdoc}
+     */
+    protected $class = Package::class;
 
-    protected $optional = [
-        'ref'      => 'master',
-        'schedule' => 'hook',
-    ];
+    /**
+     * Organization.
+     *
+     * @var Organization
+     */
+    private $organization;
 
-    // --
-
-    public function testCreatePermissions()
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
     {
-        $this->removeUser();
+        parent::setUp();
 
-        $response = $this->post(route('api.packages.create'), $this->data);
+        $this->organization = $this->factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+    }
+
+    public function testPermissions()
+    {
+        $this->organization->removeMember($this->user);
+
+        $data = [
+            'data' => [
+                'type'       => $this->type,
+                'attributes' => $this->getValidAttributes(),
+            ],
+            'relationships' => $this->getParentRelationship(),
+        ];
+
+        $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 403);
     }
 
     /**
-     * @dataProvider invalidDataName
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateName($value)
-    {
-        $this->data['data']['attributes']['name'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataSource
-     *
-     * @param mixed $value
-     */
-    public function testValidateSource($value)
-    {
-        $this->data['data']['attributes']['source'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/source']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataRef
-     *
-     * @param mixed $value
-     */
-    public function testValidateRef($value)
-    {
-        $this->data['data']['attributes']['ref'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/ref']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider invalidDataSchedule
-     *
-     * @param mixed $value
-     */
-    public function testValidateSchedule($value)
-    {
-        $this->data['data']['attributes']['schedule'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/schedule']],
-            ],
-        ]);
-    }
-
-    /**
-     * @dataProvider validDataSchedule
-     *
-     * @param mixed $value
-     */
-    public function testValidateGoodScheduleName($value)
-    {
-        $this->data['data']['attributes']['schedule'] = $value;
-
-        $response = $this->post($this->getRoute('create'), $this->data);
-        $this->validateResponse($response, 201);
-    }
-
-    public function testNameDuplicateCausesError()
-    {
-        $this->factory(Package::class)->create([
-            'name'          => 'duplicate',
-            'repository_id' => $this->repository->id,
-        ]);
-
-        $this->data['data']['attributes']['name'] = 'duplicate';
-
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    public function testNameDuplicateAnotherRepoSuccess()
+    public function getParentRelationship(): array
     {
         $repository = $this->factory(Repository::class)->create([
             'organization_id' => $this->organization->id,
         ]);
 
-        $this->factory(Package::class)->create([
-            'name'          => 'duplicate',
-            'repository_id' => $repository->id,
-        ]);
+        return [
+            'repository' => [
+                'data' => [
+                    'type' => 'repositories',
+                    'id'   => $repository->id,
+                ],
+            ],
+        ];
+    }
 
-        $this->data['data']['attributes']['name'] = 'duplicate';
+    /**
+     * {@inheritdoc}
+     */
+    public function validAttributesProvider(): array
+    {
+        return [
+            'basic' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ]],
+            'no-ref' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'schedule' => 'nightly',
+            ]],
+            'no-schedule' => [[
+                'name'   => 'testing',
+                'source' => 'git@github.com:example/testing.git',
+                'ref'    => 'master',
+            ]],
+            'fancy-name' => [[
+                'name'     => 'this-is-a-fancy-name',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ]],
+            'custom-source' => [[
+                'name'     => 'testing',
+                'source'   => 'foobar@myhost.org:/mount/data.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ]],
+            'custom-ref' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'foobar',
+                'schedule' => 'nightly',
+            ]],
+            'schedule-weekly' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'weekly',
+            ]],
+            'schedule-hook' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'hook',
+            ]],
+            'schedule-none' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'none',
+            ]],
+        ];
+    }
 
-        $response = $this->post(route('api.packages.create'), $this->data);
-        $this->validateResponse($response, 201);
+    /**
+     * {@inheritdoc}
+     */
+    public function invalidAttributesProvider(): array
+    {
+        return [
+            'nonstring-name' => [[
+                'name'     => [],
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ], 'name'],
+            'tooshort-name' => [[
+                'name'     => 'no',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ], 'name'],
+            'invalid-name' => [[
+                'name'     => 'This is Illegal!',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ], 'name'],
+            'nonstring-source' => [[
+                'name'     => 'testing',
+                'source'   => [],
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ], 'source'],
+            'https-source' => [[
+                'name'     => 'testing',
+                'source'   => 'https://github.com/example/testing.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ], 'source'],
+            'localpath-source' => [[
+                'name'     => 'testing',
+                'source'   => '/path/to/repository.git',
+                'ref'      => 'master',
+                'schedule' => 'nightly',
+            ], 'source'],
+            'nonstring-ref' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => [],
+                'schedule' => 'nightly',
+            ], 'ref'],
+            'nonstring-schedule' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => [],
+            ], 'schedule'],
+            'unknown-schedule' => [[
+                'name'     => 'testing',
+                'source'   => 'git@github.com:example/testing.git',
+                'ref'      => 'master',
+                'schedule' => '__INVALID__',
+            ], 'schedule'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiredAttributesProvider(): array
+    {
+        return [
+            'name'   => ['name'],
+            'source' => ['source'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function optionalAttributesProvider(): array
+    {
+        return [
+            'ref'      => ['ref', 'master'],
+            'schedule' => ['schedule', 'hook'],
+        ];
     }
 }

@@ -2,16 +2,18 @@
 
 namespace Tests\Feature\API\Packages;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\APIResource\ShowTestCase;
+use Tests\Feature\API\APIResource\RelationshipTestCase;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\PackageController
  */
-final class ShowTest extends ShowTestCase
+final class BuildsRelationshipTest extends RelationshipTestCase
 {
     /**
      * {@inheritdoc}
@@ -22,6 +24,21 @@ final class ShowTest extends ShowTestCase
      * {@inheritdoc}
      */
     protected $class = Package::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $relationship = 'builds';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $relationship_type = 'builds';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $relationship_plurality = self::PLURAL;
 
     /**
      * {@inheritdoc}
@@ -44,6 +61,22 @@ final class ShowTest extends ShowTestCase
 
         return $this->factory($this->class)->times($times)->create([
             'repository_id' => $repository->id,
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createRelationshipModel(Model $parent, int $times = 1)
+    {
+        if (1 === $times) {
+            return $this->factory(Build::class)->create([
+                'package_id' => $parent->id,
+            ]);
+        }
+
+        return $this->factory(Build::class)->times($times)->create([
+            'package_id' => $parent->id,
         ]);
     }
 }
