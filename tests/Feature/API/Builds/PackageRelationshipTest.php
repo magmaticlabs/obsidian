@@ -3,16 +3,17 @@
 namespace Tests\Feature\API\Builds;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\APIResource\UpdateTestCase;
+use Tests\Feature\API\APIResource\RelationshipTestCase;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\BuildController
  */
-final class UpdateTest extends UpdateTestCase
+final class PackageRelationshipTest extends RelationshipTestCase
 {
     /**
      * {@inheritdoc}
@@ -27,7 +28,17 @@ final class UpdateTest extends UpdateTestCase
     /**
      * {@inheritdoc}
      */
-    protected $not_allowed = true;
+    protected $relationship = 'package';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $relationship_type = 'packages';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $relationship_plurality = self::SINGULAR;
 
     /**
      * {@inheritdoc}
@@ -55,5 +66,13 @@ final class UpdateTest extends UpdateTestCase
         return $this->factory($this->class)->times($times)->create([
             'package_id' => $package->id,
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createRelationshipModel(Model $parent, int $times = 1)
+    {
+        return $parent->package;
     }
 }

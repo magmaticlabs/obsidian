@@ -15,6 +15,13 @@ abstract class DeleteTestCase extends ResourceTestCase
     protected $model;
 
     /**
+     * Determines if the resource is allowed to be deleted.
+     *
+     * @var bool
+     */
+    protected $not_allowed = false;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp(): void
@@ -27,14 +34,24 @@ abstract class DeleteTestCase extends ResourceTestCase
     public function testSuccessful()
     {
         $response = $this->delete($this->route('destroy', $this->model->id));
-        $this->validateResponse($response, 204);
+
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+        } else {
+            $this->validateResponse($response, 204);
+        }
     }
 
     public function testResourceDeleted()
     {
-        $this->delete($this->route('destroy', $this->model->id));
-        $this->expectException(ModelNotFoundException::class);
-        $this->model->refresh();
+        $response = $this->delete($this->route('destroy', $this->model->id));
+
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+        } else {
+            $this->expectException(ModelNotFoundException::class);
+            $this->model->refresh();
+        }
     }
 
     public function testNonExist()

@@ -14,6 +14,13 @@ abstract class UpdateTestCase extends ResourceTestCase
     protected $model;
 
     /**
+     * Determines if the resource is not allowed to be updated.
+     *
+     * @var bool
+     */
+    protected $not_allowed = false;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp(): void
@@ -28,14 +35,24 @@ abstract class UpdateTestCase extends ResourceTestCase
      *
      * @return array
      */
-    abstract public function validAttributesProvider(): array;
+    public function validAttributesProvider(): array
+    {
+        return [
+            'null' => [[]],
+        ];
+    }
 
     /**
      * Data Provider for invalid attributes.
      *
      * @return array
      */
-    abstract public function invalidAttributesProvider(): array;
+    public function invalidAttributesProvider(): array
+    {
+        return [
+            'null' => [[], ''],
+        ];
+    }
 
     /**
      * @dataProvider validAttributesProvider
@@ -51,6 +68,12 @@ abstract class UpdateTestCase extends ResourceTestCase
         ];
 
         $response = $this->patch($this->route('update', $this->model->id), $data);
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+
+            return;
+        }
+
         $this->validateResponse($response, 200);
 
         $response->assertJson([
@@ -76,6 +99,12 @@ abstract class UpdateTestCase extends ResourceTestCase
         ];
 
         $response = $this->patch($this->route('update', $this->model->id), $data);
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+
+            return;
+        }
+
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -94,6 +123,12 @@ abstract class UpdateTestCase extends ResourceTestCase
         ];
 
         $response = $this->patch($this->route('update', $this->model->id), $data);
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+
+            return;
+        }
+
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -126,6 +161,12 @@ abstract class UpdateTestCase extends ResourceTestCase
         ];
 
         $response = $this->patch($this->route('update', $this->model->id), $data);
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+
+            return;
+        }
+
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -161,6 +202,12 @@ abstract class UpdateTestCase extends ResourceTestCase
         ];
 
         $response = $this->patch($this->route('update', $this->model->id), $data);
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+
+            return;
+        }
+
         $this->validateResponse($response, 200);
 
         $attributes = $this->model->toArray();
@@ -187,6 +234,12 @@ abstract class UpdateTestCase extends ResourceTestCase
         ];
 
         $response = $this->patch($this->route('update', $this->model->id), $data);
+        if ($this->not_allowed) {
+            $this->validateResponse($response, 403);
+
+            return;
+        }
+
         $this->validateResponse($response, 400);
 
         $response->assertJson([

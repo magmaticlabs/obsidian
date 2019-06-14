@@ -42,7 +42,7 @@ final class BuildController extends ResourceController
     {
         $this->authorize('create', Repository::class);
 
-        $data = $this->validate($request, [
+        $this->validate($request, [
             'data.id'   => 'not_present',
             'data.type' => 'required|match:builds',
         ])['data'];
@@ -107,9 +107,11 @@ final class BuildController extends ResourceController
      */
     public function update(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Build::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -119,9 +121,11 @@ final class BuildController extends ResourceController
      */
     public function destroy(string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Build::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     // --
@@ -181,9 +185,31 @@ final class BuildController extends ResourceController
      */
     public function package_create(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Build::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Package relationship update.
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function package_update(Request $request, string $id): Response
+    {
+        Build::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -199,8 +225,10 @@ final class BuildController extends ResourceController
      */
     public function package_destroy(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Build::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 }

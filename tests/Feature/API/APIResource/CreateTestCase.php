@@ -9,14 +9,24 @@ abstract class CreateTestCase extends ResourceTestCase
      *
      * @return array
      */
-    abstract public function validAttributesProvider(): array;
+    public function validAttributesProvider(): array
+    {
+        return [
+            'null' => [[]],
+        ];
+    }
 
     /**
      * Data Provider for invalid attributes.
      *
      * @return array
      */
-    abstract public function invalidAttributesProvider(): array;
+    public function invalidAttributesProvider(): array
+    {
+        return [
+            'null' => [[], ''],
+        ];
+    }
 
     /**
      * Data Provider for required attributes.
@@ -39,6 +49,16 @@ abstract class CreateTestCase extends ResourceTestCase
     }
 
     /**
+     * Required parent relationship.
+     *
+     * @return array
+     */
+    public function getParentRelationship(): array
+    {
+        return [];
+    }
+
+    /**
      * @dataProvider validAttributesProvider
      */
     public function testSucceedsWithValidAttributes(array $attributes)
@@ -50,18 +70,15 @@ abstract class CreateTestCase extends ResourceTestCase
             ],
         ];
 
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
+
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 201);
 
-        $response->assertHeader('Location');
-
-        $location = $response->headers->get('Location');
-        $resourceid = basename($location);
-        static::assertSame($this->route('show', $resourceid), $location);
-
         $data = [
             'type'       => $this->type,
-            'id'         => $resourceid,
             'attributes' => $attributes,
         ];
 
@@ -79,6 +96,10 @@ abstract class CreateTestCase extends ResourceTestCase
             ],
         ];
 
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
+
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 201);
 
@@ -94,12 +115,22 @@ abstract class CreateTestCase extends ResourceTestCase
      */
     public function testCreateFailsWithInvalidAttributes(array $attributes, string $invalid)
     {
+        if (empty($attributes)) {
+            $this->expectNotToPerformAssertions();
+
+            return;
+        }
+
         $data = [
             'data' => [
                 'type'       => $this->type,
                 'attributes' => $attributes,
             ],
         ];
+
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
 
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 400);
@@ -120,6 +151,10 @@ abstract class CreateTestCase extends ResourceTestCase
             ],
         ];
 
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
+
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 400);
 
@@ -135,6 +170,10 @@ abstract class CreateTestCase extends ResourceTestCase
         $data = [
             'data' => [],
         ];
+
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
 
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 400);
@@ -182,6 +221,10 @@ abstract class CreateTestCase extends ResourceTestCase
             ],
         ];
 
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
+
         $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 400);
 
@@ -214,6 +257,10 @@ abstract class CreateTestCase extends ResourceTestCase
                 'attributes' => $attributes,
             ],
         ];
+
+        if ($relationship = $this->getParentRelationship()) {
+            $data['relationships'] = $relationship;
+        }
 
         if (\is_string($value) && preg_match('/^%(.+)%$/', $value, $matches)) {
             $value = $attributes[$matches[1]];

@@ -2,19 +2,74 @@
 
 namespace Tests\Feature\API\Builds;
 
+use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use Tests\Feature\API\APIResource\CreateTestCase;
+
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\BuildController
  */
-final class CreateTest extends BuildTestCase
+final class CreateTest extends CreateTestCase
 {
-    use \Tests\Feature\API\APIResource\CreateTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'builds';
 
-    public function testCreatePermissions()
+    /**
+     * @var Organization
+     */
+    private $organization;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
     {
-        $this->removeUser();
+        parent::setUp();
 
-        $response = $this->post($this->getRoute('create'), $this->data);
+        $this->organization = $this->factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+    }
+
+    public function testPermissions()
+    {
+        $this->organization->removeMember($this->user);
+
+        $data = [
+            'data' => [
+                'type'       => $this->type,
+                'attributes' => [],
+            ],
+            'relationships' => $this->getParentRelationship(),
+        ];
+
+        $response = $this->post($this->route('create'), $data);
         $this->validateResponse($response, 403);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParentRelationship(): array
+    {
+        $repository = $this->factory(Repository::class)->create([
+            'organization_id' => $this->organization->id,
+        ]);
+
+        $package = $this->factory(Package::class)->create([
+            'repository_id' => $repository->id,
+        ]);
+
+        return [
+            'package' => [
+                'data' => [
+                    'type' => 'packages',
+                    'id'   => $package->id,
+                ],
+            ],
+        ];
     }
 }
