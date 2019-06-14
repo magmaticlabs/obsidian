@@ -10,10 +10,10 @@ use MagmaticLabs\Obsidian\Domain\Support\UUID;
 /**
  * @method static array      all($columns = ['*'])
  * @method static int        count()
- * @method static static     create(array $attributes = [])
- * @method static static     find($id, $columns = ['*'])
- * @method static static     findOrFail($id, $columns = ['*'])
- * @method static static     findOrNew($id, $columns = ['*'])
+ * @method static Model      create(array $attributes = [])
+ * @method static Model      find($id, $columns = ['*'])
+ * @method static Model      findOrFail($id, $columns = ['*'])
+ * @method static Model      findOrNew($id, $columns = ['*'])
  * @method static Collection findMany($ids, $columns = ['*'])
  * @method static Builder    query()
  */

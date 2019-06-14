@@ -101,31 +101,22 @@ final class BuildController extends ResourceController
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, string $id): Response
     {
         Build::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(string $id): Response
     {
         Build::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable(request());
     }
 
     // --
@@ -178,18 +169,13 @@ final class BuildController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function package_create(Request $request, string $id): Response
     {
         Build::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -198,18 +184,13 @@ final class BuildController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function package_update(Request $request, string $id): Response
     {
         Build::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -218,17 +199,12 @@ final class BuildController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function package_destroy(Request $request, string $id): Response
     {
         Build::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 }

@@ -164,6 +164,7 @@ final class OrganizationController extends ResourceController
      */
     public function members(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('members_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
@@ -185,6 +186,7 @@ final class OrganizationController extends ResourceController
      */
     public function members_index(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('members_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
@@ -207,6 +209,7 @@ final class OrganizationController extends ResourceController
      */
     public function members_create(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('members_create', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
@@ -235,17 +238,13 @@ final class OrganizationController extends ResourceController
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     *
      * @return \Illuminate\Http\Response
      */
     public function members_update(Request $request, string $id): Response
     {
         Organization::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -261,6 +260,7 @@ final class OrganizationController extends ResourceController
      */
     public function members_destroy(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('members_destroy', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
@@ -297,6 +297,7 @@ final class OrganizationController extends ResourceController
      */
     public function owners(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('owners_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
@@ -318,6 +319,7 @@ final class OrganizationController extends ResourceController
      */
     public function owners_index(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('owners_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
@@ -340,6 +342,7 @@ final class OrganizationController extends ResourceController
      */
     public function owners_create(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('owners_create', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
@@ -372,17 +375,13 @@ final class OrganizationController extends ResourceController
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     *
      * @return \Illuminate\Http\Response
      */
     public function owners_update(Request $request, string $id): Response
     {
         Organization::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -398,6 +397,7 @@ final class OrganizationController extends ResourceController
      */
     public function owners_destroy(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('owners_destroy', $organization = Organization::findOrFail($id));
 
         $data = $this->validate($request, [
@@ -439,6 +439,7 @@ final class OrganizationController extends ResourceController
      */
     public function repositories(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('repositories_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
@@ -460,6 +461,7 @@ final class OrganizationController extends ResourceController
      */
     public function repositories_index(Request $request, string $id): Response
     {
+        // @var Organization $organization
         $this->authorize('repositories_index', $organization = Organization::findOrFail($id));
 
         return new Response($this->collection(
@@ -475,18 +477,13 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function repositories_create(Request $request, string $id): Response
     {
         Organization::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -495,18 +492,13 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function repositories_update(Request $request, string $id): Response
     {
         Organization::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -515,17 +507,12 @@ final class OrganizationController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function repositories_destroy(Request $request, string $id): Response
     {
         Organization::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 }

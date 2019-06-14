@@ -62,6 +62,7 @@ final class RepositoryController extends ResourceController
             ],
         ]);
 
+        /** @var Organization $organization */
         $organization = Organization::find($relationships['organization']['data']['id']);
         if (!$organization->hasMember($this->getUser())) {
             abort(403, 'You are not a member of the specified organization');
@@ -225,18 +226,13 @@ final class RepositoryController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function organization_create(Request $request, string $id): Response
     {
         Repository::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -245,18 +241,13 @@ final class RepositoryController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function organization_update(Request $request, string $id): Response
     {
         Repository::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -265,18 +256,13 @@ final class RepositoryController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function organization_destroy(Request $request, string $id): Response
     {
         Repository::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     // --
@@ -293,6 +279,7 @@ final class RepositoryController extends ResourceController
      */
     public function packages(Request $request, string $id): Response
     {
+        // @var Repository $repository
         $this->authorize('packages_index', $repository = Repository::findOrFail($id));
 
         return new Response($this->collection(
@@ -314,6 +301,7 @@ final class RepositoryController extends ResourceController
      */
     public function packages_index(Request $request, string $id): Response
     {
+        // @var Repository $repository
         $this->authorize('packages_index', $repository = Repository::findOrFail($id));
 
         return new Response($this->collection(
@@ -329,18 +317,13 @@ final class RepositoryController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function packages_create(Request $request, string $id): Response
     {
         Repository::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -349,18 +332,13 @@ final class RepositoryController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function packages_update(Request $request, string $id): Response
     {
         Repository::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -369,17 +347,12 @@ final class RepositoryController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function packages_destroy(Request $request, string $id): Response
     {
         Repository::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 }

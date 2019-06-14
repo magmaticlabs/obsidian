@@ -229,18 +229,13 @@ final class PackageController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function repository_create(Request $request, string $id): Response
     {
         Package::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -249,18 +244,13 @@ final class PackageController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function repository_update(Request $request, string $id): Response
     {
         Package::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -269,18 +259,13 @@ final class PackageController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function repository_destroy(Request $request, string $id): Response
     {
         Package::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     // --
@@ -335,18 +320,13 @@ final class PackageController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function builds_create(Request $request, string $id): Response
     {
         Package::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -355,18 +335,13 @@ final class PackageController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function builds_update(Request $request, string $id): Response
     {
         Package::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -375,17 +350,12 @@ final class PackageController extends ResourceController
      * @param Request $request
      * @param string  $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return Response
      */
     public function builds_destroy(Request $request, string $id): Response
     {
         Package::findOrFail($id);
 
-        abort(403);
-
-        return new Response('Forbidden', 403);
+        return $this->unavailable($request);
     }
 }

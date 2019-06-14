@@ -27,15 +27,10 @@ final class UserController extends ResourceController
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function create(Request $request): Response
     {
-        abort(403);
-
-        return new Response(null, 403);
+        return $this->unavailable($request);
     }
 
     /**
@@ -55,30 +50,21 @@ final class UserController extends ResourceController
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, string $id): Response
     {
         User::findOrFail($id);
 
-        abort(403);
-
-        return new Response(null, 403);
+        return $this->unavailable($request);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(string $id): Response
     {
         User::findOrFail($id);
 
-        abort(403);
-
-        return new Response(null, 403);
+        return $this->unavailable(request());
     }
 }

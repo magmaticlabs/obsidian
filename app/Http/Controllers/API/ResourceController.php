@@ -82,6 +82,28 @@ abstract class ResourceController extends Controller
     }
 
     /**
+     * Return an unavailable response.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\Response
+     */
+    protected function unavailable(Request $request): Response
+    {
+        return new Response([
+            'errors' => [[
+                'status' => '403',
+                'title'  => Response::$statusTexts[403],
+                'detail' => 'This action is unavailable',
+            ]],
+            'meta'  => new \stdClass(),
+            'links' => [
+                '_self' => $request->fullUrl(),
+            ],
+        ], 403);
+    }
+
+    /**
      * Generate a 501 response.
      *
      * @return Response
