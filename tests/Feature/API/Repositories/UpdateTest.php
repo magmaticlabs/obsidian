@@ -4,46 +4,119 @@ namespace Tests\Feature\API\Repositories;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
+use Tests\Feature\API\APIResource\UpdateTestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\RepositoryController
  */
-final class UpdateTest extends RepositoryTestCase
+final class UpdateTest extends UpdateTestCase
 {
-    use \Tests\Feature\API\APIResource\UpdateTest;
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'repositories';
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp(): void
-    {
-        parent::setUp();
+    protected $class = Repository::class;
 
-        $this->data['data']['id'] = $this->model->id;
-        unset($this->data['relationships']);
+    /**
+     * Organization.
+     *
+     * @var Organization
+     */
+    private $organization;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validAttributesProvider(): array
+    {
+        return [
+            'basic' => [[
+                'name'         => 'testing',
+                'display_name' => '__TESTING__',
+                'description'  => 'This is a test organization',
+            ]],
+            'no-description' => [[
+                'name'         => 'testing',
+                'display_name' => '__TESTING__',
+            ]],
+            'no-display-name' => [[
+                'name'        => 'testing',
+                'description' => 'This is a test organization',
+            ]],
+            'no--name' => [[
+                'display_name' => '__TESTING__',
+                'description'  => 'This is a test organization',
+            ]],
+            'fancy-name' => [[
+                'name' => 'this-is-a-fancy-name',
+            ]],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function invalidAttributesProvider(): array
+    {
+        return [
+            'nonstring-name' => [[
+                'name' => [],
+            ], 'name'],
+            'tooshort-name' => [[
+                'name' => 'no',
+            ], 'name'],
+            'invalid-name' => [[
+                'name' => 'This is Illegal!',
+            ], 'name'],
+            'nonstring-display-name' => [[
+                'display_name' => [],
+            ], 'display_name'],
+            'nonstring-description' => [[
+                'description' => [],
+            ], 'description'],
+        ];
     }
 
     // --
 
     public function testPermissions()
     {
-        $this->removeUser();
+        $this->organization->removeMember($this->user);
 
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
+        $data = [
+            'data' => [
+                'type' => 'repositories',
+                'id'   => $this->model->id,
+            ],
+        ];
+
+        $response = $this->patch($this->route('update', $this->model->id), $data);
         $this->validateResponse($response, 403);
     }
 
-    /**
-     * @dataProvider invalidDataName
-     *
-     * @param mixed $value
-     */
-    public function testValidateName($value)
+    public function testNameDuplicateCausesError()
     {
-        $this->data['data']['attributes']['name'] = $value;
+        $this->factory(Repository::class)->create([
+            'name'            => 'duplicate',
+            'organization_id' => $this->organization->id,
+        ]);
 
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
+        $data = [
+            'data' => [
+                'type'       => 'repositories',
+                'id'         => $this->model->id,
+                'attributes' => [
+                    'name' => 'duplicate',
+                ],
+            ],
+        ];
+
+        $response = $this->patch($this->route('update', $this->model->id), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -53,42 +126,57 @@ final class UpdateTest extends RepositoryTestCase
         ]);
     }
 
-    /**
-     * @dataProvider invalidDataDisplayName
-     *
-     * @param mixed $value
-     */
-    public function testValidateDisplayName($value)
+    public function testNameDuplicateAnotherOrgSuccess()
     {
-        $this->data['data']['attributes']['display_name'] = $value;
+        $organization = $this->factory(Organization::class)->create();
 
-        $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/display_name']],
-            ],
+        $this->factory(Repository::class)->create([
+            'name'            => 'duplicate',
+            'organization_id' => $organization->id,
         ]);
+
+        $data = [
+            'data' => [
+                'type'       => 'repositories',
+                'id'         => $this->model->id,
+                'attributes' => [
+                    'name' => 'duplicate',
+                ],
+            ],
+        ];
+
+        $response = $this->patch($this->route('update', $this->model->id), $data);
+        $this->validateResponse($response, 200);
     }
 
     /**
-     * @dataProvider invalidDataDescription
-     *
-     * @param mixed $value
+     * {@inheritdoc}
      */
-    public function testValidateDescription($value)
+    protected function createModel(int $times = 1)
     {
-        $this->data['data']['attributes']['description'] = $value;
+        $this->organization = $this->factory(Organization::class)->create();
+        $this->organization->addMember($this->user);
+
+        if (1 === $times) {
+            return $this->factory($this->class)->create([
+                'organization_id' => $this->organization->id,
+            ]);
+        }
+
+        return $this->factory($this->class)->times($times)->create([
+            'organization_id' => $this->organization->id,
+        ]);
+    }
+
+    // --
+
+    /*
+    public function testPermissions()
+    {
+        $this->removeUser();
 
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/description']],
-            ],
-        ]);
+        $this->validateResponse($response, 403);
     }
 
     public function testNameDuplicateCausesError()
@@ -121,4 +209,5 @@ final class UpdateTest extends RepositoryTestCase
         $response = $this->patch($this->getRoute('update', $this->model->id), $this->data);
         $this->validateResponse($response, 200);
     }
+    */
 }

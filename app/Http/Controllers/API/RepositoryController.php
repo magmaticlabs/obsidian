@@ -232,9 +232,31 @@ final class RepositoryController extends ResourceController
      */
     public function organization_create(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Repository::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Organization relationship update.
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function organization_update(Request $request, string $id): Response
+    {
+        Repository::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -250,9 +272,11 @@ final class RepositoryController extends ResourceController
      */
     public function organization_destroy(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Repository::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     // --
@@ -312,9 +336,31 @@ final class RepositoryController extends ResourceController
      */
     public function packages_create(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Repository::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Packages relationship update.
+     *
+     * @param Request $request
+     * @param string  $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return Response
+     */
+    public function packages_update(Request $request, string $id): Response
+    {
+        Repository::findOrFail($id);
+
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 
     /**
@@ -330,8 +376,10 @@ final class RepositoryController extends ResourceController
      */
     public function packages_destroy(Request $request, string $id): Response
     {
-        abort(405, 'Not Allowed');
+        Repository::findOrFail($id);
 
-        return new Response('Not Allowed', 405);
+        abort(403);
+
+        return new Response('Forbidden', 403);
     }
 }
