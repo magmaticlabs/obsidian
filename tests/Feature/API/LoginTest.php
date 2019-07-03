@@ -17,7 +17,7 @@ final class LoginTest extends TestCase
 
     public function testNoAuthReportsCorrectly()
     {
-        $response = $this->get(route('api.session'));
+        $response = $this->get(route('api.auth.session'));
         $this->validateResponse($response, 200);
 
         $response->assertJson([
@@ -53,7 +53,7 @@ final class LoginTest extends TestCase
         $response = $this->attemptLogin($user->username, 'secret');
         $this->validateResponse($response, 200);
 
-        $response = $this->call('GET', route('api.session'), [], [
+        $response = $this->call('GET', route('api.auth.session'), [], [
             Passport::cookie() => $response->headers->getCookies()[0]->getValue(),
         ]);
 
@@ -78,7 +78,7 @@ final class LoginTest extends TestCase
 
         $token = (string) $user->createToken('_test_')->accessToken;
 
-        $response = $this->get(route('api.session'), [
+        $response = $this->get(route('api.auth.session'), [
             'Authorization' => sprintf('Bearer %s', $token),
         ]);
 
@@ -95,7 +95,7 @@ final class LoginTest extends TestCase
 
     public function testMissingUsername()
     {
-        $response = $this->post(route('api.login'));
+        $response = $this->post(route('api.auth.login'));
         $this->validateResponse($response, 401);
     }
 
@@ -115,7 +115,7 @@ final class LoginTest extends TestCase
 
     private function attemptLogin($username, $password)
     {
-        return $this->post(route('api.login'), [], [
+        return $this->post(route('api.auth.login'), [], [
             'authorization' => sprintf('Basic %s', base64_encode("{$username}:{$password}")),
         ]);
     }

@@ -53,6 +53,11 @@ abstract class TestCase extends BaseTestCase
      */
     final protected function validateResponse(TestResponse $response, int $status): void
     {
+        if (500 === $response->status()) {
+            $error = $response->json('errors.0');
+            static::fail("API test produced an {$error['title']}: {$error['detail']}");
+        }
+
         $response->assertStatus($status);
 
         $content = $response->getContent();

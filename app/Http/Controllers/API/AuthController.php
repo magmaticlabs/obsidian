@@ -45,7 +45,7 @@ final class AuthController extends Controller
                 'authtype'      => $authtype,
             ],
             'links' => [
-                '_self' => route('api.session'),
+                '_self' => route('api.auth.session'),
             ],
         ], 200);
     }
@@ -83,7 +83,7 @@ final class AuthController extends Controller
             ],
             'links' => [
                 'root'  => route('api.root'),
-                '_self' => route('api.login'),
+                '_self' => route('api.auth.login'),
             ],
         ], 200);
 

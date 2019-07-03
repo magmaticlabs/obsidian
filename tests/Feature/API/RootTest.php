@@ -37,7 +37,7 @@ final class RootTest extends TestCase
 
         $response->assertJson([
             'links' => [
-                'login' => route('api.login'),
+                'login' => route('api.auth.login'),
             ],
         ]);
     }
@@ -64,7 +64,7 @@ final class RootTest extends TestCase
 
         $response->assertJson([
             'links' => [
-                'session' => route('api.session'),
+                'session' => route('api.auth.session'),
             ],
         ]);
     }

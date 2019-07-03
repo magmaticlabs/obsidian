@@ -47,8 +47,10 @@ if (!function_exists('resource_routes')) {
 
 // Top level API routes
 Route::name('root')->get('/', 'RootController@index');
-Route::name('login')->post('/login', 'AuthController@login');
-Route::name('session')->get('/session', 'AuthController@session');
+Route::name('auth.')->prefix('auth')->group(function() {
+    Route::name('session')->get('/', 'AuthController@session');
+    Route::name('login')->post('/login', 'AuthController@login');
+});
 
 // Authenticated API routes
 Route::middleware(['auth:api'])->group(function() {

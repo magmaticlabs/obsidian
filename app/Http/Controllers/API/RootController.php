@@ -13,7 +13,7 @@ final class RootController extends ResourceController
     public function index(Request $request): Response
     {
         $routes = [
-            'session' => route('api.session'),
+            'session' => route('api.auth.session'),
             '_self'   => route('api.root'),
         ];
 
@@ -24,7 +24,7 @@ final class RootController extends ResourceController
             ], $routes);
         } else {
             $routes = array_merge([
-                'login' => route('api.login'),
+                'login' => route('api.auth.login'),
             ], $routes);
         }
 
