@@ -5,13 +5,12 @@ namespace Tests\Feature\API;
 use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\AuthController
  */
-final class LoginTest extends TestCase
+final class LoginTest extends APITestCase
 {
     // --
 

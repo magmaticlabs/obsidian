@@ -6,9 +6,9 @@ use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Model;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\TestCase;
+use Tests\Feature\API\APITestCase;
 
-abstract class ResourceTestCase extends TestCase
+abstract class ResourceTestCase extends APITestCase
 {
     /**
      * Resource type.

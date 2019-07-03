@@ -6,7 +6,6 @@ use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Foundation\Testing\TestResponse;
 use Opis\JsonSchema\Schema as JSONSchema;
 use Opis\JsonSchema\Validator;
 
@@ -43,30 +42,6 @@ abstract class TestCase extends BaseTestCase
         $factory = EloquentFactory::construct($this->faker);
 
         return $factory->of($class, $name);
-    }
-
-    /**
-     * Validate that a response has the specified status code, and conforms to schema.
-     *
-     * @param TestResponse $response
-     * @param int          $status
-     */
-    final protected function validateResponse(TestResponse $response, int $status): void
-    {
-        if (500 === $response->status()) {
-            $error = $response->json('errors.0');
-            $this->fail("API test produced an {$error['title']}: {$error['detail']}");
-        }
-
-        $response->assertStatus($status);
-
-        $content = $response->getContent();
-
-        if (204 === $status) {
-            $this->assertEmpty($content);
-        } elseif (!empty($content)) {
-            $this->assertJSONSchema($content, 'jsonapi');
-        }
     }
 
     /**
