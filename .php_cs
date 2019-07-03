@@ -1,8 +1,5 @@
 <?php
-
-use \PhpCsFixer\Config;
-
-return Config::create()
+return PhpCsFixer\Config::create()
 ->setUsingCache(false)
 ->setRiskyAllowed(true)
 ->setRules([
@@ -23,6 +20,15 @@ return Config::create()
     ],
     'multiline_whitespace_before_semicolons' => [
         'strategy' => 'no_multi_line',
+    ],
+    'php_unit_test_annotation' => [
+        'style' => 'annotation',
+    ],
+    'php_unit_method_casing' => [
+        'case' => 'snake_case',
+    ],
+    'php_unit_test_case_static_method_calls' => [
+        'call_type' => 'this',
     ],
 
     // Additional Rules
