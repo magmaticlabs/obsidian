@@ -6,7 +6,8 @@ ROOTPATH="$(realpath ${DIR}/../..)"
 set -e
 
 GITURL="${1}"
-TARGET="${2}"
+BUILDREF="${2}"
+TARGET="${3}"
 
 if [ -z "${GITURL}" ] || [ -z "${TARGET}" ]; then
     echo "Usage: ${0} <giturl> <target>"
@@ -14,4 +15,4 @@ if [ -z "${GITURL}" ] || [ -z "${TARGET}" ]; then
 fi
 
 export GIT_SSH_COMMAND="ssh -i '${ROOTPATH}/storage/app/obsidian-build.key'"
-git clone --depth 1 "${GITURL}" "${TARGET}" --verbose
+git clone -b "${BUILDREF}" --depth 1 "${GITURL}" "${TARGET}" --quiet

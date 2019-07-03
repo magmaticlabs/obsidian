@@ -17,7 +17,7 @@ services:
     build:
       context: ..
       dockerfile: .docker/Dockerfile
-    image: obsidian:dev
+    image: obsidian:latest
     container_name: obsidian
     environment:
       - USER=${USER}
@@ -25,7 +25,6 @@ services:
       - GID=${GID}
     volumes:
       - ..:/var/www/docker
-      - ~/:/home/${USER}
   database:
     image: mariadb
     container_name: obsidian_database

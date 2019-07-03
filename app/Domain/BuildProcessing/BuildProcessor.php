@@ -8,6 +8,7 @@ use LogicException;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\ProcessExecutor\ProcessExecutor;
 use RuntimeException;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class BuildProcessor
@@ -60,6 +61,30 @@ final class BuildProcessor
     }
 
     /**
+     * Get the path to the staging directory for the build.
+     *
+     * @param Build $build
+     *
+     * @return string
+     */
+    public function getStagingDir(Build $build): string
+    {
+        return sprintf('builds/staging/%s', $build->id);
+    }
+
+    /**
+     * Get the path to the archive directory for the build.
+     *
+     * @param Build $build
+     *
+     * @return string
+     */
+    public function getArchiveDir(Build $build): string
+    {
+        return sprintf('builds/archive/%s', $build->id);
+    }
+
+    /**
      * Operations to perform before the build itself.
      *
      * In particular, we will be sanity checking the working directory, cloning
@@ -88,21 +113,38 @@ final class BuildProcessor
             $storage->deleteDirectory($workingdir);
         }
 
+        // Clean up and recreate the staging directory
+        if ($storage->exists($stagingdir = $this->getStagingDir($build))) {
+            $storage->deleteDirectory($stagingdir);
+        }
+        $storage->makeDirectory($stagingdir);
+
+        // Clean up and recreate the archive directory
+        if ($storage->exists($archivedir = $this->getArchiveDir($build))) {
+            $storage->deleteDirectory($archivedir);
+        }
+        $storage->makeDirectory($archivedir);
+
         // Print log header
         $this->output->writeln(sprintf('[%s] Build ID: %s', (string) Carbon::now(), $build->id));
+
+        $buildref = $build->ref;
 
         // Grab the source repository and clone it to local disk
         // This throws a RuntimeException if anything goes wrong
         $this->executor->exec($this->scriptPath('clone_repository.sh'), [
             $build->package->source,
+            $buildref,
             $storage->path($workingdir),
         ], $this->output);
 
         // Determine the commit ID of the requested reference
-        $commit = $this->executor->exec('git', [
+        $commit = trim($this->executor->exec('git', [
             'rev-parse',
-            $build->ref,
-        ], $this->output, $storage->path($workingdir));
+            $buildref,
+        ], new NullOutput(), $storage->path($workingdir)));
+
+        $this->output->writeln(sprintf('Located reference: %s', $commit));
 
         // Update the build model with the preflight data
         $build->update([
@@ -129,6 +171,14 @@ final class BuildProcessor
             throw new RuntimeException('Missing build working directory');
         }
 
+        if (!$this->storage->exists($stagingdir = $this->getStagingDir($build))) {
+            throw new RuntimeException('Missing build staging directory');
+        }
+
+        if (!$this->storage->exists($archivedir = $this->getArchiveDir($build))) {
+            throw new RuntimeException('Missing build archive directory');
+        }
+
         // Update the status
         $build->update([
             'status'     => 'running',
@@ -144,6 +194,8 @@ final class BuildProcessor
         // This throws a RuntimeException if anything goes wrong
         $this->executor->exec($this->scriptPath('build_package.sh'), [
             $storage->path($workingdir),
+            $storage->path($stagingdir),
+            $storage->path($archivedir),
         ], $this->output);
     }
 
@@ -156,6 +208,10 @@ final class BuildProcessor
     {
         if ($this->storage->exists($workingdir = $this->getWorkingDir($build))) {
             $this->storage->deleteDirectory($workingdir);
+        }
+
+        if ($this->storage->exists($stagingdir = $this->getStagingDir($build))) {
+            $this->storage->deleteDirectory($stagingdir);
         }
     }
 

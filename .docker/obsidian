@@ -13,12 +13,12 @@ build() {
 
 shell() {
   up
-  docker-compose -p obsidian exec -u $USER php bash
+  docker-compose -p obsidian exec -u $USER obsidian bash
 }
 
 root() {
   up
-  docker-compose -p obsidian exec php bash
+  docker-compose -p obsidian exec obsidian bash
 }
 
 up() {
