@@ -13,7 +13,10 @@ use Tests\Feature\API\APIResource\ResourceTestCase;
  */
 final class IncludesTest extends ResourceTestCase
 {
-    public function testDefaultReturnAll()
+    /**
+     * @test
+     */
+    public function default_return_all()
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
@@ -44,7 +47,10 @@ final class IncludesTest extends ResourceTestCase
         ]);
     }
 
-    public function testRequestNone()
+    /**
+     * @test
+     */
+    public function request_none()
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
@@ -75,7 +81,10 @@ final class IncludesTest extends ResourceTestCase
         ]);
     }
 
-    public function testRequestPackageOnly()
+    /**
+     * @test
+     */
+    public function request_package_only()
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();

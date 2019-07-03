@@ -12,13 +12,19 @@ use Tests\TestCase;
  */
 final class RootTest extends TestCase
 {
-    public function testAvailable()
+    /**
+     * @test
+     */
+    public function available()
     {
         $response = $this->get(route('api.root'));
         $this->validateResponse($response, 200);
     }
 
-    public function testFormat()
+    /**
+     * @test
+     */
+    public function format()
     {
         $response = $this->get(route('api.root'));
 
@@ -31,7 +37,10 @@ final class RootTest extends TestCase
         ]);
     }
 
-    public function testLoginLink()
+    /**
+     * @test
+     */
+    public function login_link()
     {
         $response = $this->get(route('api.root'));
 
@@ -42,7 +51,10 @@ final class RootTest extends TestCase
         ]);
     }
 
-    public function testNoLoginLinkWhenLoggedIn()
+    /**
+     * @test
+     */
+    public function no_login_link_when_logged_in()
     {
         $user = $this->factory(User::class)->create();
         Passport::actingAs($user);
@@ -51,10 +63,13 @@ final class RootTest extends TestCase
         $this->validateResponse($response, 200);
 
         $body = json_decode($response->getContent(), true);
-        static::assertArrayNotHasKey('login', $body['links']);
+        $this->assertArrayNotHasKey('login', $body['links']);
     }
 
-    public function testSessionLinkWhenLoggedIn()
+    /**
+     * @test
+     */
+    public function session_link_when_logged_in()
     {
         $user = $this->factory(User::class)->create();
         Passport::actingAs($user);

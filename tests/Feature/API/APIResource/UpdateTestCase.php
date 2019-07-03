@@ -56,8 +56,10 @@ abstract class UpdateTestCase extends ResourceTestCase
 
     /**
      * @dataProvider validAttributesProvider
+     *
+     * @test
      */
-    public function testSucceedsWithValidAttributes(array $attributes)
+    public function succeeds_with_valid_attributes(array $attributes)
     {
         $data = [
             'data' => [
@@ -87,8 +89,10 @@ abstract class UpdateTestCase extends ResourceTestCase
 
     /**
      * @dataProvider invalidAttributesProvider
+     *
+     * @test
      */
-    public function testCreateFailsWithInvalidAttributes(array $attributes, string $invalid)
+    public function create_fails_with_invalid_attributes(array $attributes, string $invalid)
     {
         $data = [
             'data' => [
@@ -114,7 +118,10 @@ abstract class UpdateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testMissingOrInvalidTypeCausesValidationError()
+    /**
+     * @test
+     */
+    public function missing_or_invalid_type_causes_validation_error()
     {
         $data = [
             'data' => [
@@ -154,7 +161,10 @@ abstract class UpdateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testMissingOrInvalidIDCausesValidationError()
+    /**
+     * @test
+     */
+    public function missing_or_invalid_id_causes_validation_error()
     {
         $data = [
             'data' => [],
@@ -191,7 +201,10 @@ abstract class UpdateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testNoopWithNoAttributes()
+    /**
+     * @test
+     */
+    public function noop_with_no_attributes()
     {
         $data = [
             'data' => [
@@ -222,7 +235,10 @@ abstract class UpdateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testRelationshipsCauseValidationError()
+    /**
+     * @test
+     */
+    public function relationships_cause_validation_error()
     {
         $data = [
             'data' => [
@@ -249,7 +265,10 @@ abstract class UpdateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testNonExist()
+    /**
+     * @test
+     */
+    public function non_exist()
     {
         $data = [
             'data' => [

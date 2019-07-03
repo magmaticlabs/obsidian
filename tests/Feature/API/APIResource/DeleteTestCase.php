@@ -31,7 +31,10 @@ abstract class DeleteTestCase extends ResourceTestCase
         $this->model = $this->createModel();
     }
 
-    public function testSuccessful()
+    /**
+     * @test
+     */
+    public function successful()
     {
         $response = $this->delete($this->route('destroy', $this->model->id));
 
@@ -42,7 +45,10 @@ abstract class DeleteTestCase extends ResourceTestCase
         }
     }
 
-    public function testResourceDeleted()
+    /**
+     * @test
+     */
+    public function resource_deleted()
     {
         $response = $this->delete($this->route('destroy', $this->model->id));
 
@@ -54,7 +60,10 @@ abstract class DeleteTestCase extends ResourceTestCase
         }
     }
 
-    public function testNonExist()
+    /**
+     * @test
+     */
+    public function non_exist()
     {
         $response = $this->delete($this->route('destroy', '__INVALID__'));
         $this->validateResponse($response, 404);

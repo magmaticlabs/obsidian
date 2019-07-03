@@ -16,7 +16,10 @@ final class CreateTest extends CreateTestCase
      */
     protected $type = 'organizations';
 
-    public function testNameDuplicateCausesError()
+    /**
+     * @test
+     */
+    public function name_duplicate_causes_error()
     {
         $this->factory(Organization::class)->create(['name' => 'duplicate']);
 

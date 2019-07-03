@@ -32,7 +32,10 @@ abstract class RelationshipTestCase extends ResourceTestCase
 
     //--
 
-    public function testMissingParentModel()
+    /**
+     * @test
+     */
+    public function missing_parent_model()
     {
         $response = $this->get($this->route($this->relationship, '__INVAILD__'));
         $this->validateResponse($response, 404);
@@ -50,7 +53,10 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 404);
     }
 
-    public function testDataMatchesShow()
+    /**
+     * @test
+     */
+    public function data_matches_show()
     {
         $model = $this->createModel(1);
         $relation = $this->createRelationshipModel($model);
@@ -74,7 +80,10 @@ abstract class RelationshipTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testCountsMatches()
+    /**
+     * @test
+     */
+    public function counts_matches()
     {
         if (self::SINGULAR === $this->relationship_plurality) {
             $this->expectNotToPerformAssertions();
@@ -88,7 +97,7 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame(0, \count($data['data']));
+        $this->assertSame(0, \count($data['data']));
 
         // --
 
@@ -100,10 +109,13 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
-    public function testRelationshipDataCorrect()
+    /**
+     * @test
+     */
+    public function relationship_data_correct()
     {
         $model = $this->createModel(1);
         $relation = $this->createRelationshipModel($model);
@@ -130,7 +142,10 @@ abstract class RelationshipTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testRelationshipCountsMatches()
+    /**
+     * @test
+     */
+    public function relationship_counts_matches()
     {
         if (self::SINGULAR === $this->relationship_plurality) {
             $this->expectNotToPerformAssertions();
@@ -144,7 +159,7 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame(0, \count($data['data']));
+        $this->assertSame(0, \count($data['data']));
 
         // --
 
@@ -156,12 +171,15 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
     // --
 
-    public function testCreate()
+    /**
+     * @test
+     */
+    public function create_relationship()
     {
         $model = $this->createModel(1);
 
@@ -169,7 +187,10 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testUpdate()
+    /**
+     * @test
+     */
+    public function update_relationship()
     {
         $model = $this->createModel(1);
 
@@ -177,7 +198,10 @@ abstract class RelationshipTestCase extends ResourceTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testDelete()
+    /**
+     * @test
+     */
+    public function delete_relationship()
     {
         $model = $this->createModel(1);
 

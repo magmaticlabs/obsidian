@@ -19,8 +19,10 @@ final class DeleteTest extends DeleteTestCase
 
     /**
      * Test that attempting to delete a token owned by another user results in a 404.
+     *
+     * @test
      */
-    public function testOtherOwner404()
+    public function other_owner404()
     {
         $owner = $this->factory(User::class)->create();
         $token = $owner->createToken('_test_')->token;
@@ -29,7 +31,7 @@ final class DeleteTest extends DeleteTestCase
         $this->validateResponse($response, 404);
 
         $this->model->refresh();
-        static::assertTrue($this->model->exists);
+        $this->assertTrue($this->model->exists);
     }
 
     /**

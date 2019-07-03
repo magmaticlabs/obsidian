@@ -40,7 +40,10 @@ final class MembersRelationshipTest extends RelationshipTestCase
 
     // --
 
-    public function testCreate()
+    /**
+     * @test
+     */
+    public function create_relationship()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -76,11 +79,14 @@ final class MembersRelationshipTest extends RelationshipTestCase
             'data' => $this->sortData($output, 'id'),
         ]);
 
-        static::assertTrue($model->hasMember($user));
-        static::assertFalse($model->hasOwner($user));
+        $this->assertTrue($model->hasMember($user));
+        $this->assertFalse($model->hasOwner($user));
     }
 
-    public function testCreateDuplicate()
+    /**
+     * @test
+     */
+    public function create_duplicate()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -118,7 +124,10 @@ final class MembersRelationshipTest extends RelationshipTestCase
         ]);
     }
 
-    public function testCreatePermissions()
+    /**
+     * @test
+     */
+    public function create_permissions()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -139,7 +148,10 @@ final class MembersRelationshipTest extends RelationshipTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testCreateUnknownUser()
+    /**
+     * @test
+     */
+    public function create_unknown_user()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -169,7 +181,10 @@ final class MembersRelationshipTest extends RelationshipTestCase
 
     // --
 
-    public function testDelete()
+    /**
+     * @test
+     */
+    public function delete_relationship()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -200,11 +215,14 @@ final class MembersRelationshipTest extends RelationshipTestCase
             ],
         ]);
 
-        static::assertFalse($model->hasMember($user));
-        static::assertFalse($model->hasOwner($user));
+        $this->assertFalse($model->hasMember($user));
+        $this->assertFalse($model->hasOwner($user));
     }
 
-    public function testDeleteOwner()
+    /**
+     * @test
+     */
+    public function delete_owner()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -236,11 +254,14 @@ final class MembersRelationshipTest extends RelationshipTestCase
             ],
         ]);
 
-        static::assertFalse($model->hasMember($user));
-        static::assertFalse($model->hasOwner($user));
+        $this->assertFalse($model->hasMember($user));
+        $this->assertFalse($model->hasOwner($user));
     }
 
-    public function testDeleteNonMember()
+    /**
+     * @test
+     */
+    public function delete_non_member()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -270,11 +291,14 @@ final class MembersRelationshipTest extends RelationshipTestCase
             ],
         ]);
 
-        static::assertFalse($model->hasMember($user));
-        static::assertFalse($model->hasOwner($user));
+        $this->assertFalse($model->hasMember($user));
+        $this->assertFalse($model->hasOwner($user));
     }
 
-    public function testDeletePermissions()
+    /**
+     * @test
+     */
+    public function delete_permissions()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -296,7 +320,10 @@ final class MembersRelationshipTest extends RelationshipTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testDeleteUnknownUser()
+    /**
+     * @test
+     */
+    public function delete_unknown_user()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -324,7 +351,10 @@ final class MembersRelationshipTest extends RelationshipTestCase
         ]);
     }
 
-    public function testDeleteSelf()
+    /**
+     * @test
+     */
+    public function delete_self()
     {
         /** @var Organization $model */
         $model = $this->createModel();

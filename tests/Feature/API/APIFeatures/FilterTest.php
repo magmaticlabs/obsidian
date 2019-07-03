@@ -11,7 +11,10 @@ use Tests\Feature\API\APIResource\ResourceTestCase;
  */
 final class FilterTest extends ResourceTestCase
 {
-    public function testDefaultNoFilter()
+    /**
+     * @test
+     */
+    public function default_no_filter()
     {
         $count = 7;
         $this->factory(Organization::class)->times($count)->create();
@@ -19,10 +22,13 @@ final class FilterTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index'));
         $data = json_decode($response->getContent(), true);
 
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
-    public function testSimpleFilter()
+    /**
+     * @test
+     */
+    public function simple_filter()
     {
         $this->factory(Organization::class)->times(5)->create();
         $this->factory(Organization::class)->create([
@@ -32,10 +38,13 @@ final class FilterTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index', 'filter[name]=foobar'));
         $data = json_decode($response->getContent(), true);
 
-        static::assertSame(1, \count($data['data']));
+        $this->assertSame(1, \count($data['data']));
     }
 
-    public function testOperationsFilter()
+    /**
+     * @test
+     */
+    public function operations_filter()
     {
         $count = 5;
         $this->factory(Organization::class)->times($count)->create();
@@ -46,10 +55,13 @@ final class FilterTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index', 'filter[name]=!=foobar'));
         $data = json_decode($response->getContent(), true);
 
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
-    public function testWildcardFilter()
+    /**
+     * @test
+     */
+    public function wildcard_filter()
     {
         $count = 5;
         $this->factory(Organization::class)->times($count)->create();
@@ -66,10 +78,13 @@ final class FilterTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index', 'filter[name]=foo*'));
         $data = json_decode($response->getContent(), true);
 
-        static::assertSame(3, \count($data['data']));
+        $this->assertSame(3, \count($data['data']));
     }
 
-    public function testNegativeWildcardFilter()
+    /**
+     * @test
+     */
+    public function negative_wildcard_filter()
     {
         $count = 5;
         $this->factory(Organization::class)->times($count)->create();
@@ -86,10 +101,13 @@ final class FilterTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index', 'filter[name]=!=foo*'));
         $data = json_decode($response->getContent(), true);
 
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
-    public function testFilterPercent()
+    /**
+     * @test
+     */
+    public function filter_percent()
     {
         $count = 5;
         $this->factory(Organization::class)->times($count)->create();
@@ -103,22 +121,31 @@ final class FilterTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index', 'filter[name]==foobar%buzz'));
         $data = json_decode($response->getContent(), true);
 
-        static::assertSame(1, \count($data['data']));
+        $this->assertSame(1, \count($data['data']));
     }
 
-    public function testMultiLevelNotSupported()
+    /**
+     * @test
+     */
+    public function multi_level_not_supported()
     {
         $response = $this->get(route('api.organizations.index', 'filter[repository.name]=foobar'));
         $this->validateResponse($response, 400);
     }
 
-    public function testInvalidFormat()
+    /**
+     * @test
+     */
+    public function invalid_format()
     {
         $response = $this->get(route('api.organizations.index', 'filter=foobar'));
         $this->validateResponse($response, 400);
     }
 
-    public function testInvalidAttribute()
+    /**
+     * @test
+     */
+    public function invalid_attribute()
     {
         $response = $this->get(route('api.organizations.index', 'filter[foobar]=foobar'));
         $this->validateResponse($response, 400);

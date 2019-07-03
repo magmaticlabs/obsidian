@@ -12,7 +12,10 @@ use Tests\Feature\API\APIResource\ResourceTestCase;
  */
 final class PaginationTest extends ResourceTestCase
 {
-    public function testDefaultEmpty()
+    /**
+     * @test
+     */
+    public function default_empty()
     {
         $response = $this->get(route('api.organizations.index'));
 
@@ -59,8 +62,10 @@ final class PaginationTest extends ResourceTestCase
      * @dataProvider dataTotal
      *
      * @param mixed $total
+     *
+     * @test
      */
-    public function testNumPages($total)
+    public function num_pages($total)
     {
         $this->factory(Organization::class)->times($total)->create();
 
@@ -79,8 +84,10 @@ final class PaginationTest extends ResourceTestCase
      * @dataProvider dataTotal
      *
      * @param mixed $total
+     *
+     * @test
      */
-    public function testCounts($total)
+    public function counts($total)
     {
         $this->factory(Organization::class)->times($total)->create();
 
@@ -98,7 +105,7 @@ final class PaginationTest extends ResourceTestCase
         ]);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
     /**
@@ -106,8 +113,10 @@ final class PaginationTest extends ResourceTestCase
      *
      * @param mixed $total
      * @param mixed $limit
+     *
+     * @test
      */
-    public function testWithLimit($total, $limit)
+    public function with_limit($total, $limit)
     {
         $this->factory(Organization::class)->times($total)->create();
 
@@ -128,10 +137,13 @@ final class PaginationTest extends ResourceTestCase
         ]);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 
-    public function testLinksFirstPage()
+    /**
+     * @test
+     */
+    public function links_first_page()
     {
         $this->factory(Organization::class)->times(5)->create();
 
@@ -146,7 +158,10 @@ final class PaginationTest extends ResourceTestCase
         ]);
     }
 
-    public function testLinksSecondPage()
+    /**
+     * @test
+     */
+    public function links_second_page()
     {
         $this->factory(Organization::class)->times(5)->create();
 
@@ -162,7 +177,10 @@ final class PaginationTest extends ResourceTestCase
         ]);
     }
 
-    public function testDataIsDifferent()
+    /**
+     * @test
+     */
+    public function data_is_different()
     {
         $this->factory(Organization::class)->times(5)->create();
 
@@ -172,6 +190,6 @@ final class PaginationTest extends ResourceTestCase
         $response = $this->get(route('api.organizations.index', 'page[limit]=1&page[number]=3'));
         $B = json_decode($response->getContent(), true);
 
-        static::assertNotSame($A['data'], $B['data']);
+        $this->assertNotSame($A['data'], $B['data']);
     }
 }

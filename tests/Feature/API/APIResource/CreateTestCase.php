@@ -60,8 +60,10 @@ abstract class CreateTestCase extends ResourceTestCase
 
     /**
      * @dataProvider validAttributesProvider
+     *
+     * @test
      */
-    public function testSucceedsWithValidAttributes(array $attributes)
+    public function succeeds_with_valid_attributes(array $attributes)
     {
         $data = [
             'data' => [
@@ -87,7 +89,10 @@ abstract class CreateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testLocationHeaderIncluded()
+    /**
+     * @test
+     */
+    public function location_header_included()
     {
         $data = [
             'data' => [
@@ -107,13 +112,15 @@ abstract class CreateTestCase extends ResourceTestCase
 
         $location = $response->headers->get('Location');
         $resourceid = basename($location);
-        static::assertSame($this->route('show', $resourceid), $location);
+        $this->assertSame($this->route('show', $resourceid), $location);
     }
 
     /**
      * @dataProvider invalidAttributesProvider
+     *
+     * @test
      */
-    public function testCreateFailsWithInvalidAttributes(array $attributes, string $invalid)
+    public function create_fails_with_invalid_attributes(array $attributes, string $invalid)
     {
         if (empty($attributes)) {
             $this->expectNotToPerformAssertions();
@@ -142,7 +149,10 @@ abstract class CreateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testInclusionOfClientIDCausesValidationError()
+    /**
+     * @test
+     */
+    public function inclusion_of_client_id_causes_validation_error()
     {
         $data = [
             'data' => [
@@ -165,7 +175,10 @@ abstract class CreateTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testMissingOrInvalidTypeCausesValidationError()
+    /**
+     * @test
+     */
+    public function missing_or_invalid_type_causes_validation_error()
     {
         $data = [
             'data' => [],
@@ -202,8 +215,10 @@ abstract class CreateTestCase extends ResourceTestCase
 
     /**
      * @dataProvider requiredAttributesProvider
+     *
+     * @test
      */
-    public function testMissingRequiredAttributeCausesValidationError(string $attribute)
+    public function missing_required_attribute_causes_validation_error(string $attribute)
     {
         if (empty($attribute)) {
             $this->expectNotToPerformAssertions();
@@ -239,8 +254,10 @@ abstract class CreateTestCase extends ResourceTestCase
      * @dataProvider optionalAttributesProvider
      *
      * @param mixed $value
+     *
+     * @test
      */
-    public function testMissingOptionalAttributesSetToDefault(string $attribute, $value)
+    public function missing_optional_attributes_set_to_default(string $attribute, $value)
     {
         if (empty($attribute)) {
             $this->expectNotToPerformAssertions();

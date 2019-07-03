@@ -88,7 +88,10 @@ final class UpdateTest extends UpdateTestCase
         ];
     }
 
-    public function testNameDuplicateCausesError()
+    /**
+     * @test
+     */
+    public function name_duplicate_causes_error()
     {
         $this->factory(Organization::class)->create(['name' => 'duplicate']);
 
@@ -113,7 +116,10 @@ final class UpdateTest extends UpdateTestCase
         ]);
     }
 
-    public function testUpdatePermissions()
+    /**
+     * @test
+     */
+    public function update_permissions()
     {
         /** @var Organization $organization */
         $organization = $this->model;

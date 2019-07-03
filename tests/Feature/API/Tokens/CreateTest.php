@@ -17,8 +17,10 @@ final class CreateTest extends CreateTestCase
 
     /**
      * Test that the creation response has an access token attached to it.
+     *
+     * @test
      */
-    public function testHasAccessToken()
+    public function has_access_token()
     {
         $attributes = $this->getValidAttributes();
 
@@ -33,7 +35,7 @@ final class CreateTest extends CreateTestCase
         $this->validateResponse($response, 201);
 
         $attr = json_decode($response->getContent(), true)['data']['attributes'];
-        static::assertNotEmpty($attr['accessToken']);
+        $this->assertNotEmpty($attr['accessToken']);
     }
 
     /**

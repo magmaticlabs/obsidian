@@ -40,7 +40,10 @@ final class CreateTest extends CreateTestCase
         $this->organization->addMember($this->user);
     }
 
-    public function testPermissions()
+    /**
+     * @test
+     */
+    public function permissions()
     {
         $this->organization->removeMember($this->user);
 
@@ -71,7 +74,10 @@ final class CreateTest extends CreateTestCase
         ];
     }
 
-    public function testNameDuplicateCausesError()
+    /**
+     * @test
+     */
+    public function name_duplicate_causes_error()
     {
         $this->factory(Repository::class)->create([
             'name'            => 'duplicate',
@@ -99,7 +105,10 @@ final class CreateTest extends CreateTestCase
         ]);
     }
 
-    public function testNameDuplicateAnotherOrgSuccess()
+    /**
+     * @test
+     */
+    public function name_duplicate_another_org_success()
     {
         $this->factory(Repository::class)->create([
             'name'            => 'duplicate',

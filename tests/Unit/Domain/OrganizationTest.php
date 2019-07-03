@@ -31,43 +31,52 @@ final class OrganizationTest extends TestCase
 
     // --
 
-    public function testAddRemoveMembers()
+    /**
+     * @test
+     */
+    public function add_remove_members()
     {
-        static::assertSame(0, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->members()->count());
 
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
 
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(0, $this->organization->owners()->count());
-        static::assertSame($user->getKey(), $this->organization->members()->first()->getKey());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->owners()->count());
+        $this->assertSame($user->getKey(), $this->organization->members()->first()->getKey());
 
         $this->organization->removeMember($user);
 
-        static::assertSame(0, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->members()->count());
     }
 
-    public function testPromoteDemote()
+    /**
+     * @test
+     */
+    public function promote_demote()
     {
         $user = factory(User::class)->create();
         $this->organization->addMember($user);
 
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(0, $this->organization->owners()->count());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->owners()->count());
 
         $this->organization->promoteMember($user);
 
         // Owners are counted in members
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(1, $this->organization->owners()->count());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(1, $this->organization->owners()->count());
 
         $this->organization->demoteMember($user);
 
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(0, $this->organization->owners()->count());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->owners()->count());
     }
 
-    public function testRedundantOperations()
+    /**
+     * @test
+     */
+    public function redundant_operations()
     {
         $user = factory(User::class)->create();
 
@@ -76,24 +85,27 @@ final class OrganizationTest extends TestCase
         $this->organization->addMember($user);
         $this->organization->addMember($user);
 
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(0, $this->organization->owners()->count());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->owners()->count());
 
         $this->organization->promoteMember($user);
         $this->organization->promoteMember($user);
 
         // Owners are counted in members
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(1, $this->organization->owners()->count());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(1, $this->organization->owners()->count());
 
         $this->organization->demoteMember($user);
         $this->organization->demoteMember($user);
 
-        static::assertSame(1, $this->organization->members()->count());
-        static::assertSame(0, $this->organization->owners()->count());
+        $this->assertSame(1, $this->organization->members()->count());
+        $this->assertSame(0, $this->organization->owners()->count());
     }
 
-    public function testInvalidPromote()
+    /**
+     * @test
+     */
+    public function invalid_promote()
     {
         $user = factory(User::class)->create();
 
@@ -101,7 +113,10 @@ final class OrganizationTest extends TestCase
         $this->organization->promoteMember($user);
     }
 
-    public function testInvalidDemote()
+    /**
+     * @test
+     */
+    public function invalid_demote()
     {
         $user = factory(User::class)->create();
 

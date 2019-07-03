@@ -75,7 +75,10 @@ final class BuildTest extends TestCase
 
     // --
 
-    public function testWorkingDirValue()
+    /**
+     * @test
+     */
+    public function working_dir_value()
     {
         $workingdir = sprintf('builds/working/%s', $this->build->id);
 
@@ -85,10 +88,13 @@ final class BuildTest extends TestCase
             new NullOutput()
         );
 
-        static::assertSame($workingdir, $processor->getWorkingDir($this->build));
+        $this->assertSame($workingdir, $processor->getWorkingDir($this->build));
     }
 
-    public function testPreflight()
+    /**
+     * @test
+     */
+    public function preflight()
     {
         $commithash = sha1('testing');
         $commandExecuted = false;
@@ -119,15 +125,18 @@ final class BuildTest extends TestCase
         $processor->preflight($this->build);
         $this->build->refresh();
 
-        static::assertSame('ready', $this->build->status);
-        static::assertSame($commithash, $this->build->commit);
+        $this->assertSame('ready', $this->build->status);
+        $this->assertSame($commithash, $this->build->commit);
 
-        static::assertTrue($commandExecuted);
+        $this->assertTrue($commandExecuted);
 
-        static::assertNotEmpty($output->output);
+        $this->assertNotEmpty($output->output);
     }
 
-    public function testBuild()
+    /**
+     * @test
+     */
+    public function build()
     {
         $executor = new MockProcessExecutor([], []);
 
@@ -143,10 +152,13 @@ final class BuildTest extends TestCase
         $processor->process($this->build);
 
         $command = app_path('Scripts/build_package.sh');
-        static::assertSame([$command], $executor->getCommands());
+        $this->assertSame([$command], $executor->getCommands());
     }
 
-    public function testBuildFailure()
+    /**
+     * @test
+     */
+    public function build_failure()
     {
         $pattern = sprintf('#^%s#', app_path('Scripts/build_package.sh'));
 
@@ -169,7 +181,10 @@ final class BuildTest extends TestCase
         $processor->process($this->build);
     }
 
-    public function testBuildMissingWorkingDir()
+    /**
+     * @test
+     */
+    public function build_missing_working_dir()
     {
         $executor = new MockProcessExecutor([], []);
 
@@ -185,7 +200,10 @@ final class BuildTest extends TestCase
         $processor->process($this->build);
     }
 
-    public function testSuccess()
+    /**
+     * @test
+     */
+    public function success()
     {
         $executor = new MockProcessExecutor([], []);
 
@@ -198,12 +216,15 @@ final class BuildTest extends TestCase
         $processor->success($this->build);
         $this->build->refresh();
 
-        static::assertSame('success', $this->build->status);
-        static::assertNotNull($this->build->start_time);
-        static::assertNotNull($this->build->completion_time);
+        $this->assertSame('success', $this->build->status);
+        $this->assertNotNull($this->build->start_time);
+        $this->assertNotNull($this->build->completion_time);
     }
 
-    public function testFailure()
+    /**
+     * @test
+     */
+    public function failure()
     {
         $executor = new MockProcessExecutor([], []);
 
@@ -216,12 +237,15 @@ final class BuildTest extends TestCase
         $processor->failure($this->build);
         $this->build->refresh();
 
-        static::assertSame('failure', $this->build->status);
-        static::assertNotNull($this->build->start_time);
-        static::assertNotNull($this->build->completion_time);
+        $this->assertSame('failure', $this->build->status);
+        $this->assertNotNull($this->build->start_time);
+        $this->assertNotNull($this->build->completion_time);
     }
 
-    public function testCleanup()
+    /**
+     * @test
+     */
+    public function cleanup()
     {
         $executor = new MockProcessExecutor([], []);
 

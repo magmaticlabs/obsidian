@@ -15,7 +15,10 @@ final class LoginTest extends TestCase
 {
     // --
 
-    public function testNoAuthReportsCorrectly()
+    /**
+     * @test
+     */
+    public function no_auth_reports_correctly()
     {
         $response = $this->get(route('api.auth.session'));
         $this->validateResponse($response, 200);
@@ -29,7 +32,10 @@ final class LoginTest extends TestCase
         ]);
     }
 
-    public function testValidLogin()
+    /**
+     * @test
+     */
+    public function valid_login()
     {
         $user = $this->factory(User::class)->create();
 
@@ -46,7 +52,10 @@ final class LoginTest extends TestCase
         $response->assertCookie(Passport::cookie());
     }
 
-    public function testAuthCookieWorks()
+    /**
+     * @test
+     */
+    public function auth_cookie_works()
     {
         $user = $this->factory(User::class)->create();
 
@@ -66,7 +75,10 @@ final class LoginTest extends TestCase
         ]);
     }
 
-    public function testAuthTokenWorks()
+    /**
+     * @test
+     */
+    public function auth_token_works()
     {
         (new ClientRepository())->createPersonalAccessClient(
             null,
@@ -93,19 +105,28 @@ final class LoginTest extends TestCase
         ]);
     }
 
-    public function testMissingUsername()
+    /**
+     * @test
+     */
+    public function missing_username()
     {
         $response = $this->post(route('api.auth.login'));
         $this->validateResponse($response, 401);
     }
 
-    public function testInvalidUsername()
+    /**
+     * @test
+     */
+    public function invalid_username()
     {
         $response = $this->attemptLogin('user', 'passwd');
         $this->validateResponse($response, 403);
     }
 
-    public function testInvalidPassword()
+    /**
+     * @test
+     */
+    public function invalid_password()
     {
         $user = $this->factory(User::class)->create();
 

@@ -121,7 +121,10 @@ final class UpdateTest extends UpdateTestCase
 
     // --
 
-    public function testPermissions()
+    /**
+     * @test
+     */
+    public function permissions()
     {
         $this->organization->removeMember($this->user);
 
@@ -136,7 +139,10 @@ final class UpdateTest extends UpdateTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testNameDuplicateCausesError()
+    /**
+     * @test
+     */
+    public function name_duplicate_causes_error()
     {
         $this->factory(Package::class)->create([
             'name'          => 'duplicate',
@@ -163,7 +169,10 @@ final class UpdateTest extends UpdateTestCase
         ]);
     }
 
-    public function testNameDuplicateAnotherRepoSuccess()
+    /**
+     * @test
+     */
+    public function name_duplicate_another_repo_success()
     {
         $repository = $this->factory(Repository::class)->create([
             'organization_id' => $this->organization->id,

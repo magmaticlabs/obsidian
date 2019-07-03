@@ -29,7 +29,10 @@ final class DeleteTest extends DeleteTestCase
      */
     private $organization;
 
-    public function testDeletePermissions()
+    /**
+     * @test
+     */
+    public function delete_permissions()
     {
         $this->organization->removeMember($this->user);
 

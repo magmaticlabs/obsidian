@@ -4,7 +4,10 @@ namespace Tests\Feature\API\APIResource;
 
 abstract class IndexTestCase extends ResourceTestCase
 {
-    public function testDataMatchesShow()
+    /**
+     * @test
+     */
+    public function data_matches_show()
     {
         $model = $this->createModel();
 
@@ -21,13 +24,16 @@ abstract class IndexTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testCountsMatches()
+    /**
+     * @test
+     */
+    public function counts_matches()
     {
         $response = $this->get($this->route('index'));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame(0, \count($data['data']));
+        $this->assertSame(0, \count($data['data']));
 
         // --
 
@@ -39,6 +45,6 @@ abstract class IndexTestCase extends ResourceTestCase
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertSame($count, \count($data['data']));
+        $this->assertSame($count, \count($data['data']));
     }
 }

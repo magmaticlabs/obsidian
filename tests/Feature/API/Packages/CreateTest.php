@@ -41,7 +41,10 @@ final class CreateTest extends CreateTestCase
         $this->organization->addMember($this->user);
     }
 
-    public function testPermissions()
+    /**
+     * @test
+     */
+    public function permissions()
     {
         $this->organization->removeMember($this->user);
 

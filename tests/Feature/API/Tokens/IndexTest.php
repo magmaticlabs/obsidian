@@ -19,8 +19,10 @@ final class IndexTest extends IndexTestCase
 
     /**
      * Test that only the authenticated user's tokens are displayed.
+     *
+     * @test
      */
-    public function testOnlyShowsMine()
+    public function only_shows_mine()
     {
         $owner = $this->factory(User::class)->create();
         $owner->createToken('_test_')->token;
@@ -29,7 +31,7 @@ final class IndexTest extends IndexTestCase
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
-        static::assertEmpty($data['data']);
+        $this->assertEmpty($data['data']);
     }
 
     /**

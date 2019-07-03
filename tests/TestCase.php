@@ -55,7 +55,7 @@ abstract class TestCase extends BaseTestCase
     {
         if (500 === $response->status()) {
             $error = $response->json('errors.0');
-            static::fail("API test produced an {$error['title']}: {$error['detail']}");
+            $this->fail("API test produced an {$error['title']}: {$error['detail']}");
         }
 
         $response->assertStatus($status);
@@ -63,7 +63,7 @@ abstract class TestCase extends BaseTestCase
         $content = $response->getContent();
 
         if (204 === $status) {
-            static::assertEmpty($content);
+            $this->assertEmpty($content);
         } elseif (!empty($content)) {
             $this->assertJSONSchema($content, 'jsonapi');
         }
@@ -94,7 +94,7 @@ abstract class TestCase extends BaseTestCase
         /** @var \Opis\JsonSchema\ValidationResult $result */
         $result = $validator->schemaValidation(json_decode($data), $schemas[$schema]);
 
-        static::assertTrue($result->isValid(), 'Schema validation failed');
+        $this->assertTrue($result->isValid(), 'Schema validation failed');
     }
 
     final protected function sortData(array $array, $key)

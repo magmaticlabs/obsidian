@@ -11,7 +11,10 @@ use Tests\Feature\API\APIResource\ResourceTestCase;
  */
 final class SparseFieldsTest extends ResourceTestCase
 {
-    public function testDefaultReturnAll()
+    /**
+     * @test
+     */
+    public function default_return_all()
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
@@ -29,7 +32,10 @@ final class SparseFieldsTest extends ResourceTestCase
         ]);
     }
 
-    public function testSparseReturn()
+    /**
+     * @test
+     */
+    public function sparse_return()
     {
         $fields = [
             'display_name',
@@ -54,10 +60,13 @@ final class SparseFieldsTest extends ResourceTestCase
 
         ksort($compare);
 
-        static::assertSame($attributes, $compare);
+        $this->assertSame($attributes, $compare);
     }
 
-    public function testMismatchTypeReturnAll()
+    /**
+     * @test
+     */
+    public function mismatch_type_return_all()
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
@@ -77,7 +86,10 @@ final class SparseFieldsTest extends ResourceTestCase
         ]);
     }
 
-    public function testUnknownFieldsReturnEmpty()
+    /**
+     * @test
+     */
+    public function unknown_fields_return_empty()
     {
         $fields = [
             '__INVALID__',
@@ -96,6 +108,6 @@ final class SparseFieldsTest extends ResourceTestCase
 
         ksort($compare);
 
-        static::assertSame([], $compare);
+        $this->assertSame([], $compare);
     }
 }

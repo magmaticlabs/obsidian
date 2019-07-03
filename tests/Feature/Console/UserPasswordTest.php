@@ -15,8 +15,10 @@ final class UserPasswordTest extends TestCase
 {
     /**
      * Test that setting a password via arguments works.
+     *
+     * @test
      */
-    public function testSetPassword()
+    public function set_password()
     {
         factory(User::class)->create(['username' => 'testuser']);
 
@@ -26,13 +28,15 @@ final class UserPasswordTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        static::assertTrue(Hash::check('testing', $user->password));
+        $this->assertTrue(Hash::check('testing', $user->password));
     }
 
     /**
      * Test that setting a password via prompt works.
+     *
+     * @test
      */
-    public function testAskPassword()
+    public function ask_password()
     {
         factory(User::class)->create(['username' => 'testuser']);
 
@@ -43,13 +47,15 @@ final class UserPasswordTest extends TestCase
         $cmd->execute();
 
         $user = User::query()->where('username', 'testuser')->first();
-        static::assertTrue(Hash::check('testing', $user->password));
+        $this->assertTrue(Hash::check('testing', $user->password));
     }
 
     /**
      * Test that the password prompt responds to an empty password correctly.
+     *
+     * @test
      */
-    public function testAskPasswordEmpty()
+    public function ask_password_empty()
     {
         factory(User::class)->create(['username' => 'testuser']);
 
@@ -61,8 +67,10 @@ final class UserPasswordTest extends TestCase
 
     /**
      * Test that attempting to set the password for a user that doesn't exist fails.
+     *
+     * @test
      */
-    public function testMissingUserErrors()
+    public function missing_user_errors()
     {
         $cmd = $this->artisan('user:password testuser --password=testing');
         $cmd->assertExitCode(1);

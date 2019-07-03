@@ -40,7 +40,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
 
     // --
 
-    public function testCreate()
+    /**
+     * @test
+     */
+    public function create_relationship()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -77,11 +80,14 @@ final class OwnersRelationshipTest extends RelationshipTestCase
             'data' => $this->sortData($output, 'id'),
         ]);
 
-        static::assertTrue($model->hasMember($user));
-        static::assertTrue($model->hasOwner($user));
+        $this->assertTrue($model->hasMember($user));
+        $this->assertTrue($model->hasOwner($user));
     }
 
-    public function testCreateDuplicate()
+    /**
+     * @test
+     */
+    public function create_duplicate()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -120,7 +126,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
         ]);
     }
 
-    public function testCreatePermissions()
+    /**
+     * @test
+     */
+    public function create_permissions()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -141,7 +150,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testCreateNonMember()
+    /**
+     * @test
+     */
+    public function create_non_member()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -171,7 +183,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
         ]);
     }
 
-    public function testCreateUnknownUser()
+    /**
+     * @test
+     */
+    public function create_unknown_user()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -201,7 +216,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
 
     // --
 
-    public function testDelete()
+    /**
+     * @test
+     */
+    public function delete_relationship()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -233,11 +251,14 @@ final class OwnersRelationshipTest extends RelationshipTestCase
             ],
         ]);
 
-        static::assertTrue($model->hasMember($user));
-        static::assertFalse($model->hasOwner($user));
+        $this->assertTrue($model->hasMember($user));
+        $this->assertFalse($model->hasOwner($user));
     }
 
-    public function testDeleteNonOwner()
+    /**
+     * @test
+     */
+    public function delete_non_owner()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -268,11 +289,14 @@ final class OwnersRelationshipTest extends RelationshipTestCase
             ],
         ]);
 
-        static::assertTrue($model->hasMember($user));
-        static::assertFalse($model->hasOwner($user));
+        $this->assertTrue($model->hasMember($user));
+        $this->assertFalse($model->hasOwner($user));
     }
 
-    public function testDeleteNonMember()
+    /**
+     * @test
+     */
+    public function delete_non_member()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -302,7 +326,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
         ]);
     }
 
-    public function testDeletePermissions()
+    /**
+     * @test
+     */
+    public function delete_permissions()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -325,7 +352,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
         $this->validateResponse($response, 403);
     }
 
-    public function testDeleteUnknownUser()
+    /**
+     * @test
+     */
+    public function delete_unknown_user()
     {
         /** @var Organization $model */
         $model = $this->createModel();
@@ -353,7 +383,10 @@ final class OwnersRelationshipTest extends RelationshipTestCase
         ]);
     }
 
-    public function testDeleteSelf()
+    /**
+     * @test
+     */
+    public function delete_self()
     {
         /** @var Organization $model */
         $model = $this->createModel();

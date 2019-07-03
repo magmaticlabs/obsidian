@@ -19,8 +19,10 @@ final class ShowTest extends ShowTestCase
 
     /**
      * Test that attempting to view a token that is owned by another user 404s.
+     *
+     * @test
      */
-    public function testOtherOwner404()
+    public function other_owner404()
     {
         $owner = $this->factory(User::class)->create();
         $token = $owner->createToken('_test_')->token;

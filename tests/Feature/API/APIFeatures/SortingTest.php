@@ -11,7 +11,10 @@ use Tests\Feature\API\APIResource\ResourceTestCase;
  */
 final class SortingTest extends ResourceTestCase
 {
-    public function testDefaultSortByID()
+    /**
+     * @test
+     */
+    public function default_sort_by_id()
     {
         /** @var Organization $organization */
         $organizations = $this->factory(Organization::class)->times(10)->create();
@@ -30,7 +33,10 @@ final class SortingTest extends ResourceTestCase
         ]);
     }
 
-    public function testSortByName()
+    /**
+     * @test
+     */
+    public function sort_by_name()
     {
         /** @var Organization $organization */
         $organizations = $this->factory(Organization::class)->times(10)->create();
@@ -52,7 +58,10 @@ final class SortingTest extends ResourceTestCase
         ]);
     }
 
-    public function testReverseSortByName()
+    /**
+     * @test
+     */
+    public function reverse_sort_by_name()
     {
         /** @var Organization $organization */
         $organizations = $this->factory(Organization::class)->times(10)->create();
@@ -74,19 +83,28 @@ final class SortingTest extends ResourceTestCase
         ]);
     }
 
-    public function testMultiLevelNotSupported()
+    /**
+     * @test
+     */
+    public function multi_level_not_supported()
     {
         $response = $this->get(route('api.organizations.index', 'sort=repository.name'));
         $this->validateResponse($response, 400);
     }
 
-    public function testInvalidFormat()
+    /**
+     * @test
+     */
+    public function invalid_format()
     {
         $response = $this->get(route('api.organizations.index', 'sort[name]'));
         $this->validateResponse($response, 400);
     }
 
-    public function testInvalidAttribute()
+    /**
+     * @test
+     */
+    public function invalid_attribute()
     {
         $response = $this->get(route('api.organizations.index', 'sort=foobar'));
         $this->validateResponse($response, 400);

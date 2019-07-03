@@ -35,7 +35,10 @@ final class DeleteTest extends DeleteTestCase
         $organization->promoteMember($this->user);
     }
 
-    public function testDeletePermissions()
+    /**
+     * @test
+     */
+    public function delete_permissions()
     {
         /** @var Organization $organization */
         $organization = $this->model;

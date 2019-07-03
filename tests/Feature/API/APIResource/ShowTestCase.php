@@ -23,7 +23,10 @@ abstract class ShowTestCase extends ResourceTestCase
         $this->model = $this->createModel();
     }
 
-    public function testDataMatchesModel()
+    /**
+     * @test
+     */
+    public function data_matches_model()
     {
         $response = $this->get($this->route('show', $this->model->id));
         $this->validateResponse($response, 200);
@@ -40,7 +43,10 @@ abstract class ShowTestCase extends ResourceTestCase
         ]);
     }
 
-    public function testNonExist()
+    /**
+     * @test
+     */
+    public function non_exist()
     {
         $response = $this->get($this->route('show', '__INVALID__'));
         $this->validateResponse($response, 404);
