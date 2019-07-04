@@ -2,49 +2,39 @@
 
 namespace Tests\Feature\API\Tokens;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\Feature\API\APIResource\ShowTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestShowEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class ShowTest extends ShowTestCase
+final class ShowTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'tokens';
+    use TestShowEndpoints;
+
+    protected $resourceType = 'tokens';
 
     /**
-     * Test that attempting to view a token that is owned by another user 404s.
-     *
      * @test
      */
-    public function other_owner404()
+    public function other_owner_404()
     {
         $owner = $this->factory(User::class)->create();
         $token = $owner->createToken('_test_')->token;
 
-        $response = $this->get($this->route('show', $token->id));
+        $response = $this->get(route("api.{$this->resourceType}.show", $token->id));
         $this->validateResponse($response, 404);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function createModel(int $times = 1)
+    protected function createResource(): EloquentModel
     {
-        if (1 === $times) {
-            return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
-        }
-
-        $IDs = [];
-        for ($i = 0; $i < $times; ++$i) {
-            $IDs[] = $this->user->createToken('__TESTING__')->token->id;
-        }
-
-        return PassportToken::query()->whereIn('id', $IDs)->get();
+        return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
     }
 }

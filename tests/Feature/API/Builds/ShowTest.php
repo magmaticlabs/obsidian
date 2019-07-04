@@ -2,32 +2,28 @@
 
 namespace Tests\Feature\API\Builds;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\APIResource\ShowTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestShowEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\BuildController
  */
-final class ShowTest extends ShowTestCase
+final class ShowTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'builds';
+    use TestShowEndpoints;
+
+    protected $resourceType = 'builds';
 
     /**
      * {@inheritdoc}
      */
-    protected $class = Build::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function createModel(int $times = 1)
+    protected function createResource(): EloquentModel
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
@@ -41,13 +37,7 @@ final class ShowTest extends ShowTestCase
             'repository_id' => $repository->id,
         ]);
 
-        if (1 === $times) {
-            return $this->factory($this->class)->create([
-                'package_id' => $package->id,
-            ]);
-        }
-
-        return $this->factory($this->class)->times($times)->create([
+        return $this->factory(Build::class)->create([
             'package_id' => $package->id,
         ]);
     }
