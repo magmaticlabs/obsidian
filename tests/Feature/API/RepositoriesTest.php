@@ -4,11 +4,13 @@ namespace Tests\Feature\API;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 use Tests\Feature\API\ResourceTests\ResourceTestCase;
 use Tests\Feature\API\ResourceTests\TestCreateEndpoints;
 use Tests\Feature\API\ResourceTests\TestDeleteEndpoints;
 use Tests\Feature\API\ResourceTests\TestIndexEndpoints;
+use Tests\Feature\API\ResourceTests\TestRelationshipEndpoints;
 use Tests\Feature\API\ResourceTests\TestShowEndpoints;
 use Tests\Feature\API\ResourceTests\TestUpdateEndpoints;
 
@@ -23,6 +25,7 @@ final class RepositoriesTest extends ResourceTestCase
     use TestShowEndpoints;
     use TestUpdateEndpoints;
     use TestDeleteEndpoints;
+    use TestRelationshipEndpoints;
 
     protected $resourceType = 'repositories';
 
@@ -331,6 +334,14 @@ final class RepositoriesTest extends ResourceTestCase
         ];
     }
 
+    public function relationshipProvider(): array
+    {
+        return [
+            'organization' => ['organization', 'organizations', false],
+            'packages'     => ['packages', 'packages', true],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -362,5 +373,27 @@ final class RepositoriesTest extends ResourceTestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createRelationship(EloquentModel $resource, string $relation, int $times = 1)
+    {
+        /** @var Repository $repository */
+        $repository = $resource;
+
+        switch ($relation) {
+            case 'organization':
+                return $repository->organization;
+            case 'packages':
+                $this->factory(Package::class)->times($times)->create([
+                    'repository_id' => $repository->id,
+                ]);
+
+                return $repository->packages;
+        }
+
+        return null;
     }
 }

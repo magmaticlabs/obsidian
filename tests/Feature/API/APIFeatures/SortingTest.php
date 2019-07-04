@@ -3,7 +3,7 @@
 namespace Tests\Feature\API\APIFeatures;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use Tests\Feature\API\APIResource\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
 
 /**
  * @internal

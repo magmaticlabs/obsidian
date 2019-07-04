@@ -3,6 +3,7 @@
 namespace Tests\Feature\API;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
@@ -10,6 +11,7 @@ use Tests\Feature\API\ResourceTests\ResourceTestCase;
 use Tests\Feature\API\ResourceTests\TestCreateEndpoints;
 use Tests\Feature\API\ResourceTests\TestDeleteEndpoints;
 use Tests\Feature\API\ResourceTests\TestIndexEndpoints;
+use Tests\Feature\API\ResourceTests\TestRelationshipEndpoints;
 use Tests\Feature\API\ResourceTests\TestShowEndpoints;
 use Tests\Feature\API\ResourceTests\TestUpdateEndpoints;
 
@@ -24,6 +26,7 @@ final class PackagesTest extends ResourceTestCase
     use TestShowEndpoints;
     use TestUpdateEndpoints;
     use TestDeleteEndpoints;
+    use TestRelationshipEndpoints;
 
     protected $resourceType = 'packages';
 
@@ -449,6 +452,14 @@ final class PackagesTest extends ResourceTestCase
         ];
     }
 
+    public function relationshipProvider(): array
+    {
+        return [
+            'repository' => ['repository', 'repositories', false],
+            'builds'     => ['builds', 'builds', true],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -487,5 +498,27 @@ final class PackagesTest extends ResourceTestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createRelationship(EloquentModel $resource, string $relation, int $times = 1)
+    {
+        /** @var Package $package */
+        $package = $resource;
+
+        switch ($relation) {
+            case 'repository':
+                return $package->repository;
+            case 'builds':
+                $this->factory(Build::class)->times($times)->create([
+                    'package_id' => $package->id,
+                ]);
+
+                return $package->builds;
+        }
+
+        return null;
     }
 }

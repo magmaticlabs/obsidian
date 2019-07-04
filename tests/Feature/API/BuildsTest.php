@@ -10,6 +10,7 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
 use Tests\Feature\API\ResourceTests\ResourceTestCase;
 use Tests\Feature\API\ResourceTests\TestCreateEndpoints;
 use Tests\Feature\API\ResourceTests\TestIndexEndpoints;
+use Tests\Feature\API\ResourceTests\TestRelationshipEndpoints;
 use Tests\Feature\API\ResourceTests\TestShowEndpoints;
 
 /**
@@ -21,6 +22,7 @@ final class BuildsTest extends ResourceTestCase
     use TestIndexEndpoints;
     use TestCreateEndpoints;
     use TestShowEndpoints;
+    use TestRelationshipEndpoints;
 
     protected $resourceType = 'builds';
 
@@ -67,6 +69,15 @@ final class BuildsTest extends ResourceTestCase
 
         $response = $this->delete(route("api.{$this->resourceType}.destroy", $resource->id));
         $this->validateResponse($response, 403);
+    }
+
+    // --
+
+    public function relationshipProvider(): array
+    {
+        return [
+            'package' => ['package', 'packages', false],
+        ];
     }
 
     /**
@@ -116,5 +127,16 @@ final class BuildsTest extends ResourceTestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createRelationship(EloquentModel $resource, string $relation, int $times = 1)
+    {
+        /** @var Build $build */
+        $build = $resource;
+
+        return $build->package;
     }
 }
