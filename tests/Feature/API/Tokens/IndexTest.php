@@ -2,24 +2,23 @@
 
 namespace Tests\Feature\API\Tokens;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\Feature\API\APIResource\IndexTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestIndexEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class IndexTest extends IndexTestCase
+final class IndexTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'tokens';
+    use TestIndexEndpoints;
+
+    protected $resourceType = 'tokens';
 
     /**
-     * Test that only the authenticated user's tokens are displayed.
-     *
      * @test
      */
     public function only_shows_mine()
@@ -27,7 +26,7 @@ final class IndexTest extends IndexTestCase
         $owner = $this->factory(User::class)->create();
         $owner->createToken('_test_')->token;
 
-        $response = $this->get($this->route('index'));
+        $response = $this->get(route("api.{$this->resourceType}.index"));
         $this->validateResponse($response, 200);
 
         $data = json_decode($response->getContent(), true);
@@ -37,17 +36,8 @@ final class IndexTest extends IndexTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createModel(int $times = 1)
+    protected function createResource(): EloquentModel
     {
-        if (1 === $times) {
-            return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
-        }
-
-        $IDs = [];
-        for ($i = 0; $i < $times; ++$i) {
-            $IDs[] = $this->user->createToken('__TESTING__')->token->id;
-        }
-
-        return PassportToken::query()->whereIn('id', $IDs)->get();
+        return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
     }
 }

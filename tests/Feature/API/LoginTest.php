@@ -12,8 +12,6 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\User;
  */
 final class LoginTest extends APITestCase
 {
-    // --
-
     /**
      * @test
      */

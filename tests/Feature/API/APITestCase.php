@@ -3,10 +3,22 @@
 namespace Tests\Feature\API;
 
 use Illuminate\Foundation\Testing\TestResponse;
+use Laravel\Passport\ClientRepository;
 use Tests\TestCase;
 
 abstract class APITestCase extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        (new ClientRepository())->createPersonalAccessClient(
+            null,
+            '__TESTING__',
+            'http://localhost'
+        );
+    }
+
     /**
      * Validate that a response has the specified status code, and conforms to schema.
      *
