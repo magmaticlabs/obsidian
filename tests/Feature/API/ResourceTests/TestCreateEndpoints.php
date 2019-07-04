@@ -1,14 +1,12 @@
 <?php
 
-namespace Tests\Feature\API\APIResource;
+namespace Tests\Feature\API\ResourceTests;
 
-abstract class CreateTestCase extends ResourceTestCase
+/**
+ * @mixin \Tests\Feature\API\ResourceTests\ResourceTestCase
+ */
+trait TestCreateEndpoints
 {
-    /**
-     * Data Provider for valid attributes.
-     *
-     * @return array
-     */
     public function validAttributesProvider(): array
     {
         return [
@@ -16,11 +14,6 @@ abstract class CreateTestCase extends ResourceTestCase
         ];
     }
 
-    /**
-     * Data Provider for invalid attributes.
-     *
-     * @return array
-     */
     public function invalidAttributesProvider(): array
     {
         return [
@@ -28,46 +21,30 @@ abstract class CreateTestCase extends ResourceTestCase
         ];
     }
 
-    /**
-     * Data Provider for required attributes.
-     *
-     * @return array
-     */
     public function requiredAttributesProvider(): array
     {
         return [['']];
     }
 
-    /**
-     * Data Provider for optional attributes.
-     *
-     * @return array
-     */
     public function optionalAttributesProvider(): array
     {
         return [['', '']];
     }
 
-    /**
-     * Required parent relationship.
-     *
-     * @return array
-     */
     public function getParentRelationship(): array
     {
         return [];
     }
 
     /**
-     * @dataProvider validAttributesProvider
-     *
      * @test
+     * @dataProvider validAttributesProvider
      */
-    public function succeeds_with_valid_attributes(array $attributes)
+    public function create_succeeds_with_valid_attributes(array $attributes)
     {
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $attributes,
             ],
         ];
@@ -76,11 +53,11 @@ abstract class CreateTestCase extends ResourceTestCase
             $data['relationships'] = $relationship;
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 201);
 
         $data = [
-            'type'       => $this->type,
+            'type'       => $this->resourceType,
             'attributes' => $attributes,
         ];
 
@@ -92,11 +69,11 @@ abstract class CreateTestCase extends ResourceTestCase
     /**
      * @test
      */
-    public function location_header_included()
+    public function create_location_header_included()
     {
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $this->getValidAttributes(),
             ],
         ];
@@ -105,20 +82,19 @@ abstract class CreateTestCase extends ResourceTestCase
             $data['relationships'] = $relationship;
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 201);
 
         $response->assertHeader('Location');
 
         $location = $response->headers->get('Location');
         $resourceid = basename($location);
-        $this->assertSame($this->route('show', $resourceid), $location);
+        $this->assertSame(route("api.{$this->resourceType}.show", $resourceid), $location);
     }
 
     /**
-     * @dataProvider invalidAttributesProvider
-     *
      * @test
+     * @dataProvider invalidAttributesProvider
      */
     public function create_fails_with_invalid_attributes(array $attributes, string $invalid)
     {
@@ -130,7 +106,7 @@ abstract class CreateTestCase extends ResourceTestCase
 
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $attributes,
             ],
         ];
@@ -139,7 +115,7 @@ abstract class CreateTestCase extends ResourceTestCase
             $data['relationships'] = $relationship;
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -152,11 +128,11 @@ abstract class CreateTestCase extends ResourceTestCase
     /**
      * @test
      */
-    public function inclusion_of_client_id_causes_validation_error()
+    public function create_inclusion_of_client_id_causes_validation_error()
     {
         $data = [
             'data' => [
-                'type' => $this->type,
+                'type' => $this->resourceType,
                 'id'   => 'foobar',
             ],
         ];
@@ -165,7 +141,7 @@ abstract class CreateTestCase extends ResourceTestCase
             $data['relationships'] = $relationship;
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -178,7 +154,7 @@ abstract class CreateTestCase extends ResourceTestCase
     /**
      * @test
      */
-    public function missing_or_invalid_type_causes_validation_error()
+    public function create_missing_or_invalid_type_causes_validation_error()
     {
         $data = [
             'data' => [],
@@ -188,7 +164,7 @@ abstract class CreateTestCase extends ResourceTestCase
             $data['relationships'] = $relationship;
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -203,7 +179,7 @@ abstract class CreateTestCase extends ResourceTestCase
             ],
         ];
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -214,11 +190,10 @@ abstract class CreateTestCase extends ResourceTestCase
     }
 
     /**
-     * @dataProvider requiredAttributesProvider
-     *
      * @test
+     * @dataProvider requiredAttributesProvider
      */
-    public function missing_required_attribute_causes_validation_error(string $attribute)
+    public function create_missing_required_attribute_causes_validation_error(string $attribute)
     {
         if (empty($attribute)) {
             $this->expectNotToPerformAssertions();
@@ -231,7 +206,7 @@ abstract class CreateTestCase extends ResourceTestCase
 
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $attributes,
             ],
         ];
@@ -240,7 +215,7 @@ abstract class CreateTestCase extends ResourceTestCase
             $data['relationships'] = $relationship;
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([
@@ -251,13 +226,12 @@ abstract class CreateTestCase extends ResourceTestCase
     }
 
     /**
+     * @test
      * @dataProvider optionalAttributesProvider
      *
      * @param mixed $value
-     *
-     * @test
      */
-    public function missing_optional_attributes_set_to_default(string $attribute, $value)
+    public function create_missing_optional_attributes_set_to_default(string $attribute, $value)
     {
         if (empty($attribute)) {
             $this->expectNotToPerformAssertions();
@@ -270,7 +244,7 @@ abstract class CreateTestCase extends ResourceTestCase
 
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $attributes,
             ],
         ];
@@ -283,7 +257,7 @@ abstract class CreateTestCase extends ResourceTestCase
             $value = $attributes[$matches[1]];
         }
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 201);
 
         $response->assertJson([

@@ -3,25 +3,19 @@
 namespace Tests\Feature\API\Packages;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\APIResource\CreateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestCreateEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\PackageController
  */
-final class CreateTest extends CreateTestCase
+final class CreateTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'packages';
+    use TestCreateEndpoints;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected $class = Package::class;
+    protected $resourceType = 'packages';
 
     /**
      * Organization.
@@ -50,13 +44,13 @@ final class CreateTest extends CreateTestCase
 
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $this->getValidAttributes(),
             ],
             'relationships' => $this->getParentRelationship(),
         ];
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 403);
     }
 

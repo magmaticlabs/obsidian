@@ -3,18 +3,18 @@
 namespace Tests\Feature\API\Organizations;
 
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use Tests\Feature\API\APIResource\CreateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestCreateEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\OrganizationController
  */
-final class CreateTest extends CreateTestCase
+final class CreateTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'organizations';
+    use TestCreateEndpoints;
+
+    protected $resourceType = 'organizations';
 
     /**
      * @test
@@ -28,12 +28,12 @@ final class CreateTest extends CreateTestCase
 
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $attributes,
             ],
         ];
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 400);
 
         $response->assertJson([

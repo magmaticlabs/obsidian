@@ -5,9 +5,9 @@ namespace Tests\Feature\API\ResourceTests;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Laravel\Passport\Passport;
 use MagmaticLabs\Obsidian\Domain\Eloquent\User;
-use Tests\Feature\API\ApiTestCase;
+use Tests\Feature\API\APITestCase;
 
-abstract class ResourceTestCase extends ApiTestCase
+abstract class ResourceTestCase extends APITestCase
 {
     /** @var User */
     protected $user;

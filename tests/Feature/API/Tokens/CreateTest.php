@@ -2,22 +2,20 @@
 
 namespace Tests\Feature\API\Tokens;
 
-use Tests\Feature\API\APIResource\CreateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestCreateEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class CreateTest extends CreateTestCase
+final class CreateTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'tokens';
+    use TestCreateEndpoints;
+
+    protected $resourceType = 'tokens';
 
     /**
-     * Test that the creation response has an access token attached to it.
-     *
      * @test
      */
     public function has_access_token()
@@ -26,12 +24,12 @@ final class CreateTest extends CreateTestCase
 
         $data = [
             'data' => [
-                'type'       => $this->type,
+                'type'       => $this->resourceType,
                 'attributes' => $attributes,
             ],
         ];
 
-        $response = $this->post($this->route('create'), $data);
+        $response = $this->post(route("api.{$this->resourceType}.create"), $data);
         $this->validateResponse($response, 201);
 
         $attr = json_decode($response->getContent(), true)['data']['attributes'];
