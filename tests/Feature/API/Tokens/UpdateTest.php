@@ -2,19 +2,20 @@
 
 namespace Tests\Feature\API\Tokens;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\PassportToken;
-use Tests\Feature\API\APIResource\UpdateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestUpdateEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\TokenController
  */
-final class UpdateTest extends UpdateTestCase
+final class UpdateTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'tokens';
+    use TestUpdateEndpoints;
+
+    protected $resourceType = 'tokens';
 
     /**
      * {@inheritdoc}
@@ -59,17 +60,8 @@ final class UpdateTest extends UpdateTestCase
     /**
      * {@inheritdoc}
      */
-    protected function createModel(int $times = 1)
+    protected function createResource(): EloquentModel
     {
-        if (1 === $times) {
-            return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
-        }
-
-        $IDs = [];
-        for ($i = 0; $i < $times; ++$i) {
-            $IDs[] = $this->user->createToken('__TESTING__')->token->id;
-        }
-
-        return PassportToken::query()->whereIn('id', $IDs)->get();
+        return PassportToken::find($this->user->createToken('__TESTING__')->token->id);
     }
 }

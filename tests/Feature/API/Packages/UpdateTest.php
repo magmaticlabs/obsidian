@@ -2,33 +2,108 @@
 
 namespace Tests\Feature\API\Packages;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\APIResource\UpdateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestUpdateEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\PackageController
  */
-final class UpdateTest extends UpdateTestCase
+final class UpdateTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'packages';
+    use TestUpdateEndpoints;
+
+    protected $resourceType = 'packages';
 
     /**
-     * {@inheritdoc}
+     * @test
      */
-    protected $class = Package::class;
+    public function permissions()
+    {
+        /** @var Package $resource */
+        $resource = $this->createResource();
+        $resource->repository->organization->removeMember($this->user);
+
+        $data = [
+            'data' => [
+                'type' => 'packages',
+                'id'   => $resource->id,
+            ],
+        ];
+
+        $response = $this->patch(route("api.{$this->resourceType}.update", $resource->id), $data);
+        $this->validateResponse($response, 403);
+    }
 
     /**
-     * Organization.
-     *
-     * @var Organization
+     * @test
      */
-    private $organization;
+    public function name_duplicate_causes_error()
+    {
+        /** @var Package $resource */
+        $resource = $this->createResource();
+
+        $this->factory(Package::class)->create([
+            'name'          => 'duplicate',
+            'repository_id' => $resource->repository->id,
+        ]);
+
+        $data = [
+            'data' => [
+                'type'       => 'packages',
+                'id'         => $resource->id,
+                'attributes' => [
+                    'name' => 'duplicate',
+                ],
+            ],
+        ];
+
+        $response = $this->patch(route("api.{$this->resourceType}.update", $resource->id), $data);
+        $this->validateResponse($response, 400);
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/name']],
+            ],
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function name_duplicate_another_repo_success()
+    {
+        /** @var Package $resource */
+        $resource = $this->createResource();
+
+        $repository = $this->factory(Repository::class)->create([
+            'organization_id' => $resource->repository->organization->id,
+        ]);
+
+        $this->factory(Package::class)->create([
+            'name'          => 'duplicate',
+            'repository_id' => $repository->id,
+        ]);
+
+        $data = [
+            'data' => [
+                'type'       => 'packages',
+                'id'         => $resource->id,
+                'attributes' => [
+                    'name' => 'duplicate',
+                ],
+            ],
+        ];
+
+        $response = $this->patch(route("api.{$this->resourceType}.update", $resource->id), $data);
+        $this->validateResponse($response, 200);
+    }
+
+    // --
 
     /**
      * {@inheritdoc}
@@ -119,103 +194,19 @@ final class UpdateTest extends UpdateTestCase
         ];
     }
 
-    // --
-
-    /**
-     * @test
-     */
-    public function permissions()
-    {
-        $this->organization->removeMember($this->user);
-
-        $data = [
-            'data' => [
-                'type' => 'packages',
-                'id'   => $this->model->id,
-            ],
-        ];
-
-        $response = $this->patch($this->route('update', $this->model->id), $data);
-        $this->validateResponse($response, 403);
-    }
-
-    /**
-     * @test
-     */
-    public function name_duplicate_causes_error()
-    {
-        $this->factory(Package::class)->create([
-            'name'          => 'duplicate',
-            'repository_id' => $this->model->repository->id,
-        ]);
-
-        $data = [
-            'data' => [
-                'type'       => 'packages',
-                'id'         => $this->model->id,
-                'attributes' => [
-                    'name' => 'duplicate',
-                ],
-            ],
-        ];
-
-        $response = $this->patch($this->route('update', $this->model->id), $data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @test
-     */
-    public function name_duplicate_another_repo_success()
-    {
-        $repository = $this->factory(Repository::class)->create([
-            'organization_id' => $this->organization->id,
-        ]);
-
-        $this->factory(Package::class)->create([
-            'name'          => 'duplicate',
-            'repository_id' => $repository->id,
-        ]);
-
-        $data = [
-            'data' => [
-                'type'       => 'packages',
-                'id'         => $this->model->id,
-                'attributes' => [
-                    'name' => 'duplicate',
-                ],
-            ],
-        ];
-
-        $response = $this->patch($this->route('update', $this->model->id), $data);
-        $this->validateResponse($response, 200);
-    }
-
     /**
      * {@inheritdoc}
      */
-    protected function createModel(int $times = 1)
+    protected function createResource(): EloquentModel
     {
-        $this->organization = $this->factory(Organization::class)->create();
-        $this->organization->addMember($this->user);
+        $organization = $this->factory(Organization::class)->create();
+        $organization->addMember($this->user);
 
         $repository = $this->factory(Repository::class)->create([
-            'organization_id' => $this->organization->id,
+            'organization_id' => $organization->id,
         ]);
 
-        if (1 === $times) {
-            return $this->factory($this->class)->create([
-                'repository_id' => $repository->id,
-            ]);
-        }
-
-        return $this->factory($this->class)->times($times)->create([
+        return $this->factory(Package::class)->create([
             'repository_id' => $repository->id,
         ]);
     }

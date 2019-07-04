@@ -2,37 +2,36 @@
 
 namespace Tests\Feature\API\Builds;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Package;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Repository;
-use Tests\Feature\API\APIResource\UpdateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\BuildController
  */
-final class UpdateTest extends UpdateTestCase
+final class UpdateTest extends ResourceTestCase
 {
+    protected $resourceType = 'builds';
+
     /**
-     * {@inheritdoc}
+     * @test
      */
-    protected $type = 'builds';
+    public function update_not_allowed()
+    {
+        $resource = $this->createResource();
+
+        $response = $this->patch(route("api.{$this->resourceType}.update", $resource->id));
+        $this->validateResponse($response, 403);
+    }
 
     /**
      * {@inheritdoc}
      */
-    protected $class = Build::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $not_allowed = true;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function createModel(int $times = 1)
+    protected function createResource(): EloquentModel
     {
         /** @var Organization $organization */
         $organization = $this->factory(Organization::class)->create();
@@ -46,13 +45,7 @@ final class UpdateTest extends UpdateTestCase
             'repository_id' => $repository->id,
         ]);
 
-        if (1 === $times) {
-            return $this->factory($this->class)->create([
-                'package_id' => $package->id,
-            ]);
-        }
-
-        return $this->factory($this->class)->times($times)->create([
+        return $this->factory(Build::class)->create([
             'package_id' => $package->id,
         ]);
     }

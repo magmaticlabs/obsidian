@@ -2,38 +2,73 @@
 
 namespace Tests\Feature\API\Organizations;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Organization;
-use Tests\Feature\API\APIResource\UpdateTestCase;
+use Tests\Feature\API\ResourceTests\ResourceTestCase;
+use Tests\Feature\API\ResourceTests\TestUpdateEndpoints;
 
 /**
  * @internal
  * @covers \MagmaticLabs\Obsidian\Http\Controllers\API\OrganizationController
  */
-final class UpdateTest extends UpdateTestCase
+final class UpdateTest extends ResourceTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'organizations';
+    use TestUpdateEndpoints;
+
+    protected $resourceType = 'organizations';
 
     /**
-     * {@inheritdoc}
+     * @test
      */
-    protected $class = Organization::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
+    public function name_duplicate_causes_error()
     {
-        parent::setUp();
+        $resource = $this->createResource();
 
-        /** @var Organization $organization */
-        $organization = $this->model;
+        $this->factory(Organization::class)->create(['name' => 'duplicate']);
 
-        $organization->addMember($this->user);
-        $organization->promoteMember($this->user);
+        $attributes = $this->getValidAttributes();
+        $attributes['name'] = 'duplicate';
+
+        $data = [
+            'data' => [
+                'type'       => $this->resourceType,
+                'id'         => $resource->id,
+                'attributes' => $attributes,
+            ],
+        ];
+
+        $response = $this->patch(route("api.{$this->resourceType}.update", $resource->id), $data);
+        $this->validateResponse($response, 400);
+
+        $response->assertJson([
+            'errors' => [
+                ['source' => ['pointer' => '/data/attributes/name']],
+            ],
+        ]);
     }
+
+    /**
+     * @test
+     */
+    public function update_permissions()
+    {
+        /** @var Organization $resource */
+        $resource = $this->createResource();
+        $resource->demoteMember($this->user);
+
+        $data = [
+            'data' => [
+                'type'       => $this->resourceType,
+                'id'         => $resource->id,
+                'attributes' => $this->getValidAttributes(),
+            ],
+        ];
+
+        $response = $this->patch(route("api.{$this->resourceType}.update", $resource->id), $data);
+        $this->validateResponse($response, 403);
+    }
+
+    // --
 
     /**
      * {@inheritdoc}
@@ -88,52 +123,13 @@ final class UpdateTest extends UpdateTestCase
         ];
     }
 
-    /**
-     * @test
-     */
-    public function name_duplicate_causes_error()
-    {
-        $this->factory(Organization::class)->create(['name' => 'duplicate']);
-
-        $attributes = $this->getValidAttributes();
-        $attributes['name'] = 'duplicate';
-
-        $data = [
-            'data' => [
-                'type'       => $this->type,
-                'id'         => $this->model->id,
-                'attributes' => $attributes,
-            ],
-        ];
-
-        $response = $this->patch($this->route('update', $this->model->id), $data);
-        $this->validateResponse($response, 400);
-
-        $response->assertJson([
-            'errors' => [
-                ['source' => ['pointer' => '/data/attributes/name']],
-            ],
-        ]);
-    }
-
-    /**
-     * @test
-     */
-    public function update_permissions()
+    protected function createResource(): EloquentModel
     {
         /** @var Organization $organization */
-        $organization = $this->model;
-        $organization->demoteMember($this->user);
+        $organization = $this->factory(Organization::class)->create();
+        $organization->addMember($this->user);
+        $organization->promoteMember($this->user);
 
-        $data = [
-            'data' => [
-                'type'       => $this->type,
-                'id'         => $this->model->id,
-                'attributes' => $this->getValidAttributes(),
-            ],
-        ];
-
-        $response = $this->patch($this->route('update', $this->model->id), $data);
-        $this->validateResponse($response, 403);
+        return $organization;
     }
 }
