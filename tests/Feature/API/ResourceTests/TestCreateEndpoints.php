@@ -7,14 +7,14 @@ namespace Tests\Feature\API\ResourceTests;
  */
 trait TestCreateEndpoints
 {
-    public function validAttributesProvider(): array
+    public function validCreateAttributesProvider(): array
     {
         return [
             'null' => [[]],
         ];
     }
 
-    public function invalidAttributesProvider(): array
+    public function invalidCreateAttributesProvider(): array
     {
         return [
             'null' => [[], ''],
@@ -31,14 +31,9 @@ trait TestCreateEndpoints
         return [['', '']];
     }
 
-    public function getParentRelationship(): array
-    {
-        return [];
-    }
-
     /**
      * @test
-     * @dataProvider validAttributesProvider
+     * @dataProvider validCreateAttributesProvider
      */
     public function create_succeeds_with_valid_attributes(array $attributes)
     {
@@ -74,7 +69,7 @@ trait TestCreateEndpoints
         $data = [
             'data' => [
                 'type'       => $this->resourceType,
-                'attributes' => $this->getValidAttributes(),
+                'attributes' => $this->getValidCreateAttributes(),
             ],
         ];
 
@@ -94,7 +89,7 @@ trait TestCreateEndpoints
 
     /**
      * @test
-     * @dataProvider invalidAttributesProvider
+     * @dataProvider invalidCreateAttributesProvider
      */
     public function create_fails_with_invalid_attributes(array $attributes, string $invalid)
     {
@@ -201,7 +196,7 @@ trait TestCreateEndpoints
             return;
         }
 
-        $attributes = $this->getValidAttributes();
+        $attributes = $this->getValidCreateAttributes();
         unset($attributes[$attribute]);
 
         $data = [
@@ -239,7 +234,7 @@ trait TestCreateEndpoints
             return;
         }
 
-        $attributes = $this->getValidAttributes();
+        $attributes = $this->getValidCreateAttributes();
         unset($attributes[$attribute]);
 
         $data = [
@@ -274,11 +269,16 @@ trait TestCreateEndpoints
      *
      * @return array
      */
-    protected function getValidAttributes(): array
+    protected function getValidCreateAttributes(): array
     {
-        $provider = $this->validAttributesProvider();
+        $provider = $this->validCreateAttributesProvider();
         $values = array_values($provider);
 
         return $values[0][0] ?? null;
+    }
+
+    protected function getParentRelationship(): array
+    {
+        return [];
     }
 }

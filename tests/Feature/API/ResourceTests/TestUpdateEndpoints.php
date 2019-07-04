@@ -7,14 +7,14 @@ namespace Tests\Feature\API\ResourceTests;
  */
 trait TestUpdateEndpoints
 {
-    public function validAttributesProvider(): array
+    public function validUpdateAttributesProvider(): array
     {
         return [
             'null' => [[]],
         ];
     }
 
-    public function invalidAttributesProvider(): array
+    public function invalidUpdateAttributesProvider(): array
     {
         return [
             'null' => [[], ''],
@@ -23,7 +23,7 @@ trait TestUpdateEndpoints
 
     /**
      * @test
-     * @dataProvider validAttributesProvider
+     * @dataProvider validUpdateAttributesProvider
      */
     public function update_succeeds_with_valid_attributes(array $attributes)
     {
@@ -51,7 +51,7 @@ trait TestUpdateEndpoints
 
     /**
      * @test
-     * @dataProvider invalidAttributesProvider
+     * @dataProvider invalidUpdateAttributesProvider
      */
     public function update_fails_with_invalid_attributes(array $attributes, string $invalid)
     {
@@ -191,7 +191,7 @@ trait TestUpdateEndpoints
             'data' => [
                 'type'       => $this->resourceType,
                 'id'         => $resource->id,
-                'attributes' => $this->getValidAttributes(),
+                'attributes' => $this->getValidUpdateAttributes(),
             ],
             'relationships' => [],
         ];
@@ -217,7 +217,7 @@ trait TestUpdateEndpoints
             'data' => [
                 'type'       => $this->resourceType,
                 'id'         => $resource->id,
-                'attributes' => $this->getValidAttributes(),
+                'attributes' => $this->getValidUpdateAttributes(),
             ],
         ];
 
@@ -230,9 +230,9 @@ trait TestUpdateEndpoints
      *
      * @return array
      */
-    protected function getValidAttributes(): array
+    protected function getValidUpdateAttributes(): array
     {
-        $provider = $this->validAttributesProvider();
+        $provider = $this->validUpdateAttributesProvider();
         $values = array_values($provider);
 
         return $values[0][0] ?? null;
