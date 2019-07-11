@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 GID=$(id -g)
 export USER && export UID && export GID
 
@@ -22,7 +24,6 @@ root() {
 }
 
 up() {
-  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
   if [ ! -f ${DIR}/nginx/server.crt ]; then
     echo -n "Generating SSL cert... "
     ${DIR}/gencrt.sh > /dev/null
@@ -44,6 +45,7 @@ logs() {
   docker-compose -p obsidian logs -f
 }
 
+pushd "${DIR}" > /dev/null 2>&1
 case $1 in
   build) build;;
   shell) shell;;
@@ -54,3 +56,4 @@ case $1 in
   logs) logs;;
   *) usage;;
 esac
+popd > /dev/null 2>&1
