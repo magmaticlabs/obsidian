@@ -5,6 +5,7 @@ namespace MagmaticLabs\Obsidian\Domain\CommandHandlers;
 use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\Support\Command;
 use MagmaticLabs\Obsidian\Domain\Support\CommandHandler;
+use MagmaticLabs\Obsidian\Jobs\ProcessBuild;
 
 final class BuildHandler extends CommandHandler
 {
@@ -17,6 +18,9 @@ final class BuildHandler extends CommandHandler
      */
     public function handleCreate(Command $command)
     {
-        Build::create($command->getData());
+        /** @var Build $build */
+        $build = Build::create($command->getData());
+
+        ProcessBuild::dispatch($build)->onConnection('database');
     }
 }
