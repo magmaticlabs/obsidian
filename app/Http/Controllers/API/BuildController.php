@@ -122,6 +122,26 @@ final class BuildController extends ResourceController
     // --
 
     /**
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function getLog(string $id): Response
+    {
+        $this->authorize('view_log', $build = Build::findOrFail($id));
+
+        $path = storage_path(sprintf('app/builds/logs/%s.log', $build->id));
+
+        if (!file_exists($path)) {
+            abort(404, 'Log not found');
+        }
+
+        return new Response(file_get_contents($path), 200, [
+            'Content-type' => 'text/plain',
+        ]);
+    }
+
+    // --
+
+    /**
      * Package relationship.
      *
      * @param \Illuminate\Http\Request $request

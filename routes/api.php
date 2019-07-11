@@ -74,4 +74,6 @@ Route::middleware(['auth:api'])->group(function() {
             'package',
         ]
     ]);
+
+    Route::name('builds.show.log')->get('/builds/{id}/log', "BuildController@getLog");
 });

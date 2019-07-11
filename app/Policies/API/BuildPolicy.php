@@ -84,4 +84,22 @@ final class BuildPolicy
     {
         return true; // All users can view the parent package
     }
+
+    // --
+
+    /**
+     * Determine whether the user can view the build log.
+     *
+     * @param User  $user
+     * @param Model $model
+     *
+     * @return bool
+     */
+    public function view_log(User $user, Model $model): bool
+    {
+        /** Build $build */
+        $build = $model;
+
+        return $build->package->repository->organization->hasMember($user);
+    }
 }
