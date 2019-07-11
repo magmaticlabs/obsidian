@@ -6,6 +6,7 @@ RUN apt-get update \
     ssh \
     curl \
     git \
+    zip \
     unzip \
     jq \
     libzip-dev \

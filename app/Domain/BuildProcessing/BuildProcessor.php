@@ -196,6 +196,7 @@ final class BuildProcessor
             $storage->path($workingdir),
             $storage->path($stagingdir),
             $storage->path($archivedir),
+            $build->package->name,
         ], $this->output);
     }
 

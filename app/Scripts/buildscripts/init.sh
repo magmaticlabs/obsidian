@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SLUG=${1}
+
 /scripts/software_versions.sh
 
 set -e
@@ -14,5 +16,5 @@ echo "--------------------------------"
 ls -la
 
 /scripts/staging.sh
-/scripts/archive.sh
+/scripts/archive.sh ${SLUG}
 /scripts/clean.sh

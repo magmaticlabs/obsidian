@@ -6,8 +6,9 @@ ROOTPATH="$(realpath ${DIR}/../..)"
 WORKINGDIR=${1}
 STAGINGDIR=${2}
 ARCHIVEDIR=${3}
-if [ -z "${WORKINGDIR}" ] || [ -z "${STAGINGDIR}" ] || [ -z "${ARCHIVEDIR}" ]; then
-    echo "Usage: ${0} <working_dir> <staging_dir> <archive_dir>"
+SLUG=${4}
+if [ -z "${WORKINGDIR}" ] || [ -z "${STAGINGDIR}" ] || [ -z "${ARCHIVEDIR}" ] || [ -z "${SLUG}" ]; then
+    echo "Usage: ${0} <working_dir> <staging_dir> <archive_dir> <slug>"
     exit 0
 fi
 
@@ -29,4 +30,4 @@ docker run \
   -v "${ROOTPATH}/app/Scripts/buildscripts":/scripts: \
   -u "builduser" \
   -w /build buildprocessor \
-  /scripts/init.sh
+  /scripts/init.sh ${SLUG}
