@@ -9,6 +9,9 @@ use MagmaticLabs\Obsidian\Domain\Eloquent\Build;
 use MagmaticLabs\Obsidian\Domain\ProcessExecutor\ProcessExecutor;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class ProcessBuild extends Command
 {
@@ -56,7 +59,59 @@ class ProcessBuild extends Command
             return 1;
         }
 
-        $output = $this->getOutput()->isVerbose() ? new ConsoleOutput() : new NullOutput();
+        $output = new class() extends Output {
+            /**
+             * @var OutputInterface
+             */
+            private $consoleOutput;
+
+            /**
+             * @var OutputInterface
+             */
+            private $fileOutput;
+
+            public function setConsoleOutput(OutputInterface $output)
+            {
+                $this->consoleOutput = $output;
+            }
+
+            public function setFileOutput(OutputInterface $output)
+            {
+                $this->fileOutput = $output;
+            }
+
+            /**
+             * {@inheritdoc}
+             */
+            protected function doWrite($message, $newline)
+            {
+                if (null !== $this->consoleOutput) {
+                    if ($newline) {
+                        $this->consoleOutput->writeln($message);
+                    } else {
+                        $this->consoleOutput->write($message);
+                    }
+                }
+
+                if (null !== $this->fileOutput) {
+                    if ($newline) {
+                        $this->fileOutput->writeln($message);
+                    } else {
+                        $this->fileOutput->write($message);
+                    }
+                }
+            }
+        };
+
+        $logDir = 'builds/logs';
+        $logPath = storage_path(sprintf('app/%s/%s.log', $logDir, $build->id));
+
+        if (!$storage->exists($logDir)) {
+            $storage->makeDirectory($logDir);
+        }
+
+        $output->setConsoleOutput($this->getOutput()->isVerbose() ? new ConsoleOutput() : new NullOutput());
+        $output->setFileOutput(new StreamOutput(fopen($logPath, 'w', false)));
 
         $processor = new BuildProcessor($executor, $storage, $output);
 

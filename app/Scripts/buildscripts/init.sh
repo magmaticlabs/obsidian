@@ -7,14 +7,13 @@ SLUG=${1}
 set -e
 
 echo "--------------------------------"
-echo "     Starting Build Process     "
-echo "--------------------------------"
 
 /scripts/composer.sh
 /scripts/npm.sh
 
-ls -la
-
 /scripts/staging.sh
 /scripts/archive.sh ${SLUG}
 /scripts/clean.sh
+
+echo "--------------------------------"
+echo -n "Build Complete: "; date
