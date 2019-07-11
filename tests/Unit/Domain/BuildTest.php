@@ -147,7 +147,9 @@ final class BuildTest extends TestCase
         );
 
         $this->build->status = 'ready';
-        $this->storage->makeDirectory($workingdir = $processor->getWorkingDir($this->build));
+        $this->storage->makeDirectory($processor->getWorkingDir($this->build));
+        $this->storage->makeDirectory($processor->getStagingDir($this->build));
+        $this->storage->makeDirectory($processor->getArchiveDir($this->build));
 
         $processor->process($this->build);
 
