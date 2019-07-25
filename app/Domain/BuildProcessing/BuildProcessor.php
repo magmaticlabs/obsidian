@@ -223,6 +223,18 @@ final class BuildProcessor
      */
     public function success(Build $build): void
     {
+        try {
+            $header = $this->storage->get($this->getArchiveDir($build) . '/header.json');
+            $header = json_decode($header, true);
+            $version = $header['Version'] ?? $header['version'] ?? null;
+        } catch (\Exception $ex) {
+            $version = null;
+        }
+
+        $build->update([
+            'version' => $version,
+        ]);
+
         $this->complete($build, 'success');
     }
 

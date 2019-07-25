@@ -18,6 +18,7 @@ class CreateBuildsTable extends Migration
             $table->uuid('id')->primary();
             $table->uuid('package_id')->index();
             $table->string('ref', 40);
+            $table->string('version', 40)->nullable();
             $table->string('commit', 40)->nullable();
             $table->enum('status', ['pending', 'ready', 'running', 'success', 'failure'])->default('pending');
             $table->dateTime('start_time')->nullable();
