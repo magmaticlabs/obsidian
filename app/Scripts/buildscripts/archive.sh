@@ -15,7 +15,7 @@ echo -e "\n}" >> /archive/checksums.json;
 echo "Done!"
 
 echo -n "Extracting package header data... "
-_header_file=$(grep -lZsiE "(Plugin|Theme) Name:" ./* | xargs -0 grep -lsi "Version:" | head -n 1)
+_header_file=$(grep -lZsiE "(Plugin|Theme) Name:" /staging/* | xargs -0 grep -lsi "Version:" | head -n 1)
 if [[ -z "${_header_file}" ]]; then
     echo "Unable to locate file containing package header!"
     exit 1

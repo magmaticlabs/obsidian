@@ -15,3 +15,5 @@ else
     mv /build/* /staging
     echo "Done!"
 fi
+
+ls -la /staging/
