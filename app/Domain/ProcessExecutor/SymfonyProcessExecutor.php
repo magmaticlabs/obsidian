@@ -17,6 +17,7 @@ final class SymfonyProcessExecutor extends ProcessExecutor
         $return = '';
 
         $process = new Process($input, $cwd);
+        $process->setTimeout(null);
         $process->mustRun(function ($type, $buffer) use ($output, &$return) {
             $output->write($buffer);
             $return .= $buffer;
