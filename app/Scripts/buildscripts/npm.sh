@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -f package.json ]; then
   echo "Running npm install..."
   npm install --quiet --progress=false > /dev/null

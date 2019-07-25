@@ -4,7 +4,21 @@ SLUG=${1}
 
 /scripts/software_versions.sh
 
-set -e
+function _err() {
+    echo '[ERROR] An error occurred during the build process!'
+
+    /scripts/clean.sh
+    echo -n "Cleaning up archive directory... "
+    rm -Rf /archive/*
+    echo "Done!"
+
+    echo "--------------------------------"
+    echo -n "Build Failed: "; date
+    exit 1
+}
+
+set -eE
+trap _err ERR
 
 echo "--------------------------------"
 
